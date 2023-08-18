@@ -16,3 +16,4 @@
 `npm start`
 `npm i react-router-dom`
 `pip install django-cors-headers`
+`python manage.py createsuperuser`
