@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+
+{% block content %}
+    <div>
+        <h1>Edit item</h1>
+    </div>
+    {% if return_from_edit %}
+        <div>
+            <a href="{% url 'shoppinglist:update' id %}">Return</a>
+        </div>
+    {% elif return_from_create %}
+        <div>
+            <a href="{% url 'shoppinglist:update' parent_id %}">Return</a>
+        </div>
+    {% endif %}
+
+
+    <form action="." method="POST">
+        {% csrf_token %}
+        <hr>
+        {{ form.as_p }}
+
+
+        <div >Loading...</div>
+        <button >Save</button>
+        {% if message %}
+        <p>{{ message }}</p>
+        {% endif %}
+    </form>
+
+{% endblock content %}

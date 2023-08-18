@@ -1,0 +1,55 @@
+<div>
+    <div>
+        {% if item.completed %}
+            <div>
+                <a href="#">uncomplete</a>
+                <div>
+                    <div>
+                        {{object.category}}
+                    </div>
+                    <div>
+                        <div>
+                            <s><a href="{{ object.get_item_edit_url }}">{{object.product}}</a></s>
+                        </div>
+                        <div>
+                            <i><a>note: {{object.note}}</a></i>
+                        </div>
+                    </div>
+                    <div>
+                        quantity: {{object.quantity}}
+                    </div>
+                    <div>
+                        unit: {{object.unit}}
+                    </div>
+                </div>
+                <a href="{{ object.get_delete_url }}">delete</a>
+                <hr>
+            </div>
+        {% else %}
+            <div>
+                <a href="#">complete</a>
+                <div>
+                    <div>
+                        {{object}}
+                    </div>
+                    <div>
+                        <div>
+                            <a href="{{ object.get_item_edit_url }}">{{object.product}}</a>
+                        </div>
+                        <div>
+                            <i><a>note: {{object.note}}</a></i>
+                        </div>
+                    </div>
+                    <div>
+                        quantity: {{object.quantity}}
+                    </div>
+                    <div>
+                        unit: {{object.unit}}
+                    </div>
+                </div>
+                <a href="#">delete</a>
+                <hr>
+            </div>
+        {% endif %}
+    </div>
+</div>
