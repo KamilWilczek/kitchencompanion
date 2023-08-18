@@ -60,14 +60,14 @@ class ShoppingList(models.Model):
         return self.name
 
     def get_absolute_url(self):
-        return reverse("shopping_list:list")
+        return reverse("shoppinglist:list")
 
     def get_items_children(self):
         return self.item_set.all()
 
 
 class Item(models.Model):
-    shopping_list = models.ForeignKey(ShoppingList, on_delete=models.CASCADE)
+    shoppinglist = models.ForeignKey(ShoppingList, on_delete=models.CASCADE)
     product = models.CharField(max_length=200)
     quantity = models.IntegerField(null=True, blank=True)
     unit = models.CharField(
@@ -86,14 +86,14 @@ class Item(models.Model):
         ordering = ["completed"]
 
     def get_absolute_url(self):
-        return reverse("shopping_list:list")
+        return reverse("shoppinglist:list")
 
-    def get_shopping_list_content(self):
-        return reverse("shopping_list:create-update")
+    def get_shoppinglist_content(self):
+        return reverse("shoppinglist:create-update")
 
     def get_item_edit_url(self):
         kwargs = {
-            "parent_id": self.shopping_list.id,
+            "parent_id": self.shoppinglist.id,
             "id": self.id,
         }
-        return reverse("shopping_list:item-update", kwargs=kwargs)
+        return reverse("shoppinglist:item-update", kwargs=kwargs)
