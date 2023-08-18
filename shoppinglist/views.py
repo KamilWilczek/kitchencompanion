@@ -1,5 +1,8 @@
 from django.urls import reverse
 from django.shortcuts import redirect, render, get_object_or_404
+from rest_framework.response import Response
+from rest_framework.decorators import api_view
+from .serializers import ShoppingListSerializer
 
 from .models import Item, ShoppingList
 
@@ -7,11 +10,16 @@ from .models import Item, ShoppingList
 from .forms import ItemForm, ShoppingListForm
 
 
-# List of shopping lists
+# # List of shopping lists
+# def shoppinglist_list_view(request):
+#     qs = ShoppingList.objects.all
+#     context = {"shoppinglists": qs}
+#     return render(request, "shoppinglist/list.html", context)
+@api_view(["GET"])
 def shoppinglist_list_view(request):
-    qs = ShoppingList.objects.all
-    context = {"shoppinglists": qs}
-    return render(request, "shoppinglist/list.html", context)
+    qs = ShoppingList.objects.all()
+    serialized_qs = ShoppingListSerializer(qs, many=True)
+    return Response(serialized_qs.data)
 
 
 # Creating shopping list
