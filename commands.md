@@ -15,3 +15,4 @@
 `npx create-react-app frontend`
 `npm start`
 `npm i react-router-dom`
+`pip install django-cors-headers`
