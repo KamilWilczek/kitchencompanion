@@ -1,11 +1,14 @@
 `pip install virtualenv`
-`virtualenv tpavenv`
+`virtualenv kc_venv`
 <!-- Windows -->
-`tpavenv\scripts\activate`
+`kc_venv\scripts\activate`
 <!-- Linux/Mac -->
-`source tpavenv/bin/activate`
+`source kc_venv/bin/activate`
 `pip install django`
 `django-admin startproject kitchencompanion`
 `cd kitchencompanion`
 `python manage.py runserver`
 `python manage.py startapp shoppinglist`
+`python manage.py makemigrations`
+`python manage.py migrate`
+`pip install djangorestframework`

@@ -140,9 +140,7 @@ venv/
 ENV/
 env.bak/
 venv.bak/
-pntrapp
-pntrvenv
-pntryenv
+kc_venv
 # Spyder project settings
 .spyderproject
 .spyproject
