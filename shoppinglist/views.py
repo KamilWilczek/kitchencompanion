@@ -17,7 +17,7 @@ from .forms import ItemForm, ShoppingListForm
 def shoppinglist_list_view(request):
     qs = ShoppingList.objects.annotate(items_count=Count("item"))
     serialized_qs = ShoppingListSerializer(qs, many=True)
-    return Response(serialized_qs.data)
+    return Response(serialized_qs.data, status=status.HTTP_200_OK)
 
 
 # Creating shopping list
