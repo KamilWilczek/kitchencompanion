@@ -14,13 +14,13 @@ const ShoppingListPage = () => {
 
     let getNote = async () => {
         if (id === 'new') return
-        let response = await fetch(`/api/notes/${id}`)
+        let response = await fetch(`http://127.0.0.1:8000/shoppinglist/${id}`)
         let data = await response.json()
         setNote(data)
     }
 
     let updateNote = async () => {
-        await fetch(`/api/notes/${id}/update/`, {
+        await fetch(`http://127.0.0.1:8000/shoppinglist/${id}/edit/`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'
@@ -30,7 +30,7 @@ const ShoppingListPage = () => {
     }
 
     let deleteNote = async () => {
-        await fetch(`/api/notes/${id}/delete/`,{
+        await fetch(`http://127.0.0.1:8000/shoppinglist/${id}/delete/`,{
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json'
@@ -40,7 +40,7 @@ const ShoppingListPage = () => {
     }
 
     let createNote = async () => {
-        await fetch(`/api/notes/create/`, {
+        await fetch(`http://127.0.0.1:8000/shoppinglist/create-update/`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
