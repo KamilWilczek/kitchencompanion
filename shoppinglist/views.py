@@ -1,5 +1,6 @@
 from django.urls import reverse
 from django.shortcuts import redirect, render, get_object_or_404
+from django.db.models import Count
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from .serializers import ShoppingListSerializer
@@ -17,7 +18,7 @@ from .forms import ItemForm, ShoppingListForm
 #     return render(request, "shoppinglist/list.html", context)
 @api_view(["GET"])
 def shoppinglist_list_view(request):
-    qs = ShoppingList.objects.all()
+    qs = ShoppingList.objects.annotate(items_count=Count("item"))
     serialized_qs = ShoppingListSerializer(qs, many=True)
     return Response(serialized_qs.data)
 
