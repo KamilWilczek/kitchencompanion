@@ -14,7 +14,7 @@ let getName = (shoppingList) => {
 
 const ListItem = ({shoppingList}) => {
   return (
-    <Link to={`/note/${shoppingList.id}`}>
+    <Link to={`shoppinglist/${shoppingList.id}/edit/`}>
       <div className='notes-list-item'>
         <h3>{getName(shoppingList)}</h3>
         <p><span>{getDate(shoppingList)}</span></p>

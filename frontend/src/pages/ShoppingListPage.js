@@ -5,31 +5,36 @@ import { ReactComponent as ArrowLeft } from '../assets/arrow-left.svg'
 
 const ShoppingListPage = () => {
     let {id} = useParams();
-    let [note, setNote] = useState(null)
+    let [shoppingList, setshoppingList] = useState(null)
     const navigate = useNavigate();
 
     useEffect(() => {
-        getNote()
-    }, [id])
+        if (id === 'new') {
+            // Initialize shoppingList for new list creation
+            setshoppingList({ name: "", description: "" });
+        } else {
+            getShoppingList();
+        }
+    }, [id]);
 
-    let getNote = async () => {
+    let getShoppingList = async () => {
         if (id === 'new') return
-        let response = await fetch(`http://127.0.0.1:8000/shoppinglist/${id}`)
+        let response = await fetch(`http://127.0.0.1:8000/shoppinglist/${id}/edit/`)
         let data = await response.json()
-        setNote(data)
+        setshoppingList(data)
     }
 
-    let updateNote = async () => {
+    let updateShoppingList = async () => {
         await fetch(`http://127.0.0.1:8000/shoppinglist/${id}/edit/`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify(note)
+            body: JSON.stringify(shoppingList)
         })
     }
 
-    let deleteNote = async () => {
+    let deleteShoppingList = async () => {
         await fetch(`http://127.0.0.1:8000/shoppinglist/${id}/delete/`,{
             method: 'DELETE',
             headers: {
@@ -39,44 +44,56 @@ const ShoppingListPage = () => {
         navigate('/')
     }
 
-    let createNote = async () => {
+    let createShoppingList = async () => {
         await fetch(`http://127.0.0.1:8000/shoppinglist/create-update/`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({...note, 'updated': new Date() })
+            body: JSON.stringify({...shoppingList, 'updated': new Date() })
         })
     }
 
     let handleSubmit = () => {
-        console.log('NOTE:', note)
-        if (id !== 'new' && note.body === ''){
-            deleteNote()
-        } else if (id !== 'new'){
-            updateNote()
-        } else if (id === 'new' && note.body !== null){
-            createNote()
+        if (id === 'new') {
+            createShoppingList();
+        } else if (shoppingList.name.trim() === '') { // assuming you want to delete the list if name is empty
+            deleteShoppingList();
+        } else {
+            updateShoppingList();
         }
-        navigate('/')
+        navigate('/');
     }
 
-    let handleChange = (value) => {
-        setNote(note => ({...note, body:value}))
+    let handleChange = (key, value) => {
+        setshoppingList(prevList => ({ ...prevList, [key]: value }));
     }
 
-  return (
-    <div className='note'>
-        <div className='note-header'>
-            <h3>
-                <ArrowLeft onClick={handleSubmit}/>
-            </h3>
-            {id !== 'new' ? (<button onClick={deleteNote}>Delete</button>) : (<button onClick={handleSubmit}>Done</button>)}
-            
+    return (
+        <div className='note'>
+            <div className='note-header'>
+                <h3>
+                    <ArrowLeft onClick={handleSubmit}/>
+                </h3>
+                {id !== 'new' ? (<button onClick={deleteShoppingList}>Delete</button>) : (<button onClick={handleSubmit}>Done</button>)} 
+            </div>
+            {/* Input for 'name' */}
+            <input 
+                type="text"
+                placeholder="Shopping List Name"
+                onChange={(e) => handleChange('name', e.target.value)} 
+                value={shoppingList?.name}
+            />
+    
+            {/* Input for 'description' */}
+            <input 
+                type="text"
+                placeholder="Description"
+                onChange={(e) => handleChange('description', e.target.value)} 
+                value={shoppingList?.description}
+            />
         </div>
-        <textarea onChange={(e) => {handleChange(e.target.value)}} value={note?.body}></textarea>
-    </div>
-  )
+    )
 }
 
 export default ShoppingListPage

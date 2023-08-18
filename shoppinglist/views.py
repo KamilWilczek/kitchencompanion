@@ -3,6 +3,7 @@ from django.shortcuts import redirect, render, get_object_or_404
 from django.db.models import Count
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
+from rest_framework import status
 from .serializers import ShoppingListSerializer
 
 from .models import Item, ShoppingList
@@ -12,10 +13,6 @@ from .forms import ItemForm, ShoppingListForm
 
 
 # # List of shopping lists
-# def shoppinglist_list_view(request):
-#     qs = ShoppingList.objects.all
-#     context = {"shoppinglists": qs}
-#     return render(request, "shoppinglist/list.html", context)
 @api_view(["GET"])
 def shoppinglist_list_view(request):
     qs = ShoppingList.objects.annotate(items_count=Count("item"))
@@ -24,42 +21,49 @@ def shoppinglist_list_view(request):
 
 
 # Creating shopping list
+@api_view(["POST"])
 def shoppinglist_create_view(request):
-    form = ShoppingListForm(request.POST or None)
-    context = {"form": form}
-    if form.is_valid():
-        obj = form.save()
-        obj.save()
-        return redirect(obj.get_absolute_url())
-    return render(request, "shoppinglist/create-update.html", context)
+    if request.method == "POST":
+        serializer = ShoppingListSerializer(data=request.data)
+
+        if serializer.is_valid():
+            obj = serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 # Editing of shopping list
+@api_view(["GET", "PUT"])
 def shoppinglist_update_view(request, id=None):
     obj = get_object_or_404(ShoppingList, id=id)
-    form = ShoppingListForm(request.POST or None, instance=obj)
-    url = reverse("shoppinglist:item-create", kwargs={"parent_id": obj.id})
-    context = {
-        "form": form,
-        "object": obj,
-        "parent_id": obj.id,
-        "url": url,
-    }
-    if form.is_valid():
-        form.save()
-        context["message"] = "Data saved"
-    return render(request, "shoppinglist/create-update.html", context)
+
+    # For GET request, return the current state of the ShoppingList
+    if request.method == "GET":
+        serializer = ShoppingListSerializer(obj)
+        return Response(serializer.data)
+
+    # For PUT request, update the ShoppingList
+    if request.method == "PUT":
+        serializer = ShoppingListSerializer(obj, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 # Deleting shopping lists
+@api_view(["DELETE"])
 def shoppinglist_delete_view(request, id=None):
-    obj = ShoppingList.objects.get(id=id, user=request.user)
-    if request.method == "POST":
+    try:
+        obj = ShoppingList.objects.get(id=id)
+    except ShoppingList.DoesNotExist:
+        return Response({"detail": "Not found."}, status=status.HTTP_404_NOT_FOUND)
+
+    if request.method == "DELETE":
         obj.delete()
-        success_url = reverse("shoppinglist:list")
-        return redirect(success_url)
-    context = {"object": obj}
-    return render(request, "shoppinglist/delete.html", context)
+        return Response(
+            {"detail": "Deleted successfully."}, status=status.HTTP_204_NO_CONTENT
+        )
 
 
 # Edit item
