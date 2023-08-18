@@ -92,6 +92,7 @@ const ShoppingListPage = () => {
                 onChange={(e) => handleChange('description', e.target.value)} 
                 value={shoppingList?.description}
             />
+            {id !== 'new' && <button>Add item</button>}
         </div>
     )
 }
