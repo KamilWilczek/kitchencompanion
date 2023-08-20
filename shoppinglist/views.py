@@ -67,24 +67,22 @@ def shoppinglist_delete_view(request, id=None):
 
 
 # Edit item
+@api_view(["GET", "PUT"])
 def item_update_view(request, parent_id=None, id=None):
-    parent_obj = ShoppingList.objects.get(id=parent_id, user=request.user)
-    instance = Item.objects.get(shoppinglist=parent_obj, id=id)
-    form = ItemForm(request.POST or None, instance=instance)
-    return_from_edit = reverse("shoppinglist:update", kwargs={"id": parent_obj.id})
-    context = {
-        "return_from_edit": return_from_edit,
-        "form": form,
-        "object": instance,
-        "id": parent_obj.id,
-        "parent_id": parent_obj.id,
-    }
-    if form.is_valid():
-        new_obj = form.save()
-        new_obj.save()
-        context["object"] = new_obj
-        return render(request, "shoppinglist/partials/item-form.html", context)
-    return render(request, "shoppinglist/partials/item-form.html", context)
+    item = get_object_or_404(Item, shoppinglist__id=parent_id, id=id)
+
+    # For GET request, return the current state of the Item
+    if request.method == "GET":
+        serializer = ItemSerializer(item)
+        return Response(serializer.data)
+
+    # For PUT request, update the Item
+    elif request.method == "PUT":
+        serializer = ItemSerializer(item, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 # Creating item
