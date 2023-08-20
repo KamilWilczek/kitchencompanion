@@ -197,7 +197,10 @@ const ShoppingListPage = () => {
                             <input 
                                 type="checkbox" 
                                 checked={item.completed} 
-                                onChange={() => handleCompletionChange(item)} 
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleCompletionChange(item);
+                                }} 
                             />
                         </div>
                         <div>
