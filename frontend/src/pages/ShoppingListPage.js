@@ -37,6 +37,18 @@ const ShoppingListPage = () => {
         "other"
     ];
     const units = ["pcs", "pkgs", "kg", "g", "l", "ml"];
+
+    const sortItems = (items) => {
+        return items.sort((a, b) => {
+            // First, sort by completion status
+            if (a.completed !== b.completed) return a.completed ? 1 : -1;
+    
+            // Then, sort alphabetically by product name
+            if (a.product.toLowerCase() < b.product.toLowerCase()) return -1;
+            if (a.product.toLowerCase() > b.product.toLowerCase()) return 1;
+            return 0;
+        });
+    };
     
 
     useEffect(() => {
@@ -52,6 +64,9 @@ const ShoppingListPage = () => {
         if (id === 'new') return
         let response = await fetch(`http://127.0.0.1:8000/shoppinglist/${id}/edit/`)
         let data = await response.json()
+        if (data.items) {
+            data.items = sortItems(data.items);
+        }
         setshoppingList(data)
     }
 
@@ -120,9 +135,7 @@ const ShoppingListPage = () => {
                 const updatedItems = shoppingList.items.map(item => 
                     item.id === selectedItem.id ? selectedItem : item
                 );
-                
-                setshoppingList(prevState => ({ ...prevState, items: updatedItems }));
-            
+                setshoppingList(prevState => ({ ...prevState, items: sortItems(updatedItems) }));
                 setShowModal(false);
             }
         }
@@ -141,13 +154,10 @@ const ShoppingListPage = () => {
         });
     
         if (response.ok) {
-            // Update the shoppingList state to reflect the changes
             const updatedItems = shoppingList.items.map(i => 
                 i.id === item.id ? updatedItem : i
-            ).sort((a, b) => a.completed - b.completed);
-            
-    
-            setshoppingList(prevState => ({ ...prevState, items: updatedItems }));
+            );
+            setshoppingList(prevState => ({ ...prevState, items: sortItems(updatedItems) }));
         }
     };
 
