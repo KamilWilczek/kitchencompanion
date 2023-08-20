@@ -93,6 +93,18 @@ const ShoppingListPage = () => {
                 value={shoppingList?.description}
             />
             {id !== 'new' && <button>Add item</button>}
+
+            <div className='items-list'>
+                {shoppingList?.items && shoppingList.items.map(item => (
+                    <div key={item.id} className='item'>
+                        <div className='item-name'>{item.product}</div>
+                        {item.quantity && <div className='item-quantity'>{item.quantity}</div>}
+                        {item.unit && <div className='item-unit'>{item.unit}</div>}
+                        {item.note && <div className='item-note'>{item.note}</div>}
+                        <div className='item-category'>{item.category}</div>
+                    </div>
+                ))}
+            </div>
         </div>
     )
 }

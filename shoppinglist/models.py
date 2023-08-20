@@ -67,7 +67,9 @@ class ShoppingList(models.Model):
 
 
 class Item(models.Model):
-    shoppinglist = models.ForeignKey(ShoppingList, on_delete=models.CASCADE)
+    shoppinglist = models.ForeignKey(
+        ShoppingList, on_delete=models.CASCADE, related_name="items"
+    )
     product = models.CharField(max_length=200)
     quantity = models.IntegerField(null=True, blank=True)
     unit = models.CharField(

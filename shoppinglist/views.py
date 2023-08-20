@@ -15,7 +15,7 @@ from .forms import ItemForm, ShoppingListForm
 # # List of shopping lists
 @api_view(["GET"])
 def shoppinglist_list_view(request):
-    qs = ShoppingList.objects.annotate(items_count=Count("item"))
+    qs = ShoppingList.objects.annotate(items_count=Count("items"))
     serialized_qs = ShoppingListSerializer(qs, many=True)
     return Response(serialized_qs.data, status=status.HTTP_200_OK)
 
@@ -35,7 +35,7 @@ def shoppinglist_create_view(request):
 # Editing of shopping list
 @api_view(["GET", "PUT"])
 def shoppinglist_update_view(request, id=None):
-    obj = get_object_or_404(ShoppingList, id=id)
+    obj = get_object_or_404(ShoppingList.objects.prefetch_related("items"), id=id)
 
     # For GET request, return the current state of the ShoppingList
     if request.method == "GET":
