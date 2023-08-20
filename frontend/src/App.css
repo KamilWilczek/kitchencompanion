@@ -207,10 +207,9 @@ a {
 
 .shoppinglist-header {
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  color: var(--color-main);
-  padding: 10px;
+  align-items: center;
+  padding: 10px 0;
 }
 
 .shoppinglist-header h3 {
@@ -255,16 +254,40 @@ a {
   display: none;
 }
 
+hr {
+  margin: 20px 0;
+  border-top: 1px solid #ccc;
+}
+
 .items-list {
   margin-top: 20px;
 }
+
 .item {
   border: 1px solid #eee;
   padding: 10px;
   margin: 5px 0;
+  display: flex;
+  flex-direction: column; /* stacks the main div and note div on top of each other */
 }
+
+.item > div:first-child {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.item-left, .item-right {
+  display: flex;
+  align-items: center;
+}
+
 .item-name, .item-quantity, .item-unit, .item-note, .item-category {
   margin-right: 10px;
+}
+
+.item-note {
+  margin-top: 5px;
 }
 
 @media (prefers-reduced-motion: no-preference) {

@@ -73,35 +73,49 @@ const ShoppingListPage = () => {
         <div className='shoppinglist'>
             <div className='shoppinglist-header'>
                 <h3>
-                    <ArrowLeft onClick={handleSubmit}/>
+                    <ArrowLeft onClick={handleSubmit} />
                 </h3>
-                {id !== 'new' ? (<button onClick={deleteShoppingList}>Delete</button>) : (<button onClick={handleSubmit}>Done</button>)} 
+                {id !== 'new' ? (
+                    <button onClick={deleteShoppingList}>Delete</button>
+                ) : (
+                    <button onClick={handleSubmit}>Done</button>
+                )}
             </div>
-            {/* Input for 'name' */}
-            <input 
+            <input
                 type="text"
                 placeholder="Shopping List Name"
-                onChange={(e) => handleChange('name', e.target.value)} 
+                onChange={(e) => handleChange('name', e.target.value)}
                 value={shoppingList?.name}
             />
     
-            {/* Input for 'description' */}
-            <input 
+            <input
                 type="text"
                 placeholder="Description"
-                onChange={(e) => handleChange('description', e.target.value)} 
+                onChange={(e) => handleChange('description', e.target.value)}
                 value={shoppingList?.description}
             />
+    
+            <hr />  {/* Horizontal rule to separate sections */}
+    
             {id !== 'new' && <button>Add item</button>}
-
+    
             <div className='items-list'>
                 {shoppingList?.items && shoppingList.items.map(item => (
                     <div key={item.id} className='item'>
-                        <div className='item-name'>{item.product}</div>
-                        {item.quantity && <div className='item-quantity'>{item.quantity}</div>}
-                        {item.unit && <div className='item-unit'>{item.unit}</div>}
-                        {item.note && <div className='item-note'>{item.note}</div>}
-                        <div className='item-category'>{item.category}</div>
+                        <div>
+                            <div className='item-left'>
+                                <div className='item-name'>{item.product}</div>
+                            </div>
+                            <div className='item-right'>
+                                {item.quantity && <div className='item-quantity'>{item.quantity}</div>}
+                                {item.unit && <div className='item-unit'>{item.unit}</div>}
+                            </div>
+                            
+                            <div className='item-category'>{item.category}</div>
+                        </div>
+                        <div>
+                            {item.note && <div className='item-note'>{item.note}</div>}
+                        </div>
                     </div>
                 ))}
             </div>
