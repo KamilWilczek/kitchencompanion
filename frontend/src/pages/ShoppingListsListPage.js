@@ -18,12 +18,12 @@ const ShoppingListsListPage = () => {
     }
 
   return (
-    <div className='notes'>
-        <div className='notes-header'>
-            <h2 className='notes-title'>&#9782; Shopping Lists</h2>
-            <p className='notes-count'>{shoppingLists.length}</p>
+    <div className='shoppinglists'>
+        <div className='shoppinglists-header'>
+            <h2 className='shoppinglists-title'>&#9782; Shopping Lists</h2>
+            <p className='shoppinglists-count'>{shoppingLists.length}</p>
         </div>
-        <div className='notes-list'>
+        <div className='shoppinglists-list'>
             {shoppingLists.map((shoppingList, index) => (
                 <ListItem key={index} shoppingList={shoppingList} />
             ))}

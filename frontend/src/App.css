@@ -116,27 +116,27 @@ a {
 
 /* NOTES STYLES */
 
-.notes-header {
+.shoppinglists-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 10px 16px;
 }
 
-.notes-title,
-.notes-count {
+.shoppinglists-title,
+.shoppinglists-count {
   color: var(--color-main);
   font-size: 24px;
   font-weight: 600;
 }
 
-.notes-count {
+.shoppinglists-count {
   font-size: 18px;
   color: var(--color-gray);
 }
 
 
-.notes-list {
+.shoppinglists-list {
   padding: 0;
   margin: 16px 0;
   height: 70vh;
@@ -144,35 +144,35 @@ a {
   scrollbar-width: none; /* Firefox */
 }
 
-.notes-list::-webkit-scrollbar {
+.shoppinglists-list::-webkit-scrollbar {
   display: none;
 }
 
-.notes-list-item {
+.shoppinglists-list-item {
   border-bottom: 1px solid  var(--color-border);
   margin-bottom: 12px;
   padding: 8px 16px;
   transition: all 0.2s ease-in-out;
 }
 
-.notes-list-item:hover {
+.shoppinglists-list-item:hover {
   background-color: var(--color-bg);
   cursor: pointer;
 }
 
-.notes-list-item h3,
-.notes-list-item p span {
+.shoppinglists-list-item h3,
+.shoppinglists-list-item p span {
   font-weight: 600;
 }
 
 
-.notes-list-item p span {
+.shoppinglists-list-item p span {
   color: var(--color-gray);
   display: inline-block;
   margin-right: 8px;
 }
 
-.notes-list-item p {
+.shoppinglists-list-item p {
   font-size: 14px;
   color: var(--color-light);
 }
@@ -205,7 +205,7 @@ a {
 =>  Note Styles
 ================================*/
 
-.note-header {
+.shoppinglist-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -213,20 +213,20 @@ a {
   padding: 10px;
 }
 
-.note-header h3 {
+.shoppinglist-header h3 {
   display: flex;
   align-items: center;
   font-size: 24px;
   cursor: pointer;
 }
 
-.note-header h3 svg {
+.shoppinglist-header h3 svg {
   fill: var(--color-main);
   width: 20px;
   margin-right: 8px;
 }
 
-.note-header button {
+.shoppinglist-header button {
   border: none;
   outline: none;
   font-weight: 600;
@@ -235,7 +235,7 @@ a {
   cursor: pointer;
 }
 
-.note textarea {
+.shoppinglist textarea {
   background-color: var(--color-white);
   border: none;
   padding: 16px 12px;
@@ -245,14 +245,26 @@ a {
   scrollbar-width: none; /* Firefox */
 }
 
-.note textarea:active,
-.note textarea:focus {
+.shoppinglist textarea:active,
+.shoppinglist textarea:focus {
   outline: none;
   border: none;
 }
 
-.note textarea::-webkit-scrollbar {
+.shoppinglist textarea::-webkit-scrollbar {
   display: none;
+}
+
+.items-list {
+  margin-top: 20px;
+}
+.item {
+  border: 1px solid #eee;
+  padding: 10px;
+  margin: 5px 0;
+}
+.item-name, .item-quantity, .item-unit, .item-note, .item-category {
+  margin-right: 10px;
 }
 
 @media (prefers-reduced-motion: no-preference) {

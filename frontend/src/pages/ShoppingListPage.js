@@ -70,8 +70,8 @@ const ShoppingListPage = () => {
     }
 
     return (
-        <div className='note'>
-            <div className='note-header'>
+        <div className='shoppinglist'>
+            <div className='shoppinglist-header'>
                 <h3>
                     <ArrowLeft onClick={handleSubmit}/>
                 </h3>
