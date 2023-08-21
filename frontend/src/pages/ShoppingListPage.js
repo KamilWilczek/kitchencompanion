@@ -161,6 +161,29 @@ const ShoppingListPage = () => {
         }
     };
 
+    const handleNewItemSave = async () => {
+        const response = await fetch(`http://127.0.0.1:8000/shoppinglist/${id}/item/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(selectedItem)
+        });
+    
+        if (response.ok) {
+            const newItem = await response.json();
+    
+            const updatedItems = [...shoppingList.items, newItem];
+            setshoppingList(prevState => ({ ...prevState, items: updatedItems }));
+            setShowModal(false);
+        }
+    };
+
+    const handleAddItem = () => {
+        setSelectedItem({});  // Initialize to an empty object
+        setShowModal(true);
+    };
+
     return (
         <div className='shoppinglist'>
             <div className='shoppinglist-header'>
@@ -189,7 +212,7 @@ const ShoppingListPage = () => {
     
             <hr />  {/* Horizontal rule to separate sections */}
     
-            {id !== 'new' && <button>Add item</button>}
+            {id !== 'new' && <button onClick={handleAddItem}>Add item</button>}
     
             <div className='items-list'>
                 {shoppingList?.items && shoppingList.items.map(item => (
@@ -228,16 +251,16 @@ const ShoppingListPage = () => {
                         {/* Fields for editing */}
                         <input 
                             type="text"
-                            value={selectedItem?.product}
+                            value={selectedItem?.product || ''}
                             onChange={(e) => setSelectedItem(prev => ({ ...prev, product: e.target.value }))}
                         />
                         <input 
                             type="text"
-                            value={selectedItem?.quantity}
+                            value={selectedItem?.quantity || ''}
                             onChange={(e) => setSelectedItem(prev => ({ ...prev, quantity: e.target.value }))}
                         />
                         <select
-                            value={selectedItem?.unit}
+                            value={selectedItem?.unit || ''}
                             onChange={(e) => setSelectedItem(prev => ({ ...prev, unit: e.target.value }))}
                         >
                             {units.map(unit => (
@@ -247,7 +270,7 @@ const ShoppingListPage = () => {
                             ))}
                         </select>
                         <select
-                            value={selectedItem?.category}
+                            value={selectedItem?.category || ''}
                             onChange={(e) => setSelectedItem(prev => ({ ...prev, category: e.target.value }))}
                         >
                             {categories.map(category => (
@@ -258,11 +281,13 @@ const ShoppingListPage = () => {
                         </select>
                         <textarea 
                             type="text"
-                            value={selectedItem?.note}
+                            value={selectedItem?.note || ''}
                             onChange={(e) => setSelectedItem(prev => ({ ...prev, note: e.target.value }))}
                         />
 
-                        <button onClick={handleItemUpdate}>Save Changes</button>
+                        <button onClick={selectedItem?.id ? handleItemUpdate : handleNewItemSave}>
+                            Save Changes
+                        </button>
                     </div>
                 </div>
             )}
