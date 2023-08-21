@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { ReactComponent as ArrowLeft } from '../assets/arrow-left.svg'
 import ItemsList from '../components/ItemsList';
 import ItemModal from '../components/ItemModal';
+import { fetchShoppingList, updateShoppingList, createShoppingList, deleteShoppingList } from '../components/apiUtils';
 
 const ShoppingListPage = () => {
     let {id} = useParams();
@@ -53,63 +54,26 @@ const ShoppingListPage = () => {
     };
     
     useEffect(() => {
-        let getShoppingList = async () => {
-            if (id === 'new') return;
-            let response = await fetch(`http://127.0.0.1:8000/shoppinglist/${id}/edit/`);
-            let data = await response.json();
-            if (data.items) {
-                data.items = sortItems(data.items);
-            }
-            setshoppingList(data);
-        }
-    
-        if (id === 'new') {
-            // Initialize shoppingList for new list creation
-            setshoppingList({ name: "", description: "" });
+        if (id !== 'new') {
+            fetchShoppingList(id).then(data => {
+                if (data.items) {
+                    data.items = sortItems(data.items);
+                }
+                setshoppingList(data);
+            });
         } else {
-            getShoppingList();
+            setshoppingList({ name: "", description: "" });
         }
     }, [id]);
 
-    let updateShoppingList = async () => {
-        await fetch(`http://127.0.0.1:8000/shoppinglist/${id}/edit/`, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(shoppingList)
-        })
-    }
-
-    let deleteShoppingList = async () => {
-        await fetch(`http://127.0.0.1:8000/shoppinglist/${id}/delete/`,{
-            method: 'DELETE',
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        })
-        navigate('/')
-    }
-
-    let createShoppingList = async () => {
-        await fetch(`http://127.0.0.1:8000/shoppinglist/create-update/`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({...shoppingList, 'updated': new Date() })
-        })
-    }
-
-    let handleSubmit = () => {
+    const handleSubmit = () => {
         if (id === 'new') {
-            createShoppingList();
-        } else if (shoppingList.name.trim() === '') { // assuming you want to delete the list if name is empty
-            deleteShoppingList();
+            createShoppingList({...shoppingList, 'updated': new Date() }).then(() => navigate('/'));
+        } else if (shoppingList.name.trim() === '') {
+            deleteShoppingList(id).then(() => navigate('/'));
         } else {
-            updateShoppingList();
+            updateShoppingList(id, shoppingList).then(() => navigate('/'));
         }
-        navigate('/');
     }
 
     let handleChange = (key, value) => {

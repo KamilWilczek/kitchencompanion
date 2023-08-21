@@ -39,5 +39,7 @@
 - [ ] field validation on backend
 - [ ] field validation on frontend
 - [ ] somethin with fetches, don't like them
+    - [ ] extract basic CRUD for ShoppingListPage.js
+    - [ ] move apiUtils.js into better place
 - [ ] better README
 - [ ] linter on fronend and backend (order of imports etc)
