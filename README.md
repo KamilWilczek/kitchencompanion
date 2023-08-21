@@ -37,3 +37,4 @@
 - [ ] views.py refactor drf
 - [ ] field validation on backend
 - [ ] field validation on frontend
+- [ ] somethin with fetches, don't like them
