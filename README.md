@@ -40,3 +40,4 @@
 - [ ] field validation on frontend
 - [ ] somethin with fetches, don't like them
 - [ ] better README
+- [ ] linter on fronend and backend (order of imports etc)
