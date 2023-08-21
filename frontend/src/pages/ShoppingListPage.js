@@ -2,6 +2,8 @@ import React, { useState, useEffect }  from 'react'
 import { useParams } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 import { ReactComponent as ArrowLeft } from '../assets/arrow-left.svg'
+import ItemsList from '../components/ItemsList';
+import ItemModal from '../components/ItemModal';
 
 const ShoppingListPage = () => {
     let {id} = useParams();
@@ -205,118 +207,6 @@ const ShoppingListPage = () => {
             console.error("Failed to delete the item.");
         }
     };
-
-    const Item = ({ item, onItemClick, onCompletionChange }) => {
-        return (
-            <div 
-                key={item.id} 
-                className={`item ${item.completed ? 'completed' : ''}`} 
-                onClick={() => onItemClick(item.id)}
-            >
-                <div>
-                    <div className='item-left'>
-                        <div className='item-name'>{item.product}</div>
-                    </div>
-                    <div className='item-right'>
-                        {item.quantity && <div className='item-quantity'>{item.quantity}</div>}
-                        {item.unit && <div className='item-unit'>{item.unit}</div>}
-                    </div>
-                    <div className='item-category'>{item.category}</div>
-                    <input 
-                        type="checkbox" 
-                        checked={item.completed} 
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            onCompletionChange(item);
-                        }} 
-                    />
-                </div>
-                <div>
-                    {item.note && <div className='item-note'>{item.note}</div>}
-                </div>
-            </div>
-        );
-    };
-
-    const ItemsList = ({ items, onItemClick, onCompletionChange }) => {
-        return (
-            <div className='items-list'>
-                {items && items.map(item => (
-                    <Item 
-                        key={item.id} 
-                        item={item} 
-                        onItemClick={onItemClick} 
-                        onCompletionChange={onCompletionChange} 
-                    />
-                ))}
-            </div>
-        );
-    };
-
-    const ItemModal = ({ 
-        showModal, 
-        onClose, 
-        selectedItem, 
-        setSelectedItem, 
-        units, 
-        categories, 
-        onSaveChanges,
-        onDelete 
-    }) => {
-        return (
-            <div className={`modal ${showModal ? 'show' : 'hide'}`}>
-                <div className="modal-content">
-                    {/* Close Button */}
-                    <button onClick={onClose}>Close</button>
-    
-                    {/* Fields for editing */}
-                    <input 
-                        type="text"
-                        value={selectedItem?.product || ''}
-                        onChange={(e) => setSelectedItem(prev => ({ ...prev, product: e.target.value }))}
-                    />
-                    <input 
-                        type="text"
-                        value={selectedItem?.quantity || ''}
-                        onChange={(e) => setSelectedItem(prev => ({ ...prev, quantity: e.target.value }))}
-                    />
-                    <select
-                        value={selectedItem?.unit || ''}
-                        onChange={(e) => setSelectedItem(prev => ({ ...prev, unit: e.target.value }))}
-                    >
-                        {units.map(unit => (
-                            <option key={unit} value={unit}>
-                                {unit.charAt(0).toUpperCase() + unit.slice(1)}
-                            </option>
-                        ))}
-                    </select>
-                    <select
-                        value={selectedItem?.category || ''}
-                        onChange={(e) => setSelectedItem(prev => ({ ...prev, category: e.target.value }))}
-                    >
-                        {categories.map(category => (
-                            <option key={category} value={category}>
-                                {category.charAt(0).toUpperCase() + category.slice(1)}
-                            </option>
-                        ))}
-                    </select>
-                    <textarea 
-                        type="text"
-                        value={selectedItem?.note || ''}
-                        onChange={(e) => setSelectedItem(prev => ({ ...prev, note: e.target.value }))}
-                    />
-    
-                    <button onClick={onSaveChanges}>
-                        Save Changes
-                    </button>
-                    {selectedItem && selectedItem.id && (
-                        <button onClick={() => onDelete(selectedItem.id)}>Delete</button>
-                    )}
-                </div>
-            </div>
-        );
-    };
-
 
     return (
         <div className='shoppinglist'>
