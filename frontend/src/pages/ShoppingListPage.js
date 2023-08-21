@@ -184,6 +184,29 @@ const ShoppingListPage = () => {
         setShowModal(true);
     };
 
+    const handleItemDelete = async (itemId) => {
+        const response = await fetch(`http://127.0.0.1:8000/shoppinglist/${id}/item/${itemId}/delete/`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+    
+        if (response.ok) {
+            // Remove the deleted item from the shopping list state
+            const updatedItems = shoppingList.items.filter(item => item.id !== itemId);
+            
+            setshoppingList(prevState => ({ ...prevState, items: updatedItems }));
+            
+            // Close the modal
+            setShowModal(false);
+        } else {
+            // Handle the error appropriately
+            console.error("Failed to delete the item.");
+        }
+    };
+
+
     return (
         <div className='shoppinglist'>
             <div className='shoppinglist-header'>
@@ -288,6 +311,9 @@ const ShoppingListPage = () => {
                         <button onClick={selectedItem?.id ? handleItemUpdate : handleNewItemSave}>
                             Save Changes
                         </button>
+                        {selectedItem && selectedItem.id && (
+                            <button onClick={() => handleItemDelete(selectedItem.id)}>Delete</button>
+                        )}
                     </div>
                 </div>
             )}
