@@ -6,6 +6,8 @@
         - [x] Edit ShoppingList
         - [x] Add ShoppingList
         - [x] Remove ShoppingList
+        - [ ] Remove bought items
+        - [ ] Remove all items
         - [ ] ...
     - [ ] *Items*
         - [x] Retrieve items
@@ -13,10 +15,12 @@
         - [x] Edit Item
             - [x] Modal
             - [x] completion on checkbox
-        - [ ] Add item
-            - [ ] Modal
-        - [ ] Remove item
-            - [ ] removal on Modal
+        - [x] Add item
+            - [x] Modal
+            - [ ] while typing name gives hints or gives previously used
+        - [x] Remove item
+            - [x] removal on Modal
+            - [ ] side banner for returning delete action
 - [ ] Extract item as component
 - [ ] Better styling of ShoppingListPage
 - [ ] Look for better layout
@@ -31,3 +35,5 @@
 - [ ] Planner module
 - [ ] database: PostgreSQL?
 - [ ] views.py refactor drf
+- [ ] field validation on backend
+- [ ] field validation on frontend
