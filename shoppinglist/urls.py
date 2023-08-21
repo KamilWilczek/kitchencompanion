@@ -7,6 +7,7 @@ from .views import (
     shoppinglist_delete_view,
     item_update_view,
     item_create_view,
+    item_delete_view,
 )
 
 app_name = "shoppinglist"
@@ -25,5 +26,10 @@ urlpatterns = [
         "<int:parent_id>/item/<int:id>/",
         item_update_view,
         name="item-update",
+    ),
+    path(
+        "<int:parent_id>/item/<int:id>/delete/",
+        item_delete_view,
+        name="item-delete",
     ),
 ]

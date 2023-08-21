@@ -100,3 +100,28 @@ def item_create_view(request, parent_id=None):
         serializer.save(shoppinglist=parent_obj)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+# Deleting item
+@api_view(["DELETE"])
+def item_delete_view(request, parent_id=None, id=None):
+    try:
+        # Fetch the specific ShoppingList based on parent_id
+        shopping_list = ShoppingList.objects.get(id=parent_id)
+
+        # Try to get the item within that shopping list with the provided id
+        item = shopping_list.items.get(
+            id=id
+        )  # Assuming "items" is the related name for the Item model
+        item.delete()
+
+        return Response(
+            {"detail": "Item deleted successfully."}, status=status.HTTP_200_OK
+        )
+
+    except ShoppingList.DoesNotExist:
+        return Response(
+            {"detail": "Shopping List not found."}, status=status.HTTP_404_NOT_FOUND
+        )
+    except Item.DoesNotExist:
+        return Response({"detail": "Item not found."}, status=status.HTTP_404_NOT_FOUND)
