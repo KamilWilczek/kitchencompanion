@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { ReactComponent as ArrowLeft } from '../assets/arrow-left.svg'
 import ItemsList from '../components/ItemsList';
 import ItemModal from '../components/ItemModal';
-import { fetchShoppingList, updateShoppingList, createShoppingList, deleteShoppingList } from '../components/apiUtils';
+import { fetchShoppingList, updateShoppingList, createShoppingList, deleteShoppingList } from '../utils/apiUtils';
 
 const ShoppingListPage = () => {
     let {id} = useParams();

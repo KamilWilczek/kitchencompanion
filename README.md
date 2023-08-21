@@ -26,8 +26,12 @@
 - [ ] Better styling of ShoppingListPage
 - [ ] Look for better layout
 - [ ] Bootstrap?
+    - [ ] React MUI
+    - [ ] Figma
+    - [ ] Canva
 - [ ] Tests on backend
 - [ ] Add user creation UsersApp
+    - [ ] some plugins for user creation in Django
 - [ ] Authentication
 - [ ] Types on backend
 - [ ] JS to TS
@@ -39,7 +43,13 @@
 - [ ] field validation on backend
 - [ ] field validation on frontend
 - [ ] somethin with fetches, don't like them
-    - [ ] extract basic CRUD for ShoppingListPage.js
+    - [x] extract basic CRUD for ShoppingListPage.js
     - [ ] move apiUtils.js into better place
 - [ ] better README
 - [ ] linter on fronend and backend (order of imports etc)
+    - [ ] pylint
+    - [ ] isort
+    - [ ] prettier
+    - [ ] ESLint
+- [ ] dependencies management
+    - [ ] poetry
