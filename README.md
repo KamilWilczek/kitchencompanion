@@ -21,7 +21,7 @@
         - [x] Remove item
             - [x] removal on Modal
             - [ ] side banner for returning delete action
-- [ ] Extract item as component
+- [x] Extract Item, Itemslist, ItemModal as components
 - [ ] Better styling of ShoppingListPage
 - [ ] Look for better layout
 - [ ] Bootstrap?
