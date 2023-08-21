@@ -52,8 +52,17 @@ const ShoppingListPage = () => {
         });
     };
     
-
     useEffect(() => {
+        let getShoppingList = async () => {
+            if (id === 'new') return;
+            let response = await fetch(`http://127.0.0.1:8000/shoppinglist/${id}/edit/`);
+            let data = await response.json();
+            if (data.items) {
+                data.items = sortItems(data.items);
+            }
+            setshoppingList(data);
+        }
+    
         if (id === 'new') {
             // Initialize shoppingList for new list creation
             setshoppingList({ name: "", description: "" });
@@ -61,16 +70,6 @@ const ShoppingListPage = () => {
             getShoppingList();
         }
     }, [id]);
-
-    let getShoppingList = async () => {
-        if (id === 'new') return
-        let response = await fetch(`http://127.0.0.1:8000/shoppinglist/${id}/edit/`)
-        let data = await response.json()
-        if (data.items) {
-            data.items = sortItems(data.items);
-        }
-        setshoppingList(data)
-    }
 
     let updateShoppingList = async () => {
         await fetch(`http://127.0.0.1:8000/shoppinglist/${id}/edit/`, {
