@@ -38,3 +38,4 @@
 - [ ] field validation on backend
 - [ ] field validation on frontend
 - [ ] somethin with fetches, don't like them
+- [ ] better README
