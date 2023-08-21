@@ -1,5 +1,4 @@
-from django.urls import reverse
-from django.shortcuts import redirect, render, get_object_or_404
+from django.shortcuts import get_object_or_404
 from django.db.models import Count
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
@@ -7,9 +6,6 @@ from rest_framework import status
 from .serializers import ShoppingListSerializer, ItemSerializer
 
 from .models import Item, ShoppingList
-
-
-from .forms import ItemForm, ShoppingListForm
 
 
 # # List of shopping lists
