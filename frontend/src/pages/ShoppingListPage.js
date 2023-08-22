@@ -5,6 +5,7 @@ import { ReactComponent as ArrowLeft } from '../assets/arrow-left.svg'
 import ItemsList from '../components/ItemsList';
 import ItemModal from '../components/ItemModal';
 import { fetchShoppingList, updateShoppingList, createShoppingList, deleteShoppingList } from '../utils/apiUtils';
+import { categories, units } from '../utils/constants';
 
 const ShoppingListPage = () => {
     let {id} = useParams();
@@ -12,34 +13,6 @@ const ShoppingListPage = () => {
     const [selectedItem, setSelectedItem] = useState(null);
     const [showModal, setShowModal] = useState(false);
     const navigate = useNavigate();
-    const categories = [
-        "fruits and vegetables",
-        "meat",
-        "diary",
-        "dry goods",
-        "alcohols",
-        "medicine",
-        "pet goods",
-        "baby goods",
-        "domestic detergents",
-        "ready-cook meals",
-        "hygiene",
-        "coffee & tea",
-        "frozen foods",
-        "garden and tinkering",
-        "bread",
-        "preserves",
-        "spices, sauces, additives",
-        "fishes and seafood",
-        "sweets and snacks",
-        "fats",
-        "water and drinks",
-        "dried fruit and nuts",
-        "fresh herbs",
-        "canned food",
-        "other"
-    ];
-    const units = ["pcs", "pkgs", "kg", "g", "l", "ml"];
 
     const sortItems = (items) => {
         return items.sort((a, b) => {
