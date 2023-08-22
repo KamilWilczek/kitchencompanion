@@ -1,6 +1,7 @@
 import React, {useState, useEffect} from 'react'
 import ShoppingList from '../components/ShoppingList'
 import AddButton from '../components/AddButton'
+import { fetchShoppingLists } from '../utils/apiUtils'
 
 const ShoppingListsListPage = () => {
 
@@ -11,9 +12,7 @@ const ShoppingListsListPage = () => {
     }, [])
 
     let getShoppingLists = async () => {
-        let response = await fetch('http://127.0.0.1:8000/shoppinglist/')
-        let data = await response.json()
-        console.log('DATA:', data)
+        let data = await fetchShoppingLists()
         setShoppingLists(data)
     }
 

@@ -1,5 +1,10 @@
 const BASE_URL = 'http://127.0.0.1:8000/shoppinglist/';
 
+export const fetchShoppingLists = async () => {
+    const response = await fetch(`${BASE_URL}`);
+    return await response.json()
+};
+
 export const fetchShoppingList = async (id) => {
     const response = await fetch(`${BASE_URL}${id}/edit/`);
     return await response.json();
