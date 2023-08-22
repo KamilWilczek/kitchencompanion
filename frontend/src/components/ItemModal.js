@@ -28,16 +28,6 @@ const ItemModal = ({
                     value={selectedItem?.quantity || ''}
                     onChange={(e) => setSelectedItem(prev => ({ ...prev, quantity: e.target.value }))}
                 />
-                {/* <select
-                    value={selectedItem?.unit || ''}
-                    onChange={(e) => setSelectedItem(prev => ({ ...prev, unit: e.target.value }))}
-                >
-                    {units.map(unit => (
-                        <option key={unit} value={unit}>
-                            {unit.charAt(0).toUpperCase() + unit.slice(1)}
-                        </option>
-                    ))}
-                </select> */}
                 <select 
                     value={selectedItem.unit || ''} 
                     onChange={(e) => {setSelectedItem(prev => ({ ...prev, unit: e.target.value }))}}
@@ -47,16 +37,6 @@ const ItemModal = ({
                         <option key={unit} value={unit}>{unit}</option>
                     ))}
                 </select>
-                {/* <select
-                    value={selectedItem?.category || ''}
-                    onChange={(e) => setSelectedItem(prev => ({ ...prev, category: e.target.value }))}
-                >
-                    {categories.map(category => (
-                        <option key={category} value={category}>
-                            {category.charAt(0).toUpperCase() + category.slice(1)}
-                        </option>
-                    ))}
-                </select> */}
                 <select 
                     value={selectedItem.category || ''} 
                     onChange={(e) => {setSelectedItem(prev => ({ ...prev, category: e.target.value }))}}
