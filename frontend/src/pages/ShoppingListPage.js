@@ -9,7 +9,7 @@ import { categories, units } from '../utils/constants';
 
 const ShoppingListPage = () => {
     let {id} = useParams();
-    let [shoppingList, setshoppingList] = useState(null)
+    let [shoppingList, setShoppingList] = useState(null)
     const [selectedItem, setSelectedItem] = useState(null);
     const [showModal, setShowModal] = useState(false);
     const navigate = useNavigate();
@@ -32,10 +32,10 @@ const ShoppingListPage = () => {
                 if (data.items) {
                     data.items = sortItems(data.items);
                 }
-                setshoppingList(data);
+                setShoppingList(data);
             });
         } else {
-            setshoppingList({ name: "", description: "" });
+            setShoppingList({ name: "", description: "" });
         }
     }, [id]);
 
@@ -50,7 +50,7 @@ const ShoppingListPage = () => {
     }
 
     let handleChange = (key, value) => {
-        setshoppingList(prevList => ({ ...prevList, [key]: value }));
+        setShoppingList(prevList => ({ ...prevList, [key]: value }));
     }
 
     const handleItemClick = async (itemId) => {
@@ -67,7 +67,7 @@ const ShoppingListPage = () => {
                 const updatedItems = shoppingList.items.map(item => 
                     item.id === selectedItem.id ? selectedItem : item
                 );
-                setshoppingList(prevState => ({ ...prevState, items: sortItems(updatedItems) }));
+                setShoppingList(prevState => ({ ...prevState, items: sortItems(updatedItems) }));
                 setShowModal(false);
             }
         }
@@ -82,7 +82,7 @@ const ShoppingListPage = () => {
             const updatedItems = shoppingList.items.map(i => 
                 i.id === item.id ? updatedItem : i
             );
-            setshoppingList(prevState => ({ ...prevState, items: sortItems(updatedItems) }));
+            setShoppingList(prevState => ({ ...prevState, items: sortItems(updatedItems) }));
         }
     };
 
@@ -93,7 +93,7 @@ const ShoppingListPage = () => {
             const newItem = await response.json();
     
             const updatedItems = [...shoppingList.items, newItem];
-            setshoppingList(prevState => ({ ...prevState, items: updatedItems }));
+            setShoppingList(prevState => ({ ...prevState, items: updatedItems }));
             setShowModal(false);
         }
     };
@@ -110,7 +110,7 @@ const ShoppingListPage = () => {
             // Remove the deleted item from the shopping list state
             const updatedItems = shoppingList.items.filter(item => item.id !== itemId);
             
-            setshoppingList(prevState => ({ ...prevState, items: updatedItems }));
+            setShoppingList(prevState => ({ ...prevState, items: updatedItems }));
             
             // Close the modal
             setShowModal(false);
