@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { ReactComponent as ArrowLeft } from '../assets/arrow-left.svg'
 import ItemsList from '../components/ItemsList';
 import ItemModal from '../components/ItemModal';
-import { fetchShoppingList, updateShoppingList, createShoppingList, deleteShoppingList } from '../utils/apiUtils';
+import { fetchShoppingList, updateShoppingList, createShoppingList, deleteShoppingList, fetchShoppingListItem, updateShoppingListItem, createShoppingListItem, deleteShoppingListItem } from '../utils/apiUtils';
 import { categories, units } from '../utils/constants';
 
 const ShoppingListPage = () => {
@@ -54,21 +54,15 @@ const ShoppingListPage = () => {
     }
 
     const handleItemClick = async (itemId) => {
-        const response = await fetch(`http://127.0.0.1:8000/shoppinglist/${id}/item/${itemId}/`);
-        const data = await response.json();
+        const data = await fetchShoppingListItem(id, itemId)
+        
         setSelectedItem(data);
         setShowModal(true);
     };
 
     const handleItemUpdate = async () => {
         if (selectedItem) {
-            const response = await fetch(`http://127.0.0.1:8000/shoppinglist/${id}/item/${selectedItem.id}/`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(selectedItem)
-            });
+            const response = await updateShoppingListItem(id, selectedItem.id, selectedItem);
             if (response.ok) {
                 const updatedItems = shoppingList.items.map(item => 
                     item.id === selectedItem.id ? selectedItem : item
@@ -82,14 +76,7 @@ const ShoppingListPage = () => {
     const handleCompletionChange = async (item) => {
         const updatedItem = { ...item, completed: !item.completed };
     
-        // Update in the backend
-        const response = await fetch(`http://127.0.0.1:8000/shoppinglist/${id}/item/${item.id}/`, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(updatedItem)
-        });
+        const response = await updateShoppingListItem(id, item.id, updatedItem)
     
         if (response.ok) {
             const updatedItems = shoppingList.items.map(i => 
@@ -100,13 +87,7 @@ const ShoppingListPage = () => {
     };
 
     const handleNewItemSave = async () => {
-        const response = await fetch(`http://127.0.0.1:8000/shoppinglist/${id}/item/`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(selectedItem)
-        });
+        const response = await createShoppingListItem(id, selectedItem)
     
         if (response.ok) {
             const newItem = await response.json();
@@ -123,12 +104,7 @@ const ShoppingListPage = () => {
     };
 
     const handleItemDelete = async (itemId) => {
-        const response = await fetch(`http://127.0.0.1:8000/shoppinglist/${id}/item/${itemId}/delete/`, {
-            method: 'DELETE',
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        });
+        const response = await deleteShoppingListItem(id, itemId)
     
         if (response.ok) {
             // Remove the deleted item from the shopping list state

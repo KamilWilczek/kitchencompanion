@@ -27,3 +27,31 @@ export const createShoppingList = async (data) => {
         body: JSON.stringify(data),
     });
 };
+
+export const fetchShoppingListItem = async (listId, itemId) => {
+    const response = await fetch(`${BASE_URL}${listId}/item/${itemId}/`);
+    return await response.json();
+};
+
+export const updateShoppingListItem = async (listId, itemId, data) => {
+    return await fetch(`${BASE_URL}${listId}/item/${itemId}/`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+    });
+};
+
+export const createShoppingListItem = async (listId, data) => {
+    return await fetch(`${BASE_URL}${listId}/item/`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+    });
+};
+
+export const deleteShoppingListItem = async (listId, itemId) => {
+    return await fetch(`${BASE_URL}${listId}/item/${itemId}/delete/`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+    });
+};
