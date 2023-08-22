@@ -1,15 +1,16 @@
 import React, { useState, useEffect }  from 'react'
-import { useParams } from 'react-router-dom';
-import { useNavigate } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { ReactComponent as ArrowLeft } from '../assets/arrow-left.svg'
 import ItemsList from '../components/ItemsList';
 import ItemModal from '../components/ItemModal';
 import { fetchShoppingList, updateShoppingList, createShoppingList, deleteShoppingList, fetchShoppingListItem, updateShoppingListItem, createShoppingListItem, deleteShoppingListItem } from '../utils/apiUtils';
 import { categories, units } from '../utils/constants';
 
+const defaultShoppingList = { name: "", description: "", items: [] };
+
 const ShoppingListPage = () => {
     let {id} = useParams();
-    let [shoppingList, setShoppingList] = useState(null)
+    let [shoppingList, setShoppingList] = useState(defaultShoppingList);
     const [selectedItem, setSelectedItem] = useState(null);
     const [showModal, setShowModal] = useState(false);
     const navigate = useNavigate();
@@ -25,18 +26,26 @@ const ShoppingListPage = () => {
             return 0;
         });
     };
+
+    const updateShoppingListState = (updatedFields) => {
+        setShoppingList(prevState => ({ ...prevState, ...updatedFields }));
+    };
     
     useEffect(() => {
-        if (id !== 'new') {
-            fetchShoppingList(id).then(data => {
+        const defaultShoppingList = { name: "", description: "", items: [] };
+        const fetchData = async () => {
+            if (id !== 'new') {
+                const data = await fetchShoppingList(id);
                 if (data.items) {
                     data.items = sortItems(data.items);
                 }
-                setShoppingList(data);
-            });
-        } else {
-            setShoppingList({ name: "", description: "" });
-        }
+                updateShoppingListState(data);
+            } else {
+                setShoppingList(defaultShoppingList);
+            }
+        };
+        
+        fetchData();
     }, [id]);
 
     const handleSubmit = () => {
@@ -50,7 +59,7 @@ const ShoppingListPage = () => {
     }
 
     let handleChange = (key, value) => {
-        setShoppingList(prevList => ({ ...prevList, [key]: value }));
+        updateShoppingListState({ [key]: value });
     }
 
     const handleItemClick = async (itemId) => {
@@ -67,7 +76,7 @@ const ShoppingListPage = () => {
                 const updatedItems = shoppingList.items.map(item => 
                     item.id === selectedItem.id ? selectedItem : item
                 );
-                setShoppingList(prevState => ({ ...prevState, items: sortItems(updatedItems) }));
+                updateShoppingListState({ items: sortItems(updatedItems) });
                 setShowModal(false);
             }
         }
@@ -82,7 +91,7 @@ const ShoppingListPage = () => {
             const updatedItems = shoppingList.items.map(i => 
                 i.id === item.id ? updatedItem : i
             );
-            setShoppingList(prevState => ({ ...prevState, items: sortItems(updatedItems) }));
+            updateShoppingListState({ items: sortItems(updatedItems) });
         }
     };
 
@@ -93,7 +102,7 @@ const ShoppingListPage = () => {
             const newItem = await response.json();
     
             const updatedItems = [...shoppingList.items, newItem];
-            setShoppingList(prevState => ({ ...prevState, items: updatedItems }));
+            updateShoppingListState({ items: updatedItems });
             setShowModal(false);
         }
     };
@@ -110,7 +119,7 @@ const ShoppingListPage = () => {
             // Remove the deleted item from the shopping list state
             const updatedItems = shoppingList.items.filter(item => item.id !== itemId);
             
-            setShoppingList(prevState => ({ ...prevState, items: updatedItems }));
+            updateShoppingListState({ items: updatedItems });
             
             // Close the modal
             setShowModal(false);
