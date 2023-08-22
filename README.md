@@ -23,6 +23,10 @@
             - [ ] side banner for returning delete action
 - [x] Extract Item, Itemslist, ItemModal as components
 - [ ] Further refactor of ShoppingListPage
+    - [x] extracted fetches
+    - [x] seting ShoppingList as method
+    - [ ] handleSubmit spliting - one method one job
+    - [ ] error handling
 - [ ] Better styling of ShoppingListPage
 - [ ] Look for better layout
 - [ ] Bootstrap?
@@ -44,7 +48,9 @@
 - [ ] field validation on frontend
 - [ ] somethin with fetches, don't like them
     - [x] extract basic CRUD for ShoppingListPage.js
-    - [ ] move apiUtils.js into better place
+    - [x] move apiUtils.js into better place
+    - [x] ShoppingList frontend api in one place
+    - [ ] axios?
 - [ ] better README
 - [ ] linter on fronend and backend (order of imports etc)
     - [ ] pylint
