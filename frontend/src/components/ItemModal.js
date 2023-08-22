@@ -28,7 +28,7 @@ const ItemModal = ({
                     value={selectedItem?.quantity || ''}
                     onChange={(e) => setSelectedItem(prev => ({ ...prev, quantity: e.target.value }))}
                 />
-                <select
+                {/* <select
                     value={selectedItem?.unit || ''}
                     onChange={(e) => setSelectedItem(prev => ({ ...prev, unit: e.target.value }))}
                 >
@@ -37,8 +37,17 @@ const ItemModal = ({
                             {unit.charAt(0).toUpperCase() + unit.slice(1)}
                         </option>
                     ))}
+                </select> */}
+                <select 
+                    value={selectedItem.unit || ''} 
+                    onChange={(e) => {setSelectedItem(prev => ({ ...prev, unit: e.target.value }))}}
+                >
+                    <option value="" disabled selected>Select a unit</option>
+                    {units.map(unit => (
+                        <option key={unit} value={unit}>{unit}</option>
+                    ))}
                 </select>
-                <select
+                {/* <select
                     value={selectedItem?.category || ''}
                     onChange={(e) => setSelectedItem(prev => ({ ...prev, category: e.target.value }))}
                 >
@@ -46,6 +55,15 @@ const ItemModal = ({
                         <option key={category} value={category}>
                             {category.charAt(0).toUpperCase() + category.slice(1)}
                         </option>
+                    ))}
+                </select> */}
+                <select 
+                    value={selectedItem.category || ''} 
+                    onChange={(e) => {setSelectedItem(prev => ({ ...prev, category: e.target.value }))}}
+                >
+                    <option value="" disabled selected>Select a category</option>
+                    {categories.map(category => (
+                        <option key={category} value={category}>{category}</option>
                     ))}
                 </select>
                 <textarea 
