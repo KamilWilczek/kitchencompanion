@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react'
-import ListItem from '../components/ListItem'
+import ShoppingList from '../components/ShoppingList'
 import AddButton from '../components/AddButton'
 
 const ShoppingListsListPage = () => {
@@ -25,7 +25,7 @@ const ShoppingListsListPage = () => {
         </div>
         <div className='shoppinglists-list'>
             {shoppingLists.map((shoppingList, index) => (
-                <ListItem key={index} shoppingList={shoppingList} />
+                <ShoppingList key={index} shoppingList={shoppingList} />
             ))}
         </div>
         <AddButton />

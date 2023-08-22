@@ -12,7 +12,7 @@ let getName = (shoppingList) => {
 }
 
 
-const ListItem = ({shoppingList}) => {
+const ShoppingList = ({shoppingList}) => {
   return (
     <Link to={`shoppinglist/${shoppingList.id}/edit/`}>
       <div className='shoppinglists-list-item'>
@@ -24,4 +24,4 @@ const ListItem = ({shoppingList}) => {
   )
 }
 
-export default ListItem
+export default ShoppingList
