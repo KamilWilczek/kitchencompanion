@@ -38,6 +38,7 @@
             - [ ] Add comments for complex item-related logic
             - [ ] Avoid direct arrow functions in JSX for item components for performance
             - [ ] Destructure state and props at the beginning of item-related components for readability
+        - [ ] ...
 - [x] Extract Item, Itemslist, ItemModal as components
 - [ ] Further refactor of ShoppingListPage
     - [x] extracted fetches
