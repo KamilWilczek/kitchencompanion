@@ -8,6 +8,14 @@
         - [x] Remove ShoppingList
         - [ ] Remove bought items
         - [ ] Remove all items
+        - [ ] Refactoring:
+            - [ ] Modularize components (e.g., `ShoppingListHeader`, `ShoppingListInputs`)
+            - [ ] Implement `useCallback` for event handlers
+            - [ ] Consolidate state management (consider `Redux`,`Zustand`, and `MobX`)
+            - [ ] Improve error handling for async operations
+            - [ ] Ensure consistent function naming
+            - [ ] Add comments for complex logic
+            - [ ] Avoid direct arrow functions in JSX for performance
         - [ ] ...
     - [ ] *Items*
         - [x] Retrieve items
@@ -21,6 +29,15 @@
         - [x] Remove item
             - [x] removal on Modal
             - [ ] side banner for returning delete action
+        - [ ] Refactoring:
+            - [ ] Move item-related logic to a separate custom hook (e.g., `useShoppingListItem`)
+            - [ ] Modularize components related to individual items
+            - [ ] Implement `useCallback` for item-related event handlers
+            - [ ] Improve error handling for async item operations
+            - [ ] Ensure consistent function naming for item-related functions
+            - [ ] Add comments for complex item-related logic
+            - [ ] Avoid direct arrow functions in JSX for item components for performance
+            - [ ] Destructure state and props at the beginning of item-related components for readability
 - [x] Extract Item, Itemslist, ItemModal as components
 - [ ] Further refactor of ShoppingListPage
     - [x] extracted fetches
