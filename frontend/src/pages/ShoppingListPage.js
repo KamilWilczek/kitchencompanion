@@ -1,70 +1,20 @@
-import React, { useState, useEffect }  from 'react'
-import { useParams, useNavigate } from 'react-router-dom';
+import React, { useState }  from 'react'
+import { useParams } from 'react-router-dom';
 import { ReactComponent as ArrowLeft } from '../assets/arrow-left.svg'
 import ItemsList from '../components/ItemsList';
 import ItemModal from '../components/ItemModal';
-import { fetchShoppingList, updateShoppingList, createShoppingList, deleteShoppingList, fetchShoppingListItem, updateShoppingListItem, createShoppingListItem, deleteShoppingListItem } from '../utils/apiUtils';
+import { fetchShoppingListItem, updateShoppingListItem, createShoppingListItem, deleteShoppingListItem } from '../utils/apiUtils';
 import { categories, units } from '../utils/constants';
-
-const defaultShoppingList = { name: "", description: "", items: [] };
+import useShoppingList from '../hooks/useShoppingList';
 
 const ShoppingListPage = () => {
     let {id} = useParams();
-    let [shoppingList, setShoppingList] = useState(defaultShoppingList);
+    const [shoppingList, updateShoppingListState, saveShoppingList, removeShoppingList] = useShoppingList(id);
     const [selectedItem, setSelectedItem] = useState(null);
     const [showModal, setShowModal] = useState(false);
-    const navigate = useNavigate();
-
-    const sortItems = (items) => {
-        return items.sort((a, b) => {
-            // First, sort by completion status
-            if (a.completed !== b.completed) return a.completed ? 1 : -1;
-    
-            // Then, sort alphabetically by product name
-            if (a.product.toLowerCase() < b.product.toLowerCase()) return -1;
-            if (a.product.toLowerCase() > b.product.toLowerCase()) return 1;
-            return 0;
-        });
-    };
-
-    const updateShoppingListState = (updatedFields) => {
-        setShoppingList(prevState => ({ ...prevState, ...updatedFields }));
-    };
-    
-    useEffect(() => {
-        const defaultShoppingList = { name: "", description: "", items: [] };
-        const fetchData = async () => {
-            if (id !== 'new') {
-                const data = await fetchShoppingList(id);
-                if (data.items) {
-                    data.items = sortItems(data.items);
-                }
-                updateShoppingListState(data);
-            } else {
-                setShoppingList(defaultShoppingList);
-            }
-        };
-        
-        fetchData();
-    }, [id]);
-
-    const handleSubmit = () => {
-        if (id === 'new') {
-            createShoppingList({...shoppingList, 'updated': new Date() }).then(() => navigate('/'));
-        } else if (shoppingList.name.trim() === '') {
-            deleteShoppingList(id).then(() => navigate('/'));
-        } else {
-            updateShoppingList(id, shoppingList).then(() => navigate('/'));
-        }
-    }
-
-    let handleChange = (key, value) => {
-        updateShoppingListState({ [key]: value });
-    }
 
     const handleItemClick = async (itemId) => {
-        const data = await fetchShoppingListItem(id, itemId)
-        
+        const data = await fetchShoppingListItem(id, itemId);
         setSelectedItem(data);
         setShowModal(true);
     };
@@ -73,10 +23,6 @@ const ShoppingListPage = () => {
         if (selectedItem) {
             const response = await updateShoppingListItem(id, selectedItem.id, selectedItem);
             if (response.ok) {
-                const updatedItems = shoppingList.items.map(item => 
-                    item.id === selectedItem.id ? selectedItem : item
-                );
-                updateShoppingListState({ items: sortItems(updatedItems) });
                 setShowModal(false);
             }
         }
@@ -84,23 +30,17 @@ const ShoppingListPage = () => {
 
     const handleCompletionChange = async (item) => {
         const updatedItem = { ...item, completed: !item.completed };
-    
-        const response = await updateShoppingListItem(id, item.id, updatedItem)
-    
+        const response = await updateShoppingListItem(id, item.id, updatedItem);
         if (response.ok) {
-            const updatedItems = shoppingList.items.map(i => 
-                i.id === item.id ? updatedItem : i
-            );
-            updateShoppingListState({ items: sortItems(updatedItems) });
+            const updatedItems = shoppingList.items.map(i => i.id === updatedItem.id ? updatedItem : i);
+            updateShoppingListState({ items: updatedItems });
         }
     };
 
     const handleNewItemSave = async () => {
-        const response = await createShoppingListItem(id, selectedItem)
-    
+        const response = await createShoppingListItem(id, selectedItem);
         if (response.ok) {
             const newItem = await response.json();
-    
             const updatedItems = [...shoppingList.items, newItem];
             updateShoppingListState({ items: updatedItems });
             setShowModal(false);
@@ -113,45 +53,35 @@ const ShoppingListPage = () => {
     };
 
     const handleItemDelete = async (itemId) => {
-        const response = await deleteShoppingListItem(id, itemId)
-    
-        if (response.ok) {
-            // Remove the deleted item from the shopping list state
-            const updatedItems = shoppingList.items.filter(item => item.id !== itemId);
-            
-            updateShoppingListState({ items: updatedItems });
-            
-            // Close the modal
-            setShowModal(false);
-        } else {
-            // Handle the error appropriately
-            console.error("Failed to delete the item.");
-        }
+        await deleteShoppingListItem(id, itemId);
+        const updatedItems = shoppingList.items.filter(item => item.id !== itemId);
+        updateShoppingListState({ items: updatedItems });
+        setShowModal(false);
     };
 
     return (
         <div className='shoppinglist'>
             <div className='shoppinglist-header'>
                 <h3>
-                    <ArrowLeft onClick={handleSubmit} />
+                    <ArrowLeft onClick={() => saveShoppingList(shoppingList)} />
                 </h3>
                 {id !== 'new' ? (
-                    <button onClick={deleteShoppingList}>Delete</button>
+                    <button onClick={() => removeShoppingList()}>Delete</button>
                 ) : (
-                    <button onClick={handleSubmit}>Done</button>
+                    <button onClick={() => saveShoppingList(shoppingList)}>Done</button>
                 )}
             </div>
             <input
                 type="text"
                 placeholder="Shopping List Name"
-                onChange={(e) => handleChange('name', e.target.value)}
+                onChange={(e) => updateShoppingListState({ name: e.target.value })}
                 value={shoppingList?.name}
             />
     
             <input
                 type="text"
                 placeholder="Description"
-                onChange={(e) => handleChange('description', e.target.value)}
+                onChange={(e) => updateShoppingListState({ description: e.target.value })}
                 value={shoppingList?.description}
             />
     
@@ -161,7 +91,7 @@ const ShoppingListPage = () => {
     
             <div className='items-list'>
                 <ItemsList 
-                    items={shoppingList?.items} 
+                    items={shoppingList?.items || []} 
                     onItemClick={handleItemClick} 
                     onCompletionChange={handleCompletionChange} 
                 />

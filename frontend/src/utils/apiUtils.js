@@ -26,11 +26,13 @@ export const deleteShoppingList = async (id) => {
 };
 
 export const createShoppingList = async (data) => {
+    console.log("Data before sending:", data);
     return await fetch(`${BASE_URL}create-update/`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
     });
+    
 };
 
 export const fetchShoppingListItem = async (listId, itemId) => {
