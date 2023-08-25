@@ -1,6 +1,20 @@
 import React from 'react';
 
-const Item = ({ item, onItemClick, onCompletionChange }) => {
+interface ItemProps {
+  item: {
+    id: string | number;
+    product: string;
+    completed: boolean;
+    quantity?: string | number;
+    unit?: string;
+    category: string | undefined;
+    note?: string;
+  };
+  onItemClick: (id: string | number) => void;
+  onCompletionChange: (item: ItemProps['item']) => void;
+}
+
+const Item: React.FC<ItemProps> = ({ item, onItemClick, onCompletionChange }) => {
     return (
         <div 
             key={item.id} 

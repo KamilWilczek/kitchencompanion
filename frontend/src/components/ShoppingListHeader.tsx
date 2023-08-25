@@ -1,7 +1,13 @@
 import React from 'react';
-import { ReactComponent as ArrowLeft } from '../assets/arrow-left.svg'
+import { ReactComponent as ArrowLeft } from '../assets/arrow-left.svg';
 
-const ShoppingListHeader = ({ id, onSave, onDelete }) => {
+interface ShoppingListHeaderProps {
+    id: string | number;
+    onSave: () => void;
+    onDelete: () => void;
+}
+
+const ShoppingListHeader: React.FC<ShoppingListHeaderProps> = ({ id, onSave, onDelete }) => {
     return (
         <div className='shoppinglist-header'>
             <h3>

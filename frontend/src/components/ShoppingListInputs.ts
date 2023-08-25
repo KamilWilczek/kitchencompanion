@@ -1,6 +1,13 @@
 import React from 'react';
 
-const ShoppingListInputs = ({ name, description, onNameChange, onDescriptionChange }) => {
+interface ShoppingListInputsProps {
+    name: string;
+    description: string;
+    onNameChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+    onDescriptionChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+}
+
+const ShoppingListInputs: React.FC<ShoppingListInputsProps> = ({ name, description, onNameChange, onDescriptionChange }) => {
     return (
         <>
             <input

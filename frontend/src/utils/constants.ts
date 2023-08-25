@@ -1,4 +1,4 @@
-export const categories = [
+const categories: string[] = [
     "fruits and vegetables",
     "meat",
     "diary",
@@ -26,4 +26,6 @@ export const categories = [
     "other"
 ];
 
-export const units = ["pcs", "pkgs", "kg", "g", "l", "ml"];
+const units: string[] = ["pcs", "pkgs", "kg", "g", "l", "ml"];
+
+export { categories, units };

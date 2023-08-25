@@ -1,10 +1,12 @@
 import './App.css';
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom"
-import Header from './components/Header'
-import ShoppingListsListPage from './pages/ShoppingListsListPage'
+import { FC } from 'react';
+
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import Header from './components/Header';
+import ShoppingListsListPage from './pages/ShoppingListsListPage';
 import ShoppingListPage from './pages/ShoppingListPage';
 
-function App() {
+const App: FC = () => {
   return (
     <Router>
         <div className="container dark">

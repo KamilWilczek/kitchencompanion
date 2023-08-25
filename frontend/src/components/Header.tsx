@@ -1,6 +1,6 @@
-import React from 'react'
+import React, { FC } from 'react';
 
-const Header = () => {
+const Header: FC = () => {
   return (
     <div className='app-header'>
         <h1>Kitchen Companion</h1>
@@ -8,4 +8,4 @@ const Header = () => {
   )
 }
 
-export default Header
+export default Header;

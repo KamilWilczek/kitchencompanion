@@ -1,7 +1,25 @@
 import React from 'react';
 
+interface ItemModalProps {
+    isModalOpen: boolean;
+    onClose: () => void;
+    selectedItem: {
+        id?: string | number;
+        product?: string;
+        quantity?: string | number;
+        unit?: string;
+        category?: string;
+        note?: string;
+    };
+    setSelectedItem: (item: ItemModalProps['selectedItem']) => void;
+    units: string[];
+    categories: string[];
+    onSaveChanges: () => void;
+    onDelete: (id: string | number) => void;
+}
 
-const ItemModal = ({ 
+
+const ItemModal: React.FC<ItemModalProps> = ({ 
     isModalOpen, 
     onClose, 
     selectedItem, 
