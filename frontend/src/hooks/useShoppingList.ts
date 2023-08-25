@@ -1,26 +1,35 @@
-import { useState, useEffect, FC } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { fetchShoppingList, updateShoppingList, createShoppingList, deleteShoppingList } from '../utils_ts/apiUtils';
+import { fetchShoppingList, updateShoppingList, createShoppingList, deleteShoppingList } from '../utils/apiUtils';
+import { ShoppingList, NewShoppingList } from '../utils/types';
 
 interface Item {
+  id: string | number;
   product: string;
   completed: boolean;
 }
 
-interface ShoppingList {
-  name: string;
-  description: string;
-  items: Item[];
-}
+// interface ShoppingList {
+//   name: string;
+//   description?: string;
+//   items: Item[];
+// }
 
 interface Response {
   ok: boolean;
   [key: string]: any;  // Add additional properties as needed based on the structure of your response
 }
 
-const useShoppingList: FC<string> = (id) => {
+type UseShoppingListReturnType = [
+  ShoppingList | NewShoppingList,
+  (updatedFields: Partial<ShoppingList>) => void,
+  (list: ShoppingList) => Promise<void>,
+  () => Promise<void>
+];
+
+const useShoppingList = (id: string): UseShoppingListReturnType => {
   const navigate = useNavigate();
-  const [shoppingList, setShoppingList] = useState<ShoppingList>({ name: "", description: "", items: [] });
+  const [shoppingList, setShoppingList] = useState<ShoppingList | NewShoppingList>({ name: "", description: "", items: [] });
 
   const sortItems = (items: Item[]): Item[] => {
     return items.sort((a, b) => {
@@ -37,24 +46,25 @@ const useShoppingList: FC<string> = (id) => {
       if (id !== 'new') {
         const data = await fetchShoppingList(id);
         if (data.items) {
-          data.items = Array.isArray(data.items) ? data.items : [data.items];
-          data.items = sortItems(data.items);
+          data.items = Array.isArray(data.items) ? sortItems(data.items) : sortItems([data.items]);
         }
+        // If description is missing, set a default value or leave it out
+        (data as ShoppingList).description = (data as ShoppingList).description || '';
         setShoppingList(data);
       }
     };
-
+  
     fetchData();
   }, [id]);
 
-  const updateShoppingListState = (updatedFields: Partial<ShoppingList>) => {
+  const updateShoppingListState = (updatedFields: Partial<ShoppingList | NewShoppingList>) => {
     setShoppingList(prevState => {
-      const updatedList: ShoppingList = { ...prevState, ...updatedFields };
-
-      if (updatedList.items && Array.isArray(updatedList.items)) {
+      const updatedList: ShoppingList | NewShoppingList = { ...prevState, ...updatedFields };
+  
+      if ('items' in updatedList && Array.isArray(updatedList.items)) {
         updatedList.items = sortItems(updatedList.items);
       }
-
+  
       return updatedList;
     });
   };
@@ -75,16 +85,14 @@ const useShoppingList: FC<string> = (id) => {
   };
 
   const removeShoppingList = async () => {
-    let response: Response;
     if (id !== 'new') {
-      response = await deleteShoppingList(id);
+      const response: Response = await deleteShoppingList(id);
+      if (response.ok) {
+        navigate('/');
+      }
     }
-    if (response.ok) {
-      navigate('/');
-    } else {
-      // Handle the error or display a notification to the user.
-    }
-  };
+
+};
 
   return [shoppingList, updateShoppingListState, saveShoppingList, removeShoppingList];
 }
