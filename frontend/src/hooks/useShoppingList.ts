@@ -9,12 +9,6 @@ interface Item {
   completed: boolean;
 }
 
-// interface ShoppingList {
-//   name: string;
-//   description?: string;
-//   items: Item[];
-// }
-
 interface Response {
   ok: boolean;
   [key: string]: any;  // Add additional properties as needed based on the structure of your response

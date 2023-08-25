@@ -13,6 +13,8 @@ export interface ShoppingList {
     name: string;
     description?: string;
     items: ShoppingListItem[];
+    updated: Date;
+    items_count: number;
 }
 
 export interface NewShoppingList {
