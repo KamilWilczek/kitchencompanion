@@ -16,7 +16,7 @@ import { ShoppingList, ShoppingListItem } from '../utils/types';
 
 const ShoppingListPage: React.FC = () => {
     // TODO: how to handle if id is undefined
-    const { id } = useParams<{ id: string | number }>(); 
+    const { id } = useParams<{ id?: string }>();
     const [shoppingList, updateShoppingListState, saveShoppingList, removeShoppingList] = useShoppingList(id);
     const [selectedItem, setSelectedItem] = useState<ShoppingListItem | null>(null);
     const [isModalOpen, setShowModal] = useState<boolean>(false);
@@ -30,7 +30,7 @@ const ShoppingListPage: React.FC = () => {
     };
 
     const saveSelectedItemChanges = async () => {
-        if (selectedItem) {
+        if (selectedItem && id) {  // Make sure both selectedItem and id are defined
             const response = await updateShoppingListItem(id, selectedItem.id, selectedItem);
             if (response.ok) {
                 setShowModal(false);
@@ -40,46 +40,61 @@ const ShoppingListPage: React.FC = () => {
 
     const toggleItemCompletionStatus = async (item: ShoppingListItem) => {
         const updatedItem = { ...item, completed: !item.completed };
-        const response = await updateShoppingListItem(id, item.id, updatedItem);
-        if (response.ok) {
-            const updatedItems = shoppingList.items.map(i => i.id === updatedItem.id ? updatedItem : i);
-            updateShoppingListState({ items: updatedItems });
+        if (id) {
+            const response = await updateShoppingListItem(id, item.id, updatedItem);
+            if (response.ok) {
+                const updatedItems = shoppingList.items.map(i => i.id === updatedItem.id ? updatedItem : i);
+                updateShoppingListState({ items: updatedItems });
+            }
         }
     };
 
     const saveNewItemDetails = async () => {
-        const response = await createShoppingListItem(id, selectedItem);
-        if (response.ok) {
-            const newItem: ShoppingListItem = await response.json();
-            const updatedItems = [...shoppingList.items, newItem];
-            updateShoppingListState({ items: updatedItems });
-            setShowModal(false);
+        if (id && selectedItem) {
+            const response = await createShoppingListItem(id, selectedItem);
+            if (response.ok) {
+                const newItem: ShoppingListItem = await response.json();
+                const updatedItems = [...shoppingList.items, newItem];
+                updateShoppingListState({ items: updatedItems });
+                setShowModal(false);
+            }
         }
     };
 
     const initiateNewItemAddition = () => {
-        setSelectedItem({});  // Initialize to an empty object
+        setSelectedItem({
+            id: -1,
+            product: '',
+            quantity: '',
+            unit: '',
+            category: '',
+            note: '',
+            completed: false,
+        });  // Initialize to an empty object
         setShowModal(true);
     };
 
     const deleteSelectedItem = async (itemId: number) => {
-        await deleteShoppingListItem(id, itemId);
-        const updatedItems = shoppingList.items.filter(item => item.id !== itemId);
-        updateShoppingListState({ items: updatedItems });
-        setShowModal(false);
+        if (id) {
+            await deleteShoppingListItem(id, itemId);
+            const updatedItems = shoppingList.items.filter(item => item.id !== itemId);
+            updateShoppingListState({ items: updatedItems });
+            setShowModal(false)
+        }
+;
     };
 
     return (
         <div className='shoppinglist'>
             <ShoppingListHeader 
-                id={id}
+                id={id || 'defaultIdValue'}
                 onSave={() => saveShoppingList(shoppingList)}
                 onDelete={removeShoppingList}
             />
 
             <ShoppingListInputs 
                 name={shoppingList?.name}
-                description={shoppingList?.description}
+                description={shoppingList?.description || ''}
                 onNameChange={(e) => updateShoppingListState({ name: e.target.value })}
                 onDescriptionChange={(e) => updateShoppingListState({ description: e.target.value })}
             />

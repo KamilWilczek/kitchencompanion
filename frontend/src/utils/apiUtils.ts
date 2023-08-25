@@ -58,7 +58,7 @@ export const fetchShoppingListItem = async (listId: string | number, itemId: str
     return await response.json();
 };
 
-export const updateShoppingListItem = async (listId: string, itemId: string, data: ShoppingListItem | NewShoppingList): Promise<Response> => {
+export const updateShoppingListItem = async (listId: string, itemId: string | number, data: ShoppingListItem | NewShoppingList): Promise<Response> => {
     return await fetch(`${BASE_URL}${listId}/item/${itemId}/`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -74,7 +74,7 @@ export const createShoppingListItem = async (listId: string, data: ShoppingListI
     });
 };
 
-export const deleteShoppingListItem = async (listId: string, itemId: string): Promise<Response> => {
+export const deleteShoppingListItem = async (listId: string, itemId: string | number): Promise<Response> => {
     return await fetch(`${BASE_URL}${listId}/item/${itemId}/delete/`, {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
