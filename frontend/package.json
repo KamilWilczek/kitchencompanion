@@ -42,6 +42,7 @@
     ]
   },
   "devDependencies": {
+    "@svgr/webpack": "^8.1.0",
     "typescript": "^4.9.5"
   }
 }

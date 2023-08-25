@@ -26,3 +26,4 @@
 `npm install --save typescript @types/node @types/react @types/react-dom @types/jest`
 `npm install typescript@4.9.5`
 `npm install @types/react-router-dom`
+`npm install @svgr/webpack --save-dev`
