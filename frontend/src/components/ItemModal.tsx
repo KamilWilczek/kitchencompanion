@@ -39,16 +39,25 @@ const ItemModal: React.FC<ItemModalProps> = ({
                 <input 
                     type="text"
                     value={selectedItem?.product || ''}
-                    onChange={(e) => setSelectedItem(prev => ({ ...prev, product: e.target.value }))}
+                    onChange={(e) => {
+                        const updatedItem = { ...selectedItem, product: e.target.value };
+                        setSelectedItem(updatedItem);
+                    }}
                 />
                 <input 
                     type="text"
                     value={selectedItem?.quantity || ''}
-                    onChange={(e) => setSelectedItem(prev => ({ ...prev, quantity: e.target.value }))}
+                    onChange={(e) => {
+                        const updatedItem = { ...selectedItem, quantity: e.target.value };
+                        setSelectedItem(updatedItem);
+                    }}
                 />
                 <select 
                     value={selectedItem.unit || ''} 
-                    onChange={(e) => {setSelectedItem(prev => ({ ...prev, unit: e.target.value }))}}
+                    onChange={(e) => {
+                        const updatedItem = { ...selectedItem, unit: e.target.value };
+                        setSelectedItem(updatedItem);
+                    }}
                 >
                     <option value="" disabled selected>Select a unit</option>
                     {units.map(unit => (
@@ -57,7 +66,10 @@ const ItemModal: React.FC<ItemModalProps> = ({
                 </select>
                 <select 
                     value={selectedItem.category || ''} 
-                    onChange={(e) => {setSelectedItem(prev => ({ ...prev, category: e.target.value }))}}
+                    onChange={(e) => {
+                        const updatedItem = { ...selectedItem, category: e.target.value };
+                        setSelectedItem(updatedItem);
+                    }}
                 >
                     <option value="" disabled selected>Select a category</option>
                     {categories.map(category => (
@@ -65,16 +77,18 @@ const ItemModal: React.FC<ItemModalProps> = ({
                     ))}
                 </select>
                 <textarea 
-                    type="text"
                     value={selectedItem?.note || ''}
-                    onChange={(e) => setSelectedItem(prev => ({ ...prev, note: e.target.value }))}
+                    onChange={(e) => {
+                        const updatedItem = { ...selectedItem, note: e.target.value };
+                        setSelectedItem(updatedItem);
+                    }}
                 />
 
                 <button onClick={onSaveChanges}>
                     Save Changes
                 </button>
                 {selectedItem && selectedItem.id && (
-                    <button onClick={() => onDelete(selectedItem.id)}>Delete</button>
+                    <button onClick={() => onDelete(selectedItem.id!)}>Delete</button>
                 )}
             </div>
         </div>
