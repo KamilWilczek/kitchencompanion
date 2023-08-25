@@ -1,11 +1,12 @@
 import React, { useState }  from 'react'
 import { useParams } from 'react-router-dom';
-import { ReactComponent as ArrowLeft } from '../assets/arrow-left.svg'
 import ItemsList from '../components/ItemsList';
 import ItemModal from '../components/ItemModal';
 import { fetchShoppingListItem, updateShoppingListItem, createShoppingListItem, deleteShoppingListItem } from '../utils/apiUtils';
 import { categories, units } from '../utils/constants';
 import useShoppingList from '../hooks/useShoppingList';
+import ShoppingListHeader from '../components/ShoppingListHeader';
+import ShoppingListInputs from '../components/ShoppingListInputs';
 
 const ShoppingListPage = () => {
     let {id} = useParams();
@@ -59,70 +60,19 @@ const ShoppingListPage = () => {
         setShowModal(false);
     };
 
-    // return (
-    //     <div className='shoppinglist'>
-    //         <div className='shoppinglist-header'>
-    //             <h3>
-    //                 <ArrowLeft onClick={() => saveShoppingList(shoppingList)} />
-    //             </h3>
-    //             {id !== 'new' ? (
-    //                 <button onClick={() => removeShoppingList()}>Delete</button>
-    //             ) : (
-    //                 <button onClick={() => saveShoppingList(shoppingList)}>Done</button>
-    //             )}
-    //         </div>
-    //         <input
-    //             type="text"
-    //             placeholder="Shopping List Name"
-    //             onChange={(e) => updateShoppingListState({ name: e.target.value })}
-    //             value={shoppingList?.name}
-    //         />
-    
-    //         <input
-    //             type="text"
-    //             placeholder="Description"
-    //             onChange={(e) => updateShoppingListState({ description: e.target.value })}
-    //             value={shoppingList?.description}
-    //         />
-    
-    //         <hr />  {/* Horizontal rule to separate sections */}
-    
-    //         {id !== 'new' && <button onClick={initiateNewItemAddition}>Add item</button>}
-    
-    //         <div className='items-list'>
-    //             <ItemsList 
-    //                 items={shoppingList?.items || []} 
-    //                 onItemClick={handleItemSelection} 
-    //                 onCompletionChange={toggleItemCompletionStatus} 
-    //             />
-    //         </div>
-    //         {isModalOpen && (
-    //             <ItemModal 
-    //                 isModalOpen={isModalOpen}
-    //                 onClose={() => setShowModal(false)}
-    //                 selectedItem={selectedItem}
-    //                 setSelectedItem={setSelectedItem}
-    //                 units={units}
-    //                 categories={categories}
-    //                 onSaveChanges={selectedItem?.id ? saveSelectedItemChanges : saveNewItemDetails}
-    //                 onDelete={deleteSelectedItem}
-    //             />
-    //         )}
-    //     </div>
-    // )
     return (
         <div className='shoppinglist'>
             <ShoppingListHeader 
                 id={id}
                 onSave={() => saveShoppingList(shoppingList)}
-                onDelete={() => deleteShoppingList()}
+                onDelete={() => removeShoppingList()}
             />
 
             <ShoppingListInputs 
                 name={shoppingList?.name}
                 description={shoppingList?.description}
-                onNameChange={(e) => updateShoppingList({ name: e.target.value })}
-                onDescriptionChange={(e) => updateShoppingList({ description: e.target.value })}
+                onNameChange={(e) => updateShoppingListState({ name: e.target.value })}
+                onDescriptionChange={(e) => updateShoppingListState({ description: e.target.value })}
             />
     
             <hr />
@@ -138,18 +88,18 @@ const ShoppingListPage = () => {
             </div>
             {isModalOpen && (
                 <ItemModal 
-                    showModal={isModalOpen}
-                    onClose={() => setModalOpen(false)}
+                    isModalOpen={isModalOpen}
+                    onClose={() => setShowModal(false)}
                     selectedItem={selectedItem}
-                    setSelectedItem={setItemSelected}
+                    setSelectedItem={setSelectedItem}
                     units={units}
                     categories={categories}
                     onSaveChanges={selectedItem?.id ? saveSelectedItemChanges : saveNewItemDetails}
-                    onDelete={deleteSelecteditem}
+                    onDelete={deleteSelectedItem}
                 />
             )}
         </div>
-    )
+    );
 }
 
 export default ShoppingListPage
