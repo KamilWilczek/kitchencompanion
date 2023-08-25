@@ -1,8 +1,8 @@
 import React from 'react';
 
 interface ItemModalProps {
+    categories: string[];
     isModalOpen: boolean;
-    onClose: () => void;
     selectedItem: {
         id?: string | number;
         product?: string;
@@ -11,23 +11,23 @@ interface ItemModalProps {
         category?: string;
         note?: string;
     };
-    setSelectedItem: (item: ItemModalProps['selectedItem']) => void;
     units: string[];
-    categories: string[];
-    onSaveChanges: () => void;
+    onClose: () => void;
     onDelete: (id: string | number) => void;
+    onSaveChanges: () => void;
+    setSelectedItem: (item: ItemModalProps['selectedItem']) => void;
 }
 
 
 const ItemModal: React.FC<ItemModalProps> = ({ 
-    isModalOpen, 
-    onClose, 
-    selectedItem, 
-    setSelectedItem, 
-    units, 
     categories, 
+    isModalOpen, 
+    selectedItem, 
+    units, 
+    onClose, 
+    onDelete, 
     onSaveChanges,
-    onDelete 
+    setSelectedItem 
 }) => {
     return (
         <div className={`modal ${isModalOpen ? 'show' : 'hide'}`}>
