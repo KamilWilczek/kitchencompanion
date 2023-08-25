@@ -9,6 +9,7 @@ interface Item {
   completed: boolean;
 }
 
+
 interface Response {
   ok: boolean;
   [key: string]: any;  // Add additional properties as needed based on the structure of your response
@@ -21,7 +22,7 @@ type UseShoppingListReturnType = [
   () => Promise<void>
 ];
 
-const useShoppingList = (id: string): UseShoppingListReturnType => {
+const useShoppingList = (id: string | number | undefined): UseShoppingListReturnType => {
   const navigate = useNavigate();
   const [shoppingList, setShoppingList] = useState<ShoppingList | NewShoppingList>({ name: "", description: "", items: [] });
 
@@ -37,7 +38,7 @@ const useShoppingList = (id: string): UseShoppingListReturnType => {
 
   useEffect(() => {
     const fetchData = async () => {
-      if (id !== 'new') {
+      if (id && id !== 'new') {  // Added id check here
         const data = await fetchShoppingList(id);
         if (data.items) {
           data.items = Array.isArray(data.items) ? sortItems(data.items) : sortItems([data.items]);
@@ -67,26 +68,26 @@ const useShoppingList = (id: string): UseShoppingListReturnType => {
     let response: Response;
     if (id === 'new') {
       response = await createShoppingList(list);
-    } else {
+    } else if (id) {
       response = await updateShoppingList(id, list);
+    } else {
+      // Handle the case where id is undefined
+      return;
     }
 
     if (response.ok) {
-      navigate('/');  // or wherever you want to redirect to
-    } else {
-      // Handle the error or display a notification to the user.
+      navigate('/');
     }
   };
 
   const removeShoppingList = async () => {
-    if (id !== 'new') {
+    if (id && id !== 'new') {
       const response: Response = await deleteShoppingList(id);
       if (response.ok) {
         navigate('/');
       }
     }
-
-};
+  };
 
   return [shoppingList, updateShoppingListState, saveShoppingList, removeShoppingList];
 }

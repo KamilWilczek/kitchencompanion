@@ -12,32 +12,21 @@ import { categories, units } from '../utils/constants';
 import useShoppingList from '../hooks/useShoppingList';
 import ShoppingListHeader from '../components/ShoppingListHeader';
 import ShoppingListInputs from '../components/ShoppingListInputs';
-
-// Assuming you have types for your shopping list and items. 
-// For now, I'm going to make some generic types for demonstration purposes.
-interface ShoppingListItem {
-    id: number;
-    completed: boolean;
-    [key: string]: any;
-}
-
-interface IShoppingList {
-    name: string;
-    description: string;
-    items: ShoppingListItem[];
-    [key: string]: any;
-}
+import { ShoppingList, ShoppingListItem } from '../utils/types';
 
 const ShoppingListPage: React.FC = () => {
-    const { id } = useParams<{ id: string }>();
+    // TODO: how to handle if id is undefined
+    const { id } = useParams<{ id: string | number }>(); 
     const [shoppingList, updateShoppingListState, saveShoppingList, removeShoppingList] = useShoppingList(id);
     const [selectedItem, setSelectedItem] = useState<ShoppingListItem | null>(null);
     const [isModalOpen, setShowModal] = useState<boolean>(false);
 
     const handleItemSelection = async (itemId: number) => {
-        const data = await fetchShoppingListItem(id, itemId);
-        setSelectedItem(data);
-        setShowModal(true);
+        if (id) {  // Make sure id is not undefined
+            const data = await fetchShoppingListItem(id, itemId);
+            setSelectedItem(data);
+            setShowModal(true);
+        }
     };
 
     const saveSelectedItemChanges = async () => {

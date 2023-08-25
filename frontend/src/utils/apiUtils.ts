@@ -23,13 +23,13 @@ export const fetchShoppingLists = async (): Promise<ShoppingList[]> => {
     return await response.json();
 };
 
-export const fetchShoppingList = async (id: string): Promise<ShoppingList> => {
+export const fetchShoppingList = async (id: number | string): Promise<ShoppingList> => {
     const response = await fetch(`${BASE_URL}${id}/edit/`);
     return await response.json();
 };
 
 // Use the ShoppingList type when you're updating a shopping list
-export const updateShoppingList = async (id: string, data: ShoppingList): Promise<Response> => {
+export const updateShoppingList = async (id: number | string, data: ShoppingList): Promise<Response> => {
     return await fetch(`${BASE_URL}${id}/edit/`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -37,7 +37,7 @@ export const updateShoppingList = async (id: string, data: ShoppingList): Promis
     });
 };
 
-export const deleteShoppingList = async (id: string): Promise<Response> => {
+export const deleteShoppingList = async (id: number | string): Promise<Response> => {
     return await fetch(`${BASE_URL}${id}/delete/`, {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
@@ -53,7 +53,7 @@ export const createShoppingList = async (data: NewShoppingList): Promise<Respons
 };
 
 // Use the ShoppingListItem type for operations related to individual items
-export const fetchShoppingListItem = async (listId: string, itemId: string): Promise<ShoppingListItem> => {
+export const fetchShoppingListItem = async (listId: string | number, itemId: string | number): Promise<ShoppingListItem> => {
     const response = await fetch(`${BASE_URL}${listId}/item/${itemId}/`);
     return await response.json();
 };

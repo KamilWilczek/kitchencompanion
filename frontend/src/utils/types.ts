@@ -9,7 +9,7 @@ export interface ShoppingListItem {
 }
 
 export interface ShoppingList {
-    id: string;
+    id: string | number;
     name: string;
     description?: string;
     items: ShoppingListItem[];
