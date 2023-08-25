@@ -11,7 +11,7 @@
     - [ ] Remove bought items
     - [ ] Remove all items
     - [ ] Refactoring:
-      - [ ] Modularize components (e.g., `ShoppingListHeader`, `ShoppingListInputs`)
+      - [x] Modularize components (e.g., `ShoppingListHeader`, `ShoppingListInputs`)
       - [ ] Implement `useCallback` for event handlers
       - [ ] Consolidate state management (consider `Redux`,`Zustand`, and `MobX`)
       - [ ] Improve error handling for async operations
