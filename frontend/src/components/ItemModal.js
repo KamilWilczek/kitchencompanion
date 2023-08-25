@@ -2,7 +2,7 @@ import React from 'react';
 
 
 const ItemModal = ({ 
-    showModal, 
+    isModalOpen, 
     onClose, 
     selectedItem, 
     setSelectedItem, 
@@ -12,7 +12,7 @@ const ItemModal = ({
     onDelete 
 }) => {
     return (
-        <div className={`modal ${showModal ? 'show' : 'hide'}`}>
+        <div className={`modal ${isModalOpen ? 'show' : 'hide'}`}>
             <div className="modal-content">
                 {/* Close Button */}
                 <button onClick={onClose}>Close</button>

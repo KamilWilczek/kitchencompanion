@@ -11,15 +11,15 @@ const ShoppingListPage = () => {
     let {id} = useParams();
     const [shoppingList, updateShoppingListState, saveShoppingList, removeShoppingList] = useShoppingList(id);
     const [selectedItem, setSelectedItem] = useState(null);
-    const [showModal, setShowModal] = useState(false);
+    const [isModalOpen, setShowModal] = useState(false);
 
-    const handleItemClick = async (itemId) => {
+    const handleItemSelection = async (itemId) => {
         const data = await fetchShoppingListItem(id, itemId);
         setSelectedItem(data);
         setShowModal(true);
     };
 
-    const handleItemUpdate = async () => {
+    const saveSelectedItemChanges = async () => {
         if (selectedItem) {
             const response = await updateShoppingListItem(id, selectedItem.id, selectedItem);
             if (response.ok) {
@@ -28,7 +28,7 @@ const ShoppingListPage = () => {
         }
     };
 
-    const handleCompletionChange = async (item) => {
+    const toggleItemCompletionStatus = async (item) => {
         const updatedItem = { ...item, completed: !item.completed };
         const response = await updateShoppingListItem(id, item.id, updatedItem);
         if (response.ok) {
@@ -37,7 +37,7 @@ const ShoppingListPage = () => {
         }
     };
 
-    const handleNewItemSave = async () => {
+    const saveNewItemDetails = async () => {
         const response = await createShoppingListItem(id, selectedItem);
         if (response.ok) {
             const newItem = await response.json();
@@ -47,12 +47,12 @@ const ShoppingListPage = () => {
         }
     };
 
-    const handleAddItem = () => {
+    const initiateNewItemAddition = () => {
         setSelectedItem({});  // Initialize to an empty object
         setShowModal(true);
     };
 
-    const handleItemDelete = async (itemId) => {
+    const deleteSelectedItem = async (itemId) => {
         await deleteShoppingListItem(id, itemId);
         const updatedItems = shoppingList.items.filter(item => item.id !== itemId);
         updateShoppingListState({ items: updatedItems });
@@ -87,25 +87,25 @@ const ShoppingListPage = () => {
     
             <hr />  {/* Horizontal rule to separate sections */}
     
-            {id !== 'new' && <button onClick={handleAddItem}>Add item</button>}
+            {id !== 'new' && <button onClick={initiateNewItemAddition}>Add item</button>}
     
             <div className='items-list'>
                 <ItemsList 
                     items={shoppingList?.items || []} 
-                    onItemClick={handleItemClick} 
-                    onCompletionChange={handleCompletionChange} 
+                    onItemClick={handleItemSelection} 
+                    onCompletionChange={toggleItemCompletionStatus} 
                 />
             </div>
-            {showModal && (
+            {isModalOpen && (
                 <ItemModal 
-                    showModal={showModal}
+                    isModalOpen={isModalOpen}
                     onClose={() => setShowModal(false)}
                     selectedItem={selectedItem}
                     setSelectedItem={setSelectedItem}
                     units={units}
                     categories={categories}
-                    onSaveChanges={selectedItem?.id ? handleItemUpdate : handleNewItemSave}
-                    onDelete={handleItemDelete}
+                    onSaveChanges={selectedItem?.id ? saveSelectedItemChanges : saveNewItemDetails}
+                    onDelete={deleteSelectedItem}
                 />
             )}
         </div>
