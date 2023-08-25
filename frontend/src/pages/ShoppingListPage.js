@@ -59,36 +59,76 @@ const ShoppingListPage = () => {
         setShowModal(false);
     };
 
+    // return (
+    //     <div className='shoppinglist'>
+    //         <div className='shoppinglist-header'>
+    //             <h3>
+    //                 <ArrowLeft onClick={() => saveShoppingList(shoppingList)} />
+    //             </h3>
+    //             {id !== 'new' ? (
+    //                 <button onClick={() => removeShoppingList()}>Delete</button>
+    //             ) : (
+    //                 <button onClick={() => saveShoppingList(shoppingList)}>Done</button>
+    //             )}
+    //         </div>
+    //         <input
+    //             type="text"
+    //             placeholder="Shopping List Name"
+    //             onChange={(e) => updateShoppingListState({ name: e.target.value })}
+    //             value={shoppingList?.name}
+    //         />
+    
+    //         <input
+    //             type="text"
+    //             placeholder="Description"
+    //             onChange={(e) => updateShoppingListState({ description: e.target.value })}
+    //             value={shoppingList?.description}
+    //         />
+    
+    //         <hr />  {/* Horizontal rule to separate sections */}
+    
+    //         {id !== 'new' && <button onClick={initiateNewItemAddition}>Add item</button>}
+    
+    //         <div className='items-list'>
+    //             <ItemsList 
+    //                 items={shoppingList?.items || []} 
+    //                 onItemClick={handleItemSelection} 
+    //                 onCompletionChange={toggleItemCompletionStatus} 
+    //             />
+    //         </div>
+    //         {isModalOpen && (
+    //             <ItemModal 
+    //                 isModalOpen={isModalOpen}
+    //                 onClose={() => setShowModal(false)}
+    //                 selectedItem={selectedItem}
+    //                 setSelectedItem={setSelectedItem}
+    //                 units={units}
+    //                 categories={categories}
+    //                 onSaveChanges={selectedItem?.id ? saveSelectedItemChanges : saveNewItemDetails}
+    //                 onDelete={deleteSelectedItem}
+    //             />
+    //         )}
+    //     </div>
+    // )
     return (
         <div className='shoppinglist'>
-            <div className='shoppinglist-header'>
-                <h3>
-                    <ArrowLeft onClick={() => saveShoppingList(shoppingList)} />
-                </h3>
-                {id !== 'new' ? (
-                    <button onClick={() => removeShoppingList()}>Delete</button>
-                ) : (
-                    <button onClick={() => saveShoppingList(shoppingList)}>Done</button>
-                )}
-            </div>
-            <input
-                type="text"
-                placeholder="Shopping List Name"
-                onChange={(e) => updateShoppingListState({ name: e.target.value })}
-                value={shoppingList?.name}
+            <ShoppingListHeader 
+                id={id}
+                onSave={() => saveShoppingList(shoppingList)}
+                onDelete={() => deleteShoppingList()}
+            />
+
+            <ShoppingListInputs 
+                name={shoppingList?.name}
+                description={shoppingList?.description}
+                onNameChange={(e) => updateShoppingList({ name: e.target.value })}
+                onDescriptionChange={(e) => updateShoppingList({ description: e.target.value })}
             />
     
-            <input
-                type="text"
-                placeholder="Description"
-                onChange={(e) => updateShoppingListState({ description: e.target.value })}
-                value={shoppingList?.description}
-            />
-    
-            <hr />  {/* Horizontal rule to separate sections */}
-    
+            <hr />
+
             {id !== 'new' && <button onClick={initiateNewItemAddition}>Add item</button>}
-    
+
             <div className='items-list'>
                 <ItemsList 
                     items={shoppingList?.items || []} 
@@ -98,14 +138,14 @@ const ShoppingListPage = () => {
             </div>
             {isModalOpen && (
                 <ItemModal 
-                    isModalOpen={isModalOpen}
-                    onClose={() => setShowModal(false)}
+                    showModal={isModalOpen}
+                    onClose={() => setModalOpen(false)}
                     selectedItem={selectedItem}
-                    setSelectedItem={setSelectedItem}
+                    setSelectedItem={setItemSelected}
                     units={units}
                     categories={categories}
                     onSaveChanges={selectedItem?.id ? saveSelectedItemChanges : saveNewItemDetails}
-                    onDelete={deleteSelectedItem}
+                    onDelete={deleteSelecteditem}
                 />
             )}
         </div>
