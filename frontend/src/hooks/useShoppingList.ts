@@ -60,19 +60,20 @@ const useShoppingList = (id: string | number | undefined): UseShoppingListReturn
 
   const saveShoppingList = async (list: ShoppingList | NewShoppingList) => {
     let response: Response;
-    if (id === 'new' && 'propertyUniqueToNewShoppingList' in list) {
+    if (id === 'new') {
       response = await createShoppingList(list as NewShoppingList);
-    } else if (id && 'id' in list) {
+  } else if (id) {
       response = await updateShoppingList(id, list as ShoppingList);
-    } else {
-      // Handle the case where id is undefined
+  } else {
       return;
-    }
+  }
 
     if (response.ok) {
       navigate('/');
+    } else {
+      console.error('Failed response:', response);
     }
-};
+  };
 
   const removeShoppingList = async () => {
     if (id && id !== 'new') {

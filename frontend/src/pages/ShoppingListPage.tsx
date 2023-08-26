@@ -40,9 +40,12 @@ const ShoppingListPage: React.FC = () => {
     };
 
     const saveSelectedItemChanges = async () => {
-        if (selectedItem && id) {  // Make sure both selectedItem and id are defined
+        if (selectedItem && id) {
             const response = await updateShoppingListItem(id, selectedItem.id, selectedItem);
             if (response.ok) {
+                const updatedItem: ShoppingListItem = await response.json();
+                const updatedItems = shoppingList.items.map(i => i.id === updatedItem.id ? updatedItem : i);
+                updateShoppingListState({ items: updatedItems });
                 setShowModal(false);
             }
         }
@@ -122,7 +125,7 @@ const ShoppingListPage: React.FC = () => {
                     setSelectedItem={setSelectedItem}
                     units={units}
                     categories={categories}
-                    onSaveChanges={selectedItem?.id ? saveSelectedItemChanges : saveNewItemDetails}
+                    onSaveChanges={selectedItem?.id === -1 ? saveNewItemDetails : saveSelectedItemChanges}
                     onDelete={deleteSelectedItem}
                 />
             )}

@@ -81,7 +81,7 @@ const ItemModal: React.FC<ItemModalProps> = ({
                 <button onClick={onSaveChanges}>
                     Save Changes
                 </button>
-                {selectedItem && selectedItem.id && (
+                {selectedItem && selectedItem.id > -1 && (
                     <button onClick={() => onDelete(selectedItem.id!)}>Delete</button>
                 )}
             </div>
