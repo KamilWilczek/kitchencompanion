@@ -53,7 +53,7 @@
   - [ ] some plugins for user creation in Django
 - [ ] Authentication
 - [ ] Types on backend
-- [ ] JS to TS
+- [x] JS to TS
 - [ ] Recipe module
 - [ ] Pantry module
 - [ ] Planner module
