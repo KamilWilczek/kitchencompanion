@@ -1,20 +1,12 @@
 import React from 'react';
 import Item from './Item';
+import { ShoppingListItem } from '../utils/types';
 
-interface ItemProps {
-    id: string | number;
-    product: string;
-    quantity?: string | number;
-    unit?: string;
-    category?: string;
-    completed?: boolean;
-    note?: string;
-}
 
 interface ItemsListProps {
-    items: ItemProps[];
-    onItemClick: (id: string | number) => void;
-    onCompletionChange: (item: ItemProps) => void;
+    items: ShoppingListItem[];
+    onItemClick: (id: number) => void;
+    onCompletionChange: (item: ShoppingListItem) => void;
 }
 
 const ItemsList: React.FC<ItemsListProps> = ({ items, onItemClick, onCompletionChange }) => {

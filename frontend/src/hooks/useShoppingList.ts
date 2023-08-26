@@ -1,13 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { fetchShoppingList, updateShoppingList, createShoppingList, deleteShoppingList } from '../utils/apiUtils';
-import { ShoppingList, NewShoppingList } from '../utils/types';
-
-interface Item {
-  id: string | number;
-  product: string;
-  completed: boolean;
-}
+import { ShoppingList, NewShoppingList, ShoppingListItem } from '../utils/types';
 
 
 interface Response {
@@ -17,8 +11,8 @@ interface Response {
 
 type UseShoppingListReturnType = [
   ShoppingList | NewShoppingList,
-  (updatedFields: Partial<ShoppingList>) => void,
-  (list: ShoppingList) => Promise<void>,
+  (updatedFields: Partial<ShoppingList | NewShoppingList>) => void,
+  (list: ShoppingList | NewShoppingList) => Promise<void>,
   () => Promise<void>
 ];
 
@@ -26,7 +20,7 @@ const useShoppingList = (id: string | number | undefined): UseShoppingListReturn
   const navigate = useNavigate();
   const [shoppingList, setShoppingList] = useState<ShoppingList | NewShoppingList>({ name: "", description: "", items: [] });
 
-  const sortItems = (items: Item[]): Item[] => {
+  const sortItems = (items: ShoppingListItem[]): ShoppingListItem[] => {
     return items.sort((a, b) => {
       if (a.completed !== b.completed) return a.completed ? 1 : -1;
 
@@ -64,12 +58,12 @@ const useShoppingList = (id: string | number | undefined): UseShoppingListReturn
     });
   };
 
-  const saveShoppingList = async (list: ShoppingList) => {
+  const saveShoppingList = async (list: ShoppingList | NewShoppingList) => {
     let response: Response;
-    if (id === 'new') {
-      response = await createShoppingList(list);
-    } else if (id) {
-      response = await updateShoppingList(id, list);
+    if (id === 'new' && 'propertyUniqueToNewShoppingList' in list) {
+      response = await createShoppingList(list as NewShoppingList);
+    } else if (id && 'id' in list) {
+      response = await updateShoppingList(id, list as ShoppingList);
     } else {
       // Handle the case where id is undefined
       return;
@@ -78,7 +72,7 @@ const useShoppingList = (id: string | number | undefined): UseShoppingListReturn
     if (response.ok) {
       navigate('/');
     }
-  };
+};
 
   const removeShoppingList = async () => {
     if (id && id !== 'new') {

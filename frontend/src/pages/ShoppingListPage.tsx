@@ -12,14 +12,24 @@ import { categories, units } from '../utils/constants';
 import useShoppingList from '../hooks/useShoppingList';
 import ShoppingListHeader from '../components/ShoppingListHeader';
 import ShoppingListInputs from '../components/ShoppingListInputs';
-import { ShoppingList, ShoppingListItem } from '../utils/types';
+import { ShoppingListItem } from '../utils/types';
 
 const ShoppingListPage: React.FC = () => {
     // TODO: how to handle if id is undefined
     const { id } = useParams<{ id?: string }>();
+    const defaultItem: ShoppingListItem = {
+        id: -1,
+        product: '',
+        quantity: '',
+        unit: '',
+        category: '',
+        note: '',
+        completed: false
+    };
     const [shoppingList, updateShoppingListState, saveShoppingList, removeShoppingList] = useShoppingList(id);
-    const [selectedItem, setSelectedItem] = useState<ShoppingListItem | null>(null);
+    const [selectedItem, setSelectedItem] = useState<ShoppingListItem>(defaultItem);
     const [isModalOpen, setShowModal] = useState<boolean>(false);
+
 
     const handleItemSelection = async (itemId: number) => {
         if (id) {  // Make sure id is not undefined
@@ -62,15 +72,7 @@ const ShoppingListPage: React.FC = () => {
     };
 
     const initiateNewItemAddition = () => {
-        setSelectedItem({
-            id: -1,
-            product: '',
-            quantity: '',
-            unit: '',
-            category: '',
-            note: '',
-            completed: false,
-        });  // Initialize to an empty object
+        setSelectedItem(defaultItem);
         setShowModal(true);
     };
 
@@ -88,9 +90,11 @@ const ShoppingListPage: React.FC = () => {
         <div className='shoppinglist'>
             <ShoppingListHeader 
                 id={id || 'defaultIdValue'}
-                onSave={() => saveShoppingList(shoppingList)}
+                shoppingList={shoppingList}
+                onSave={saveShoppingList}
                 onDelete={removeShoppingList}
             />
+
 
             <ShoppingListInputs 
                 name={shoppingList?.name}

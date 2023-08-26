@@ -2,7 +2,7 @@ import React from 'react';
 
 interface ItemProps {
   item: {
-    id: string | number;
+    id: number;
     product: string;
     completed: boolean;
     quantity?: string | number;
@@ -10,7 +10,7 @@ interface ItemProps {
     category: string | undefined;
     note?: string;
   };
-  onItemClick: (id: string | number) => void;
+  onItemClick: (id: number) => void;
   onCompletionChange: (item: ItemProps['item']) => void;
 }
 

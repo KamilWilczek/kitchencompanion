@@ -1,22 +1,7 @@
-import { ShoppingList } from "./types";
+import { ShoppingList, ShoppingListItem, NewShoppingList } from "./types";
 
 const BASE_URL = 'http://127.0.0.1:8000/shoppinglist/';
 
-
-interface ShoppingListItem {
-    id: string | number;
-    product: string;
-    quantity?: string | number;
-    unit?: string;
-    category?: string;
-    note?: string;
-    completed: boolean;
-}
-
-interface NewShoppingList {
-    name: string;
-    // ... other fields, but not the ID
-}
 
 export const fetchShoppingLists = async (): Promise<ShoppingList[]> => {
     const response = await fetch(`${BASE_URL}`);
@@ -53,7 +38,7 @@ export const createShoppingList = async (data: NewShoppingList): Promise<Respons
 };
 
 // Use the ShoppingListItem type for operations related to individual items
-export const fetchShoppingListItem = async (listId: string | number, itemId: string | number): Promise<ShoppingListItem> => {
+export const fetchShoppingListItem = async (listId: string | number, itemId: number): Promise<ShoppingListItem> => {
     const response = await fetch(`${BASE_URL}${listId}/item/${itemId}/`);
     return await response.json();
 };

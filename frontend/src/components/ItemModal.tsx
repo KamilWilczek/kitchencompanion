@@ -1,19 +1,13 @@
 import React from 'react';
+import { ShoppingListItem } from '../utils/types';
 
 interface ItemModalProps {
     categories: string[];
     isModalOpen: boolean;
-    selectedItem: {
-        id?: string | number;
-        product?: string;
-        quantity?: string | number;
-        unit?: string;
-        category?: string;
-        note?: string;
-    };
+    selectedItem: ShoppingListItem;
     units: string[];
     onClose: () => void;
-    onDelete: (id: string | number) => void;
+    onDelete: (id: number) => void;
     onSaveChanges: () => void;
     setSelectedItem: (item: ItemModalProps['selectedItem']) => void;
 }
