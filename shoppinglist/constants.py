@@ -1,4 +1,5 @@
 from enum import Enum
+from typing import List, Tuple
 
 
 class ItemCategory(Enum):
@@ -29,7 +30,7 @@ class ItemCategory(Enum):
     OTHER = "other"
 
     @classmethod
-    def choices(cls):
+    def choices(cls) -> List[Tuple[str, str]]:
         return [(key.value, key.value) for key in cls]
 
 
@@ -42,5 +43,5 @@ class ItemUnit(Enum):
     MILLILITER = "ml"
 
     @classmethod
-    def choices(cls):
+    def choices(cls) -> List[Tuple[str, str]]:
         return [(key.value, key.value) for key in cls]
