@@ -30,6 +30,8 @@
   - [ ] ...
 - [ ] Typing
 - [ ] Refactor views.py
+  - [x] Class based views
+  - [ ] Exception Handling in ShoppingItemMixin
 - [ ] Field validation
 - [ ] Linting
   - [ ] pylint

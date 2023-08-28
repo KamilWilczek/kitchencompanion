@@ -29,7 +29,7 @@ export const deleteShoppingList = async (shoppingListId : number | string): Prom
 };
 
 export const createShoppingList = async (data: NewShoppingList): Promise<Response> => {
-    return await fetch(`${BASE_URL}create-update/`, {
+    return await fetch(`${BASE_URL}create/`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),

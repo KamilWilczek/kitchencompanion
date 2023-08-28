@@ -13,7 +13,7 @@ app_name = "shoppinglist"
 
 urlpatterns = [
     path("", ShoppingListView.as_view(), name="list"),
-    path("create-update/", ShoppingListCreateView.as_view(), name="create"),
+    path("create/", ShoppingListCreateView.as_view(), name="create"),
     path("<int:pk>/edit/", ShoppingListDetailUpdateView.as_view(), name="update"),
     path("<int:pk>/delete/", ShoppingListDeleteView.as_view(), name="delete"),
     path("<int:parent_pk>/item/", ItemCreateView.as_view(), name="item-create"),
