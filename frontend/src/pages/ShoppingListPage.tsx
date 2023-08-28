@@ -31,9 +31,9 @@ const ShoppingListPage: React.FC = () => {
     const [isModalOpen, setShowModal] = useState<boolean>(false);
 
 
-    const handleItemSelection = async (itemId: number) => {
+    const handleItemSelection = async (shoppingListItemId: number) => {
         if (shoppingListId) {  // Make sure id is not undefined
-            const data = await fetchShoppingListItem(shoppingListId, itemId);
+            const data = await fetchShoppingListItem(shoppingListId, shoppingListItemId);
             setSelectedItem(data);
             setShowModal(true);
         }
@@ -79,10 +79,10 @@ const ShoppingListPage: React.FC = () => {
         setShowModal(true);
     };
 
-    const deleteSelectedItem = async (itemId: number) => {
+    const deleteSelectedItem = async (shoppingListItemId: number) => {
         if (shoppingListId) {
-            await deleteShoppingListItem(shoppingListId, itemId);
-            const updatedItems = shoppingList.items.filter(item => item.id !== itemId);
+            await deleteShoppingListItem(shoppingListId, shoppingListItemId);
+            const updatedItems = shoppingList.items.filter(item => item.id !== shoppingListItemId);
             updateShoppingListState({ items: updatedItems });
             setShowModal(false)
         }

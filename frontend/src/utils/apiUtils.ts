@@ -38,13 +38,13 @@ export const createShoppingList = async (data: NewShoppingList): Promise<Respons
 };
 
 // Use the ShoppingListItem type for operations related to individual items
-export const fetchShoppingListItem = async (shoppingListId : string | number, itemId: number): Promise<ShoppingListItem> => {
-    const response = await fetch(`${BASE_URL}${shoppingListId }/item/${itemId}/`);
+export const fetchShoppingListItem = async (shoppingListId : string | number, shoppingListItemId: number): Promise<ShoppingListItem> => {
+    const response = await fetch(`${BASE_URL}${shoppingListId }/item/${shoppingListItemId}/`);
     return await response.json();
 };
 
-export const updateShoppingListItem = async (shoppingListId : string, itemId: string | number, data: ShoppingListItem | NewShoppingList): Promise<Response> => {
-    return await fetch(`${BASE_URL}${shoppingListId }/item/${itemId}/`, {
+export const updateShoppingListItem = async (shoppingListId : string, shoppingListItemId: string | number, data: ShoppingListItem | NewShoppingList): Promise<Response> => {
+    return await fetch(`${BASE_URL}${shoppingListId }/item/${shoppingListItemId}/`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
@@ -59,8 +59,8 @@ export const createShoppingListItem = async (shoppingListId : string, data: Shop
     });
 };
 
-export const deleteShoppingListItem = async (shoppingListId : string, itemId: string | number): Promise<Response> => {
-    return await fetch(`${BASE_URL}${shoppingListId }/item/${itemId}/delete/`, {
+export const deleteShoppingListItem = async (shoppingListId : string, shoppingListItemId: string | number): Promise<Response> => {
+    return await fetch(`${BASE_URL}${shoppingListId }/item/${shoppingListItemId}/delete/`, {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
     });

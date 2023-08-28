@@ -12,7 +12,7 @@ interface Response {
 type UseShoppingListReturnType = [
   ShoppingList | NewShoppingList,
   (updatedFields: Partial<ShoppingList | NewShoppingList>) => void,
-  (list: ShoppingList | NewShoppingList) => Promise<void>,
+  (shoppingList: ShoppingList | NewShoppingList) => Promise<void>,
   () => Promise<void>
 ];
 
@@ -58,12 +58,12 @@ const useShoppingList = (shoppingListId : string | number | undefined): UseShopp
     });
   };
 
-  const saveShoppingList = async (list: ShoppingList | NewShoppingList) => {
+  const saveShoppingList = async (shoppingList: ShoppingList | NewShoppingList) => {
     let response: Response;
     if (shoppingListId  === 'new') {
-      response = await createShoppingList(list as NewShoppingList);
+      response = await createShoppingList(shoppingList as NewShoppingList);
   } else if (shoppingListId ) {
-      response = await updateShoppingList(shoppingListId , list as ShoppingList);
+      response = await updateShoppingList(shoppingListId , shoppingList as ShoppingList);
   } else {
       return;
   }
