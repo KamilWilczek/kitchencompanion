@@ -13,7 +13,6 @@ export const fetchShoppingList = async (shoppingListId : number | string): Promi
     return await response.json();
 };
 
-// Use the ShoppingList type when you're updating a shopping list
 export const updateShoppingList = async (shoppingListId : number | string, data: ShoppingList): Promise<Response> => {
     return await fetch(`${BASE_URL}${shoppingListId }/edit/`, {
         method: 'PUT',
@@ -37,7 +36,6 @@ export const createShoppingList = async (data: NewShoppingList): Promise<Respons
     });
 };
 
-// Use the ShoppingListItem type for operations related to individual items
 export const fetchShoppingListItem = async (shoppingListId : string | number, shoppingListItemId: number): Promise<ShoppingListItem> => {
     const response = await fetch(`${BASE_URL}${shoppingListId }/item/${shoppingListItemId}/`);
     return await response.json();

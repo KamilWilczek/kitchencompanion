@@ -5,7 +5,7 @@ interface ShoppingListProps {
     shoppingList: {
         id: string | number;
         name: string;
-        updated: string | Date; // depends on your data format
+        updated: string | Date;
         items_count: number;
     };
 }

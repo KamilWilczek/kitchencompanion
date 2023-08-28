@@ -6,7 +6,7 @@ import { ShoppingList, NewShoppingList, ShoppingListItem } from '../utils/types'
 
 interface Response {
   ok: boolean;
-  [key: string]: any;  // Add additional properties as needed based on the structure of your response
+  [key: string]: any;
 }
 
 type UseShoppingListReturnType = [
@@ -32,7 +32,7 @@ const useShoppingList = (shoppingListId : string | number | undefined): UseShopp
 
   useEffect(() => {
     const fetchData = async () => {
-      if (shoppingListId  && shoppingListId  !== 'new') {  // Added id check here
+      if (shoppingListId  && shoppingListId  !== 'new') {
         const data = await fetchShoppingList(shoppingListId );
         if (data.items) {
           data.items = Array.isArray(data.items) ? sortItems(data.items) : sortItems([data.items]);
