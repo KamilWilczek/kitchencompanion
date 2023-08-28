@@ -2,11 +2,51 @@
 
 # TODO
 
-- [ ] **ShoppingList module**
-  - [ ] _ShoppingList_
+## Architecture
+
+- [x] ShoppingList module
+- [ ] Recipe module
+- [ ] Pantry module
+- [ ] Planner module
+- [x] JS to TS port
+- [ ] Database: PostgreSQL
+- [ ] Look for better layout
+- [ ] Bootstrap?
+  - [ ] React MUI
+  - [ ] Figma
+  - [ ] Canva
+- [ ] Add user creation UsersApp
+  - [ ] some plugins for user creation in Django
+- [ ] Authentication
+- [ ] dependencies management
+  - [ ] poetry
+
+## Backend
+
+- [ ] ShoppingList module
+  - [x] Models for ShoppingList
+  - [x] Basic CRUD for ShoppingList
+  - [x] Basic CRUD for ShoppingListItem
+  - [ ] ...
+- [ ] Typing
+- [ ] Refactor views.py
+- [ ] Field validation
+- [ ] Linting
+  - [ ] pylint
+  - [ ] isort
+- [ ] Tests
+  - [ ] Unit tests
+  - [ ] Integration tests
+
+## Frontend
+
+- [ ] ShoppingList module
+
+  - [ ] ShoppingList
     - [x] Retrieve itemShoppingLists
     - [x] Edit ShoppingList
     - [x] Add ShoppingList
+    - [x] Extract Item, Itemslist, ItemModal as components
     - [x] Remove ShoppingList
     - [ ] Remove bought items
     - [ ] Remove all items
@@ -19,7 +59,7 @@
       - [ ] Add comments for complex logic
       - [ ] Avoid direct arrow functions in JSX for performance
     - [ ] ...
-  - [ ] _Items_
+  - [ ] Items
     - [x] Retrieve items
       - [x] Sorting
     - [x] Edit Item
@@ -41,36 +81,18 @@
       - [ ] Avoid direct arrow functions in JSX for item components for performance
       - [ ] Destructure state and props at the beginning of item-related components for readability
     - [ ] ...
-- [x] Extract Item, Itemslist, ItemModal as components
-- [ ] Better styling of ShoppingListPage
-- [ ] Look for better layout
-- [ ] Bootstrap?
-  - [ ] React MUI
-  - [ ] Figma
-  - [ ] Canva
-- [ ] Tests on backend
-- [ ] Add user creation UsersApp
-  - [ ] some plugins for user creation in Django
-- [ ] Authentication
-- [ ] Types on backend
-- [x] JS to TS
-- [ ] Recipe module
-- [ ] Pantry module
-- [ ] Planner module
-- [ ] database: PostgreSQL?
-- [ ] views.py refactor drf
-- [ ] field validation on backend
-- [ ] field validation on frontend
+
+- [ ] Field validation
 - [ ] somethin with fetches, don't like them
   - [x] extract basic CRUD for ShoppingListPage.js
   - [x] move apiUtils.js into better place
   - [x] ShoppingList frontend api in one place
   - [ ] axios?
-- [ ] better README
-- [ ] linter on fronend and backend (order of imports etc)
-  - [ ] pylint
-  - [ ] isort
+- [ ] Lint
+
   - [ ] prettier
   - [ ] ESLint
-- [ ] dependencies management
-  - [ ] poetry
+
+## Utility
+
+- [ ] Better README
