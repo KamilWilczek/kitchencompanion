@@ -1,14 +1,5 @@
 from django.db import models
-
-# Create your models here.
-from django.db import models
-
-# Create your models here.
-from django.db import models
 from django.contrib.auth.models import User
-from django.urls import reverse
-
-# Create your models here.
 
 
 class ItemCategory(models.TextChoices):
@@ -59,12 +50,6 @@ class ShoppingList(models.Model):
     def __str__(self):
         return self.name
 
-    def get_absolute_url(self):
-        return reverse("shoppinglist:list")
-
-    def get_items_children(self):
-        return self.item_set.all()
-
 
 class Item(models.Model):
     shoppinglist = models.ForeignKey(
@@ -86,16 +71,3 @@ class Item(models.Model):
 
     class Meta:
         ordering = ["completed"]
-
-    def get_absolute_url(self):
-        return reverse("shoppinglist:list")
-
-    def get_shoppinglist_content(self):
-        return reverse("shoppinglist:create-update")
-
-    def get_item_edit_url(self):
-        kwargs = {
-            "parent_id": self.shoppinglist.id,
-            "id": self.id,
-        }
-        return reverse("shoppinglist:item-update", kwargs=kwargs)
