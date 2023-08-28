@@ -16,7 +16,7 @@ import { ShoppingListItem } from '../utils/types';
 
 const ShoppingListPage: React.FC = () => {
     // TODO: how to handle if id is undefined
-    const { id } = useParams<{ id?: string }>();
+    const { id: shoppingListId  } = useParams<{ id?: string }>();
     const defaultItem: ShoppingListItem = {
         id: -1,
         product: '',
@@ -26,22 +26,22 @@ const ShoppingListPage: React.FC = () => {
         note: '',
         completed: false
     };
-    const [shoppingList, updateShoppingListState, saveShoppingList, removeShoppingList] = useShoppingList(id);
+    const [shoppingList, updateShoppingListState, saveShoppingList, removeShoppingList] = useShoppingList(shoppingListId);
     const [selectedItem, setSelectedItem] = useState<ShoppingListItem>(defaultItem);
     const [isModalOpen, setShowModal] = useState<boolean>(false);
 
 
     const handleItemSelection = async (itemId: number) => {
-        if (id) {  // Make sure id is not undefined
-            const data = await fetchShoppingListItem(id, itemId);
+        if (shoppingListId) {  // Make sure id is not undefined
+            const data = await fetchShoppingListItem(shoppingListId, itemId);
             setSelectedItem(data);
             setShowModal(true);
         }
     };
 
     const saveSelectedItemChanges = async () => {
-        if (selectedItem && id) {
-            const response = await updateShoppingListItem(id, selectedItem.id, selectedItem);
+        if (selectedItem && shoppingListId) {
+            const response = await updateShoppingListItem(shoppingListId, selectedItem.id, selectedItem);
             if (response.ok) {
                 const updatedItem: ShoppingListItem = await response.json();
                 const updatedItems = shoppingList.items.map(i => i.id === updatedItem.id ? updatedItem : i);
@@ -53,8 +53,8 @@ const ShoppingListPage: React.FC = () => {
 
     const toggleItemCompletionStatus = async (item: ShoppingListItem) => {
         const updatedItem = { ...item, completed: !item.completed };
-        if (id) {
-            const response = await updateShoppingListItem(id, item.id, updatedItem);
+        if (shoppingListId) {
+            const response = await updateShoppingListItem(shoppingListId, item.id, updatedItem);
             if (response.ok) {
                 const updatedItems = shoppingList.items.map(i => i.id === updatedItem.id ? updatedItem : i);
                 updateShoppingListState({ items: updatedItems });
@@ -63,8 +63,8 @@ const ShoppingListPage: React.FC = () => {
     };
 
     const saveNewItemDetails = async () => {
-        if (id && selectedItem) {
-            const response = await createShoppingListItem(id, selectedItem);
+        if (shoppingListId && selectedItem) {
+            const response = await createShoppingListItem(shoppingListId, selectedItem);
             if (response.ok) {
                 const newItem: ShoppingListItem = await response.json();
                 const updatedItems = [...shoppingList.items, newItem];
@@ -80,8 +80,8 @@ const ShoppingListPage: React.FC = () => {
     };
 
     const deleteSelectedItem = async (itemId: number) => {
-        if (id) {
-            await deleteShoppingListItem(id, itemId);
+        if (shoppingListId) {
+            await deleteShoppingListItem(shoppingListId, itemId);
             const updatedItems = shoppingList.items.filter(item => item.id !== itemId);
             updateShoppingListState({ items: updatedItems });
             setShowModal(false)
@@ -92,7 +92,7 @@ const ShoppingListPage: React.FC = () => {
     return (
         <div className='shoppinglist'>
             <ShoppingListHeader 
-                id={id || 'defaultIdValue'}
+                shoppingListId ={shoppingListId || 'defaultIdValue'}
                 shoppingList={shoppingList}
                 onSave={saveShoppingList}
                 onDelete={removeShoppingList}
@@ -108,7 +108,7 @@ const ShoppingListPage: React.FC = () => {
 
             <hr />
 
-            {id !== 'new' && <button onClick={initiateNewItemAddition}>Add item</button>}
+            {shoppingListId !== 'new' && <button onClick={initiateNewItemAddition}>Add item</button>}
 
             <div className='items-list'>
                 <ItemsList 

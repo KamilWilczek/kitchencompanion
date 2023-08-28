@@ -16,7 +16,7 @@ type UseShoppingListReturnType = [
   () => Promise<void>
 ];
 
-const useShoppingList = (id: string | number | undefined): UseShoppingListReturnType => {
+const useShoppingList = (shoppingListId : string | number | undefined): UseShoppingListReturnType => {
   const navigate = useNavigate();
   const [shoppingList, setShoppingList] = useState<ShoppingList | NewShoppingList>({ name: "", description: "", items: [] });
 
@@ -32,8 +32,8 @@ const useShoppingList = (id: string | number | undefined): UseShoppingListReturn
 
   useEffect(() => {
     const fetchData = async () => {
-      if (id && id !== 'new') {  // Added id check here
-        const data = await fetchShoppingList(id);
+      if (shoppingListId  && shoppingListId  !== 'new') {  // Added id check here
+        const data = await fetchShoppingList(shoppingListId );
         if (data.items) {
           data.items = Array.isArray(data.items) ? sortItems(data.items) : sortItems([data.items]);
         }
@@ -44,7 +44,7 @@ const useShoppingList = (id: string | number | undefined): UseShoppingListReturn
     };
   
     fetchData();
-  }, [id]);
+  }, [shoppingListId ]);
 
   const updateShoppingListState = (updatedFields: Partial<ShoppingList | NewShoppingList>) => {
     setShoppingList(prevState => {
@@ -60,10 +60,10 @@ const useShoppingList = (id: string | number | undefined): UseShoppingListReturn
 
   const saveShoppingList = async (list: ShoppingList | NewShoppingList) => {
     let response: Response;
-    if (id === 'new') {
+    if (shoppingListId  === 'new') {
       response = await createShoppingList(list as NewShoppingList);
-  } else if (id) {
-      response = await updateShoppingList(id, list as ShoppingList);
+  } else if (shoppingListId ) {
+      response = await updateShoppingList(shoppingListId , list as ShoppingList);
   } else {
       return;
   }
@@ -76,8 +76,8 @@ const useShoppingList = (id: string | number | undefined): UseShoppingListReturn
   };
 
   const removeShoppingList = async () => {
-    if (id && id !== 'new') {
-      const response: Response = await deleteShoppingList(id);
+    if (shoppingListId  && shoppingListId  !== 'new') {
+      const response: Response = await deleteShoppingList(shoppingListId );
       if (response.ok) {
         navigate('/');
       }
