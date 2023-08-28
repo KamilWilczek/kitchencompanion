@@ -11,7 +11,7 @@ def error_response(detail, status_code):
 
 
 class ShoppingListView(generics.ListAPIView):
-    queryset = ShoppingList.objects.annotate(items_count=Count("items"))
+    queryset = ShoppingList.objects.annotate(items_count=Count("item"))
     serializer_class = ShoppingListSerializer
 
 
@@ -20,7 +20,7 @@ class ShoppingListCreateView(generics.CreateAPIView):
 
 
 class ShoppingListDetailUpdateView(generics.RetrieveUpdateAPIView):
-    queryset = ShoppingList.objects.prefetch_related("items")
+    queryset = ShoppingList.objects.prefetch_related("item")
     serializer_class = ShoppingListSerializer
 
 
