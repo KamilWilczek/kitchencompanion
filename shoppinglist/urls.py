@@ -1,35 +1,28 @@
 from django.urls import path
-
 from .views import (
-    shoppinglist_list_view,
-    shoppinglist_create_view,
-    shoppinglist_update_view,
-    shoppinglist_delete_view,
-    item_update_view,
-    item_create_view,
-    item_delete_view,
+    ShoppingListView,
+    ShoppingListCreateView,
+    ShoppingListDetailUpdateView,
+    ShoppingListDeleteView,
+    ItemUpdateView,
+    ItemCreateView,
+    ItemDeleteView,
 )
 
 app_name = "shoppinglist"
 
 urlpatterns = [
-    path("", shoppinglist_list_view, name="list"),
-    path("create-update/", shoppinglist_create_view, name="create"),
-    path("<int:id>/edit/", shoppinglist_update_view, name="update"),
-    path("<int:id>/delete/", shoppinglist_delete_view, name="delete"),
+    path("", ShoppingListView.as_view(), name="list"),
+    path("create-update/", ShoppingListCreateView.as_view(), name="create"),
+    path("<int:pk>/edit/", ShoppingListDetailUpdateView.as_view(), name="update"),
+    path("<int:pk>/delete/", ShoppingListDeleteView.as_view(), name="delete"),
+    path("<int:parent_pk>/item/", ItemCreateView.as_view(), name="item-create"),
     path(
-        "<int:parent_id>/item/",
-        item_create_view,
-        name="item-create",
+        "<int:parent_pk>/item/<int:pk>/", ItemUpdateView.as_view(), name="item-update"
     ),
     path(
-        "<int:parent_id>/item/<int:id>/",
-        item_update_view,
-        name="item-update",
-    ),
-    path(
-        "<int:parent_id>/item/<int:id>/delete/",
-        item_delete_view,
+        "<int:parent_pk>/item/<int:pk>/delete/",
+        ItemDeleteView.as_view(),
         name="item-delete",
     ),
 ]
