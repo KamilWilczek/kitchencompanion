@@ -27,3 +27,4 @@
 `npm install typescript@4.9.5`
 `npm install @types/react-router-dom`
 `npm install @svgr/webpack --save-dev`
+`pip install mypy`
