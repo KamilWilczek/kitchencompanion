@@ -8,7 +8,7 @@ import {
     createShoppingListItem,
     deleteShoppingListItem
 } from '../utils/apiUtils'
-import { categories, units } from '../utils/constants';
+import { categories, units, defaultItem } from '../utils/constants';
 import useShoppingList from '../hooks/useShoppingList';
 import ShoppingListHeader from '../components/ShoppingListHeader';
 import ShoppingListInputs from '../components/ShoppingListInputs';
@@ -17,15 +17,6 @@ import { ShoppingListItem } from '../utils/types';
 const ShoppingListPage: React.FC = () => {
     // TODO: how to handle if id is undefined
     const { id: shoppingListId  } = useParams<{ id?: string }>();
-    const defaultItem: ShoppingListItem = {
-        id: -1,
-        product: '',
-        quantity: '',
-        unit: '',
-        category: '',
-        note: '',
-        completed: false
-    };
     const [shoppingList, updateShoppingListState, saveShoppingList, removeShoppingList] = useShoppingList(shoppingListId);
     const [selectedItem, setSelectedItem] = useState<ShoppingListItem>(defaultItem);
     const [isModalOpen, setShowModal] = useState<boolean>(false);

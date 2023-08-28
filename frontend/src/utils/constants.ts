@@ -1,3 +1,5 @@
+import { ShoppingListItem } from "./types";
+
 const categories: string[] = [
     "fruits and vegetables",
     "meat",
@@ -28,4 +30,14 @@ const categories: string[] = [
 
 const units: string[] = ["pcs", "pkgs", "kg", "g", "l", "ml"];
 
-export { categories, units };
+const defaultItem: ShoppingListItem = {
+    id: -1,
+    product: '',
+    quantity: '',
+    unit: '',
+    category: '',
+    note: '',
+    completed: false
+};
+
+export { categories, units, defaultItem };
