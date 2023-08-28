@@ -37,7 +37,10 @@
   - [ ] pylint
   - [ ] isort
 - [ ] Tests
+  - [ ] `pytest` and `pytest-django` plugin
   - [ ] Unit tests
+    - [ ] models.py
+    - [ ] views.py
   - [ ] Integration tests
 
 ## Frontend
