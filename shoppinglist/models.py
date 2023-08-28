@@ -23,7 +23,7 @@ class ShoppingList(models.Model):
     updated = models.DateTimeField(auto_now=True)
     completed = models.BooleanField(default=False)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name
 
     class Meta:
@@ -62,7 +62,7 @@ class Item(models.Model):
     updated = models.DateTimeField(auto_now=True)
     completed = models.BooleanField(default=False, db_index=True)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.product
 
     class Meta:
