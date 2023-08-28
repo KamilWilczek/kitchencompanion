@@ -28,7 +28,7 @@
   - [x] Basic CRUD for ShoppingList
   - [x] Basic CRUD for ShoppingListItem
   - [ ] ...
-- [ ] Typing
+- [x] Typing
 - [ ] Refactor views.py
   - [x] Class based views
   - [ ] Exception Handling in ShoppingItemMixin
