@@ -1,10 +1,11 @@
+from typing import Type
 from rest_framework import serializers
 from .models import ShoppingList, Item
 
 
 class ItemSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Item
+        model: Type[Item] = Item
         fields = ("id", "product", "quantity", "unit", "note", "category", "completed")
 
 
@@ -13,5 +14,5 @@ class ShoppingListSerializer(serializers.ModelSerializer):
     items_count = serializers.IntegerField(read_only=True)
 
     class Meta:
-        model = ShoppingList
+        model: Type[ShoppingList] = ShoppingList
         fields = "__all__"
