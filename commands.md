@@ -28,3 +28,4 @@
 `npm install @types/react-router-dom`
 `npm install @svgr/webpack --save-dev`
 `pip install mypy`
+`pip install pytest pytest-django`
