@@ -3,7 +3,7 @@ import { ShoppingListItem } from "./types";
 const categories: string[] = [
     "fruits and vegetables",
     "meat",
-    "diary",
+    "dairy",
     "dry goods",
     "alcohols",
     "medicine",

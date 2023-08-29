@@ -1,11 +1,10 @@
-from enum import Enum
-from typing import List, Tuple
+from django.db import models
 
 
-class ItemCategory(Enum):
+class ItemCategory(models.TextChoices):
     FRUITS_VEGETABLES = "fruits and vegetables"
     MEAT = "meat"
-    DIARY = "diary"
+    DAIRY = "dairy"
     DRY_GOODS = "dry goods"
     ALCOHOLS = "alcohols"
     MEDICINE = "medicine"
@@ -29,19 +28,11 @@ class ItemCategory(Enum):
     CANS = "canned food"
     OTHER = "other"
 
-    @classmethod
-    def choices(cls) -> List[Tuple[str, str]]:
-        return [(key.value, key.value) for key in cls]
 
-
-class ItemUnit(Enum):
+class ItemUnit(models.TextChoices):
     PIECES = "pcs"
     PACKAGES = "pkgs"
     KILOGRAM = "kg"
     GRAM = "g"
     LITER = "l"
     MILLILITER = "ml"
-
-    @classmethod
-    def choices(cls) -> List[Tuple[str, str]]:
-        return [(key.value, key.value) for key in cls]

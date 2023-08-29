@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.core.validators import MinValueValidator
 from .constants import ItemCategory, ItemUnit
 
 
@@ -52,11 +53,13 @@ class Item(models.Model):
         ShoppingList, on_delete=models.CASCADE, related_name="item"
     )
     product = models.CharField(max_length=200)
-    quantity = models.PositiveIntegerField(null=True, blank=True)
-    unit = models.CharField(
-        max_length=20, choices=ItemUnit.choices(), null=True, blank=True
+    quantity = models.PositiveIntegerField(
+        null=True, blank=True, validators=[MinValueValidator(1)]
     )
-    category = models.CharField(max_length=25, choices=ItemCategory.choices())
+    unit = models.CharField(
+        max_length=20, choices=ItemUnit.choices, null=True, blank=True
+    )
+    category = models.CharField(max_length=25, choices=ItemCategory.choices)
     note = models.TextField(null=True, blank=True)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
