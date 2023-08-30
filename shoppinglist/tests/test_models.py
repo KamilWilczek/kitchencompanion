@@ -2,6 +2,7 @@ import time
 import pytest
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
+from django.db import transaction, IntegrityError
 from shoppinglist.models import ShoppingList, Item
 from shoppinglist.constants import ItemCategory, ItemUnit
 
@@ -202,16 +203,13 @@ def test_enum_choices_in_item(shopping_list):
 def test_positive_quantity_in_item(shopping_list):
     shopping_list = shopping_list
 
-    with pytest.raises(ValidationError):
-        item_with_negative_quantity = Item(
-            shopping_list=shopping_list,
-            quantity=-1,
-        )
-        # item_with_negative_quantity = create_item(
-        #     shopping_list=shopping_list,
-        #     quantity=-1,
-        # )
-        item_with_negative_quantity.full_clean()
+    with transaction.atomic():
+        with pytest.raises(IntegrityError):
+            item_with_negative_quantity = create_item(
+                shopping_list=shopping_list,
+                quantity=-1,
+            )
+            item_with_negative_quantity.full_clean()
 
     with pytest.raises(ValidationError):
         item_with_zero_quantity = create_item(
