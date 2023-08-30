@@ -38,14 +38,9 @@ def test_shopping_list_and_item_creation(shopping_list):
 
     assert shopping_list.name == "Test List"
 
-    item = Item.objects.create(
-        shopping_list=shopping_list,
-        product="Eggs",
-        quantity=12,
-        category=ItemCategory.DAIRY,
-    )
+    item = create_item(shopping_list=shopping_list, quantity=12)
 
-    assert item.product == "Eggs"
+    assert item.product == "Test Product"
     assert item.quantity == 12
     assert item.category == ItemCategory.DAIRY
 
@@ -54,41 +49,41 @@ def test_shopping_list_and_item_creation(shopping_list):
     items_linked_to_list = shopping_list.item.all()
 
     assert len(items_linked_to_list) == 1
-    assert items_linked_to_list[0].product == "Eggs"
+    assert items_linked_to_list[0].product == "Test Product"
 
 
 @pytest.mark.django_db
-def test_shoppinglist_name_field():
-    shop_list = ShoppingList(name="My List")
-    shop_list.save()
-    retrieved_list = ShoppingList.objects.get(id=shop_list.id)
+def test_shoppinglist_name_field(shopping_list):
+    shopping_list = shopping_list
+    retrieved_list = ShoppingList.objects.get(id=shopping_list.id)
 
-    assert retrieved_list.name == "My List"
+    assert retrieved_list.name == "Test List"
     assert ShoppingList._meta.get_field("name").max_length == 220
 
 
 @pytest.mark.django_db
-def test_shoppinglist_description_field():
-    shop_list = ShoppingList(name="List", description="My Shopping List Description")
-    shop_list.save()
-    retrieved_list = ShoppingList.objects.get(id=shop_list.id)
+def test_shoppinglist_description_field(shopping_list):
+    shopping_list = shopping_list
+
+    shopping_list.description = "My Shopping List Description"
+    shopping_list.save()
+
+    retrieved_list = ShoppingList.objects.get(id=shopping_list.id)
 
     assert retrieved_list.description == "My Shopping List Description"
 
 
 @pytest.mark.django_db
-def test_cascading_delete_of_items_when_shoppinglist_deleted():
-    shopping_list = ShoppingList.objects.create(name="Deletion Test List")
+def test_cascading_delete_of_items_when_shoppinglist_deleted(shopping_list):
+    shopping_list = shopping_list
 
-    Item.objects.create(
+    create_item(
         shopping_list=shopping_list, product="Milk", category=ItemCategory.DAIRY
     )
-
-    Item.objects.create(
+    create_item(
         shopping_list=shopping_list, product="Bread", category=ItemCategory.BREAD
     )
-
-    Item.objects.create(
+    create_item(
         shopping_list=shopping_list,
         product="Apples",
         category=ItemCategory.FRUITS_VEGETABLES,
@@ -119,59 +114,55 @@ def test_user_foreignkey_in_shoppinglist(user):
 
 
 @pytest.mark.django_db
-def test_shoppinglist_str_representation():
-    shop_list = ShoppingList.objects.create(name="Weekly Groceries")
-    assert str(shop_list) == "Weekly Groceries"
+def test_shoppinglist_str_representation(shopping_list):
+    shopping_list = shopping_list
+    assert str(shopping_list) == "Test List"
 
 
 @pytest.mark.django_db
-def test_item_product_field():
-    shop_list = ShoppingList(name="My List")
-    shop_list.save()
-    item = Item(shopping_list=shop_list, product="Milk", category=ItemCategory.DAIRY)
-    item.save()
+def test_item_product_field(shopping_list):
+    shopping_list = shopping_list
+    item = create_item(shopping_list=shopping_list)
     retrieved_item = Item.objects.get(id=item.id)
 
-    assert retrieved_item.product == "Milk"
+    assert retrieved_item.product == "Test Product"
     assert Item._meta.get_field("product").max_length == 200
 
 
 @pytest.mark.django_db
-def test_item_unit_choices():
-    shop_list = ShoppingList(name="My List")
-    shop_list.save()
-    item = Item(
-        shopping_list=shop_list,
-        product="Milk",
+def test_item_unit_category_choices(shopping_list):
+    shopping_list = shopping_list
+    item = create_item(
+        shopping_list=shopping_list,
         unit=ItemUnit.LITER,
-        category=ItemCategory.DAIRY,
     )
-    item.save()
+
     retrieved_item = Item.objects.get(id=item.id)
 
+    assert retrieved_item.category == ItemCategory.DAIRY
     assert retrieved_item.unit == ItemUnit.LITER
     assert ItemUnit.LITER.value in dict(Item._meta.get_field("unit").flatchoices)
 
 
 @pytest.mark.django_db
-def test_item_ordering_by_completed():
-    shopping_list = ShoppingList.objects.create(name="Ordering Test List")
+def test_item_ordering_by_completed(shopping_list):
+    shopping_list = shopping_list
 
-    item1 = Item.objects.create(
+    item1 = create_item(
         shopping_list=shopping_list,
         product="Milk",
         category=ItemCategory.DAIRY,
         completed=True,
     )
 
-    item2 = Item.objects.create(
+    item2 = create_item(
         shopping_list=shopping_list,
         product="Bread",
         category=ItemCategory.BREAD,
         completed=False,
     )
 
-    item3 = Item.objects.create(
+    item3 = create_item(
         shopping_list=shopping_list,
         product="Apples",
         category=ItemCategory.FRUITS_VEGETABLES,
@@ -186,20 +177,19 @@ def test_item_ordering_by_completed():
 
 
 @pytest.mark.django_db
-def test_enum_choices_in_item():
-    shopping_list = ShoppingList.objects.create(name="Test List")
+def test_enum_choices_in_item(shopping_list):
+    shopping_list = shopping_list
 
     with pytest.raises(ValidationError):
-        item_with_invalid_unit = Item(
+        item_with_invalid_unit = create_item(
             shopping_list=shopping_list,
             product="Invalid Unit Product",
             unit="invalid_unit",
-            category=ItemCategory.DAIRY,
         )
         item_with_invalid_unit.full_clean()
 
     with pytest.raises(ValidationError):
-        item_with_invalid_category = Item(
+        item_with_invalid_category = create_item(
             shopping_list=shopping_list,
             product="Invalid Category Product",
             unit=ItemUnit.LITER,
@@ -209,32 +199,30 @@ def test_enum_choices_in_item():
 
 
 @pytest.mark.django_db
-def test_positive_quantity_in_item():
-    shopping_list = ShoppingList.objects.create(name="Test List")
+def test_positive_quantity_in_item(shopping_list):
+    shopping_list = shopping_list
 
     with pytest.raises(ValidationError):
         item_with_negative_quantity = Item(
             shopping_list=shopping_list,
-            product="Negative Quantity Product",
             quantity=-1,
-            category=ItemCategory.DAIRY,
         )
+        # item_with_negative_quantity = create_item(
+        #     shopping_list=shopping_list,
+        #     quantity=-1,
+        # )
         item_with_negative_quantity.full_clean()
 
     with pytest.raises(ValidationError):
-        item_with_zero_quantity = Item(
+        item_with_zero_quantity = create_item(
             shopping_list=shopping_list,
-            product="Zero Quantity Product",
             quantity=0,
-            category=ItemCategory.DAIRY,
         )
         item_with_zero_quantity.full_clean()
 
-    valid_item = Item.objects.create(
+    valid_item = create_item(
         shopping_list=shopping_list,
-        product="Valid Product",
         quantity=10,
-        category=ItemCategory.DAIRY,
     )
 
     valid_item.quantity = -5
@@ -247,14 +235,12 @@ def test_positive_quantity_in_item():
 
 
 @pytest.mark.django_db
-def test_item_additional_notes():
-    shopping_list = ShoppingList.objects.create(name="Test List")
+def test_item_additional_notes(shopping_list):
+    shopping_list = shopping_list
 
     item_note = "This is a note for testing purposes."
-    item_with_note = Item.objects.create(
+    item_with_note = create_item(
         shopping_list=shopping_list,
-        product="Product with Note",
-        category=ItemCategory.DAIRY,
         note=item_note,
     )
 
@@ -263,26 +249,21 @@ def test_item_additional_notes():
 
 
 @pytest.mark.django_db
-def test_item_str_representation():
-    shopping_list = ShoppingList.objects.create(name="My Shopping List")
-    item = Item.objects.create(
+def test_item_str_representation(shopping_list):
+    shopping_list = shopping_list
+    item = create_item(
         shopping_list=shopping_list,
-        product="Eggs",
         quantity=12,
-        category=ItemCategory.DAIRY,
     )
-    assert str(item) == "Eggs"
+    assert str(item) == "Test Product"
 
 
 @pytest.mark.django_db
-def test_timestamps():
-    shopping_list = ShoppingList.objects.create(name="My Shopping List")
-
-    item = Item.objects.create(
+def test_timestamps(shopping_list):
+    shopping_list = shopping_list
+    item = create_item(
         shopping_list=shopping_list,
-        product="Eggs",
         quantity=12,
-        category=ItemCategory.DAIRY,
     )
 
     initial_created = item.created
@@ -290,7 +271,7 @@ def test_timestamps():
 
     time.sleep(2)
 
-    item.product = "Updated Eggs"
+    item.product = "Updated Test Product"
     item.save()
 
     updated_item = Item.objects.get(pk=item.pk)
@@ -300,17 +281,16 @@ def test_timestamps():
 
 
 @pytest.mark.django_db
-def test_text_fields_max_length():
-    shopping_list = ShoppingList.objects.create(name="Test List")
+def test_text_fields_max_length(shopping_list):
+    shopping_list = shopping_list
 
     max_length_product = Item._meta.get_field("product").max_length
 
     assert max_length_product == 200
 
     with pytest.raises(ValidationError):
-        item_with_too_long_product = Item(
+        item_with_too_long_product = create_item(
             shopping_list=shopping_list,
             product="P" * (max_length_product + 1),
-            category=ItemCategory.DAIRY,
         )
         item_with_too_long_product.full_clean()
