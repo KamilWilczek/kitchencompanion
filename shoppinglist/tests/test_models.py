@@ -39,6 +39,22 @@ def shopping_list(user):
 
 class TestShoppingList:
     @pytest.mark.django_db
+    def test_shoppinglist_with_user(self, user):
+        shopping_list_with_user = create_shopping_list(user=user, name="List with user")
+        assert shopping_list_with_user.user == user
+
+        user_id = user.id
+        user.delete()
+
+        with pytest.raises(ShoppingList.DoesNotExist):
+            ShoppingList.objects.get(user_id=user_id)
+
+    @pytest.mark.django_db
+    def test_shoppinglist_without_user(self):
+        shopping_list_without_user = create_shopping_list(name="List without user")
+        assert shopping_list_without_user.user is None
+
+    @pytest.mark.django_db
     def test_shopping_list_and_item_creation(self, shopping_list):
         assert shopping_list.name == "Test List"
 
@@ -88,20 +104,6 @@ class TestShoppingList:
         shopping_list.delete()
 
         assert Item.objects.filter(shopping_list_id=shopping_list_id).count() == 0
-
-    @pytest.mark.django_db
-    def test_user_foreignkey_in_shoppinglist(self, user):
-        shopping_list_with_user = create_shopping_list(user=user, name="List with user")
-        assert shopping_list_with_user.user == user
-
-        shopping_list_without_user = create_shopping_list(name="List without user")
-        assert shopping_list_without_user.user is None
-
-        user_id = user.id
-        user.delete()
-
-        with pytest.raises(ShoppingList.DoesNotExist):
-            ShoppingList.objects.get(user_id=user_id)
 
     @pytest.mark.django_db
     def test_shoppinglist_str_representation(self, shopping_list):
@@ -161,14 +163,6 @@ class TestItem:
 
         retrieved_item = Item.objects.get(pk=item_with_note.pk)
         assert retrieved_item.note == item_note
-
-    @pytest.mark.django_db
-    def test_item_str_representation(self, shopping_list):
-        item = create_item(
-            shopping_list=shopping_list,
-            quantity=12,
-        )
-        assert str(item) == "Test Product"
 
     @pytest.mark.django_db
     def test_timestamps(self, shopping_list):
@@ -258,3 +252,11 @@ class TestItem:
             ValidationError, match="Value 'invalid_category' is not a valid choice"
         ):
             item_with_invalid_category.full_clean()
+
+    @pytest.mark.django_db
+    def test_item_str_representation(self, shopping_list):
+        item = create_item(
+            shopping_list=shopping_list,
+            quantity=12,
+        )
+        assert str(item) == "Test Product"
