@@ -23,8 +23,8 @@ def create_item(
 
 
 def create_multiple_items(shopping_list, items_data):
-    for data in items_data:
-        create_item(shopping_list=shopping_list, **data)
+    items_to_create = [Item(shopping_list=shopping_list, **data) for data in items_data]
+    Item.objects.bulk_create(items_to_create)
 
 
 @pytest.fixture
@@ -72,7 +72,7 @@ class TestShoppingList:
         assert retrieved_list.description == "My Shopping List Description"
 
     @pytest.mark.django_db
-    def test_cascading_delete_of_items_when_shoppinglist_deleted(self, shopping_list):
+    def test_items_deleted_with_shopping_list(self, shopping_list):
         items_data = [
             {"product": "Milk", "category": ItemCategory.DAIRY},
             {"product": "Bread", "category": ItemCategory.BREAD},
@@ -205,32 +205,18 @@ class TestItem:
             item_with_too_long_product.full_clean()
 
     @pytest.mark.django_db
-    def test_negative_quantity_raises_validation_error(self, shopping_list):
-        # Create an item without saving to the database
-        item_with_negative_quantity = Item(
+    @pytest.mark.parametrize("quantity", [-1, 0])
+    def test_invalid_quantity_raises_validation_error(self, quantity, shopping_list):
+        item = Item(
             shopping_list=shopping_list,
             product="Test Product",
-            quantity=-1,
+            quantity=quantity,
             category=ItemCategory.DAIRY,
         )
         with pytest.raises(
             ValidationError, match="Ensure this value is greater than or equal to 1."
         ):
-            item_with_negative_quantity.full_clean()
-
-    @pytest.mark.django_db
-    def test_zero_quantity_raises_validation_error(self, shopping_list):
-        # Create an item without saving to the database
-        item_with_zero_quantity = Item(
-            shopping_list=shopping_list,
-            product="Test Product",
-            quantity=0,
-            category=ItemCategory.DAIRY,
-        )
-        with pytest.raises(
-            ValidationError, match="Ensure this value is greater than or equal to 1."
-        ):
-            item_with_zero_quantity.full_clean()
+            item.full_clean()
 
     @pytest.mark.django_db
     def test_updating_to_invalid_quantity_raises_validation_error(self, shopping_list):
