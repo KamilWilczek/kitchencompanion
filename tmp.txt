@@ -1,5 +1,0 @@
-4. Isolate the Exceptions:
-In your negative tests where you're expecting exceptions, try to minimize the code inside the with pytest.raises block. This ensures clarity about which exact line or function call you expect to raise the exception.
-
-5. Split Up Larger Tests:
-Some of your tests, like test_positive_quantity_in_item, are testing multiple scenarios. Consider splitting them into multiple smaller tests with clear intentions, which can help in quickly identifying the failed scenario if a test breaks.

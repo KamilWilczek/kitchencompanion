@@ -1,10 +1,7 @@
-import time
 import pytest
 from freezegun import freeze_time
-
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
-from django.db import transaction, IntegrityError
 from shoppinglist.models import ShoppingList, Item
 from shoppinglist.constants import ItemCategory, ItemUnit
 
@@ -175,7 +172,6 @@ class TestItem:
 
     @pytest.mark.django_db
     def test_timestamps(self, shopping_list):
-        # Freezing the time to a specific datetime
         with freeze_time("2022-01-01 12:00:00"):
             item = create_item(
                 shopping_list=shopping_list,
@@ -185,7 +181,6 @@ class TestItem:
             initial_created = item.created
             initial_updated = item.updated
 
-        # Moving the time forward by 2 hours
         with freeze_time("2022-01-01 14:00:00"):
             item.product = "Updated Test Product"
             item.save()
@@ -198,40 +193,51 @@ class TestItem:
     @pytest.mark.django_db
     def test_text_fields_max_length(self, shopping_list):
         max_length_product = Item._meta.get_field("product").max_length
-
         assert max_length_product == 200
 
+        item_with_too_long_product = create_item(
+            shopping_list=shopping_list,
+            product="P" * (max_length_product + 1),
+        )
         with pytest.raises(
             ValidationError, match="Ensure this value has at most 200 characters"
         ):
-            item_with_too_long_product = create_item(
-                shopping_list=shopping_list,
-                product="P" * (max_length_product + 1),
-            )
             item_with_too_long_product.full_clean()
 
     @pytest.mark.django_db
-    def test_positive_quantity_in_item(self, shopping_list):
-        with transaction.atomic():
-            with pytest.raises(IntegrityError):
-                item_with_negative_quantity = create_item(
-                    shopping_list=shopping_list,
-                    quantity=-1,
-                )
-                item_with_negative_quantity.full_clean()
+    def test_negative_quantity_raises_validation_error(self, shopping_list):
+        # Create an item without saving to the database
+        item_with_negative_quantity = Item(
+            shopping_list=shopping_list,
+            product="Test Product",
+            quantity=-1,
+            category=ItemCategory.DAIRY,
+        )
+        with pytest.raises(
+            ValidationError, match="Ensure this value is greater than or equal to 1."
+        ):
+            item_with_negative_quantity.full_clean()
 
-        with pytest.raises(ValidationError):
-            item_with_zero_quantity = create_item(
-                shopping_list=shopping_list,
-                quantity=0,
-            )
+    @pytest.mark.django_db
+    def test_zero_quantity_raises_validation_error(self, shopping_list):
+        # Create an item without saving to the database
+        item_with_zero_quantity = Item(
+            shopping_list=shopping_list,
+            product="Test Product",
+            quantity=0,
+            category=ItemCategory.DAIRY,
+        )
+        with pytest.raises(
+            ValidationError, match="Ensure this value is greater than or equal to 1."
+        ):
             item_with_zero_quantity.full_clean()
 
+    @pytest.mark.django_db
+    def test_updating_to_invalid_quantity_raises_validation_error(self, shopping_list):
         valid_item = create_item(
             shopping_list=shopping_list,
             quantity=10,
         )
-
         valid_item.quantity = -5
         with pytest.raises(
             ValidationError, match="Ensure this value is greater than or equal to 1."
@@ -246,23 +252,23 @@ class TestItem:
 
     @pytest.mark.django_db
     def test_enum_choices_in_item(self, shopping_list):
+        item_with_invalid_unit = create_item(
+            shopping_list=shopping_list,
+            product="Invalid Unit Product",
+            unit="invalid_unit",
+        )
         with pytest.raises(
             ValidationError, match="Value 'invalid_unit' is not a valid choice"
         ):
-            item_with_invalid_unit = create_item(
-                shopping_list=shopping_list,
-                product="Invalid Unit Product",
-                unit="invalid_unit",
-            )
             item_with_invalid_unit.full_clean()
 
+        item_with_invalid_category = create_item(
+            shopping_list=shopping_list,
+            product="Invalid Category Product",
+            unit=ItemUnit.LITER,
+            category="invalid_category",
+        )
         with pytest.raises(
             ValidationError, match="Value 'invalid_category' is not a valid choice"
         ):
-            item_with_invalid_category = create_item(
-                shopping_list=shopping_list,
-                product="Invalid Category Product",
-                unit=ItemUnit.LITER,
-                category="invalid_category",
-            )
             item_with_invalid_category.full_clean()
