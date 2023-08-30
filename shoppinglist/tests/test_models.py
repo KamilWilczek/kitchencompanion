@@ -39,7 +39,7 @@ def shopping_list(user):
 
 class TestShoppingList:
     @pytest.mark.django_db
-    def test_shoppinglist_with_user(self, user):
+    def test_user_foreignkey_in_shoppinglist(self, user):
         shopping_list_with_user = create_shopping_list(user=user, name="List with user")
         assert shopping_list_with_user.user == user
 
