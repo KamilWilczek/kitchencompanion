@@ -1,6 +1,7 @@
 import pytest
 from django.contrib.auth.models import User
 from rest_framework.test import APIClient
+from rest_framework import status
 from shoppinglist.models import ShoppingList, Item
 from shoppinglist.constants import ItemCategory
 
@@ -29,7 +30,7 @@ class TestShoppingListView:
         client = APIClient()
         response = client.get("/shoppinglist/")
 
-        assert response.status_code == 200
+        assert response.status_code == status.HTTP_200_OK
         assert len(response.data) == 3
 
     @pytest.mark.django_db
@@ -52,7 +53,7 @@ class TestShoppingListView:
         client = APIClient()
         response = client.get("/shoppinglist/")
 
-        assert response.status_code == 200, response.content
+        assert response.status_code == status.HTTP_200_OK, response.content
         assert response.data[0]["items_count"] == 3
         assert response.data[1]["items_count"] == 2
 
@@ -69,6 +70,6 @@ class TestShoppingListCreateView:
 
         response = client.post("/shoppinglist/create/", data=data)
 
-        assert response.status_code == 201, response.content
+        assert response.status_code == status.HTTP_201_CREATED, response.content
         assert response.data["name"] == data["name"]
         assert ShoppingList.objects.filter(name=data["name"]).exists()
