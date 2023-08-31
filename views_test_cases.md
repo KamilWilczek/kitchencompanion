@@ -1,7 +1,7 @@
 # ShoppingListView:
 
 - [x] Test if all shopping lists are returned.
-- [ ] Test if the items_count annotation returns the correct number of items for each shopping list.
+- [x] Test if the items_count annotation returns the correct number of items for each shopping list.
 
 # ShoppingListCreateView:
 
