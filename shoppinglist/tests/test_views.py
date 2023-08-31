@@ -1,7 +1,8 @@
 import pytest
 from django.contrib.auth.models import User
-from rest_framework.test import APIClient
 from rest_framework import status
+from rest_framework.exceptions import ErrorDetail
+from rest_framework.test import APIClient
 from shoppinglist.models import ShoppingList, Item
 from shoppinglist.constants import ItemCategory
 
@@ -73,3 +74,43 @@ class TestShoppingListCreateView:
         assert response.status_code == status.HTTP_201_CREATED, response.content
         assert response.data["name"] == data["name"]
         assert ShoppingList.objects.filter(name=data["name"]).exists()
+
+    @pytest.mark.django_db
+    def test_create_shopping_list_missing_required_fields(self, user):
+        client = APIClient()
+
+        data = {
+            "user": user.id,
+            "description": "Groceries",
+        }
+
+        response = client.post("/shoppinglist/create/", data=data)
+
+        assert response.status_code == status.HTTP_400_BAD_REQUEST, response.content
+        assert response.data == {"name": ["This field is required."]}
+
+    @pytest.mark.django_db
+    def test_create_shopping_list_with_invalid_data_types(self, user):
+        client = APIClient()
+
+        data = {
+            "user": "invalid_user_id",
+            "name": 12345,
+            "description": 67890,
+            "completed": "true_string",
+        }
+
+        response = client.post("/shoppinglist/create/", data=data)
+
+        assert response.status_code == status.HTTP_400_BAD_REQUEST, response.content
+        assert response.data == {
+            "user": [
+                ErrorDetail(
+                    string="Incorrect type. Expected pk value, received str.",
+                    code="incorrect_type",
+                )
+            ],
+            "completed": [
+                ErrorDetail(string="Must be a valid boolean.", code="invalid")
+            ],
+        }
