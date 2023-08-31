@@ -5,7 +5,7 @@
 
 # ShoppingListCreateView:
 
-- [ ] Test creating a new shopping list.
+- [x] Test creating a new shopping list.
 - [ ] Test creating a shopping list with invalid data (missing required fields, invalid data types, etc.).
 
 # ShoppingListDetailUpdateView:

@@ -55,3 +55,20 @@ class TestShoppingListView:
         assert response.status_code == 200, response.content
         assert response.data[0]["items_count"] == 3
         assert response.data[1]["items_count"] == 2
+
+
+class TestShoppingListCreateView:
+    @pytest.mark.django_db
+    def test_create_shopping_list(self, user):
+        client = APIClient()
+
+        data = {
+            "name": "Shopping List",
+            "user": user.id,
+        }
+
+        response = client.post("/shoppinglist/create/", data=data)
+
+        assert response.status_code == 201, response.content
+        assert response.data["name"] == data["name"]
+        assert ShoppingList.objects.filter(name=data["name"]).exists()
