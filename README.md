@@ -20,6 +20,11 @@
 - [ ] Authentication
 - [ ] dependencies management
   - [ ] poetry
+- [ ] Sharing list between accounts
+- [ ] Scrapping recipe from picture
+- [ ] Scraping recipe from web
+- [ ] Items tracking for charts
+- [ ] Category BREAD change to BAKERY
 
 ## Backend
 
@@ -55,6 +60,7 @@
     - [x] Remove ShoppingList
     - [ ] Remove bought items
     - [ ] Remove all items
+    - [ ] Ordering: completion, category
     - [ ] Refactoring:
       - [x] Modularize components (e.g., `ShoppingListHeader`, `ShoppingListInputs`)
       - [ ] Implement `useCallback` for event handlers
