@@ -132,3 +132,21 @@ class TestShoppingListDetailUpdateView:
 
         assert response.status_code == status.HTTP_200_OK, response.content
         assert response.data["name"] == data["name"]
+
+    @pytest.mark.django_db
+    def test_update_shopping_list_with_invalid_data(self, user, api_client):
+        shopping_list = create_shopping_list(name="Shopping List", user=user)
+
+        data = {
+            "name": "Shopping List",
+            "completed": "true_string",
+        }
+
+        response = api_client.put(f"/shoppinglist/{shopping_list.pk}/edit/", data=data)
+
+        assert response.status_code == status.HTTP_400_BAD_REQUEST, response.content
+        assert response.data == {
+            "completed": [
+                ErrorDetail(string="Must be a valid boolean.", code="invalid")
+            ]
+        }
