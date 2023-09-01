@@ -115,15 +115,14 @@ class TestShoppingListCreateView:
         }
 
 
+@pytest.mark.django_db
 class TestShoppingListDetailUpdateView:
-    @pytest.mark.django_db
     def test_retrieve_shopping_list_by_id(self, api_client, shopping_list):
         response = api_client.get(f"/shoppinglist/{shopping_list.pk}/edit/")
 
         assert response.status_code == status.HTTP_200_OK, response.content
         assert response.data["name"] == shopping_list.name
 
-    @pytest.mark.django_db
     def test_update_shopping_list_by_id(self, api_client, shopping_list):
         data = {
             "name": "Test List",
@@ -134,7 +133,6 @@ class TestShoppingListDetailUpdateView:
         assert response.status_code == status.HTTP_200_OK, response.content
         assert response.data["name"] == data["name"]
 
-    @pytest.mark.django_db
     def test_update_shopping_list_with_invalid_data(self, api_client, shopping_list):
         data = {
             "name": "Shopping List",
@@ -149,3 +147,11 @@ class TestShoppingListDetailUpdateView:
                 ErrorDetail(string="Must be a valid boolean.", code="invalid")
             ]
         }
+
+    def test_retrieve_non_existent_shopping_list(self, api_client):
+        non_existent_shopping_list_pk = 1
+        response = api_client.get(
+            f"/shoppinglist/{non_existent_shopping_list_pk}/edit/"
+        )
+
+        assert response.status_code == status.HTTP_404_NOT_FOUND, response.content
