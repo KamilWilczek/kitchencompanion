@@ -158,5 +158,9 @@ class TestShoppingListDetailUpdateView:
 
 
 class TestShoppingListDeleteView:
-    def test_deleting_shopping_list_by_pk():
-        pass
+    @pytest.mark.django_db
+    def test_deleting_shopping_list_by_pk(self, api_client, shopping_list):
+        response = api_client.delete(f"/shoppinglist/{shopping_list.pk}/delete/")
+
+        assert response.status_code == status.HTTP_204_NO_CONTENT
+        assert not ShoppingList.objects.filter(pk=shopping_list.pk).exists()

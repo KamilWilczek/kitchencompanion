@@ -17,7 +17,7 @@
 
 # ShoppingListDeleteView:
 
-- [ ] Test deleting a specific shopping list by ID.
+- [x] Test deleting a specific shopping list by ID.
 - [ ] Test trying to delete a non-existent shopping list.
 
 # ItemUpdateView:
