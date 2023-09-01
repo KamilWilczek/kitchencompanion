@@ -8,6 +8,11 @@ from shoppinglist.constants import ItemCategory
 
 
 @pytest.fixture
+def api_client():
+    return APIClient()
+
+
+@pytest.fixture
 def user():
     return User.objects.create_user(username="testuser", password="testpassword")
 
@@ -23,18 +28,17 @@ def create_multiple_items(shopping_list, items_data):
 
 @pytest.mark.django_db
 class TestShoppingListView:
-    def test_all_shopping_lists_are_returned(self, user):
+    def test_all_shopping_lists_are_returned(self, user, api_client):
         shopping_list_1 = create_shopping_list(name="Shopping List 1", user=user)
         shopping_list_2 = create_shopping_list(name="Shopping List 2", user=user)
         shopping_list_3 = create_shopping_list(name="Shopping List 3", user=user)
 
-        client = APIClient()
-        response = client.get("/shoppinglist/")
+        response = api_client.get("/shoppinglist/")
 
         assert response.status_code == status.HTTP_200_OK
         assert len(response.data) == 3
 
-    def test_items_count_returns_correct_number(self, user):
+    def test_items_count_returns_correct_number(self, user, api_client):
         shopping_list_1 = create_shopping_list(name="Shopping List 1", user=user)
         shopping_list_2 = create_shopping_list(name="Shopping List 2", user=user)
         items_data_1 = [
@@ -50,8 +54,7 @@ class TestShoppingListView:
         create_multiple_items(shopping_list_1, items_data_1)
         create_multiple_items(shopping_list_2, items_data_2)
 
-        client = APIClient()
-        response = client.get("/shoppinglist/")
+        response = api_client.get("/shoppinglist/")
 
         assert response.status_code == status.HTTP_200_OK, response.content
         assert response.data[0]["items_count"] == 3
@@ -60,36 +63,30 @@ class TestShoppingListView:
 
 @pytest.mark.django_db
 class TestShoppingListCreateView:
-    def test_create_shopping_list(self, user):
-        client = APIClient()
-
+    def test_create_shopping_list(self, user, api_client):
         data = {
             "name": "Shopping List",
             "user": user.id,
         }
 
-        response = client.post("/shoppinglist/create/", data=data)
+        response = api_client.post("/shoppinglist/create/", data=data)
 
         assert response.status_code == status.HTTP_201_CREATED, response.content
         assert response.data["name"] == data["name"]
         assert ShoppingList.objects.filter(name=data["name"]).exists()
 
-    def test_create_shopping_list_missing_required_fields(self, user):
-        client = APIClient()
-
+    def test_create_shopping_list_missing_required_fields(self, user, api_client):
         data = {
             "user": user.id,
             "description": "Groceries",
         }
 
-        response = client.post("/shoppinglist/create/", data=data)
+        response = api_client.post("/shoppinglist/create/", data=data)
 
         assert response.status_code == status.HTTP_400_BAD_REQUEST, response.content
         assert response.data == {"name": ["This field is required."]}
 
-    def test_create_shopping_list_with_invalid_data_types(self, user):
-        client = APIClient()
-
+    def test_create_shopping_list_with_invalid_data_types(self, api_client):
         data = {
             "user": "invalid_user_id",
             "name": 12345,
@@ -97,7 +94,7 @@ class TestShoppingListCreateView:
             "completed": "true_string",
         }
 
-        response = client.post("/shoppinglist/create/", data=data)
+        response = api_client.post("/shoppinglist/create/", data=data)
 
         assert response.status_code == status.HTTP_400_BAD_REQUEST, response.content
         assert response.data == {
@@ -115,12 +112,23 @@ class TestShoppingListCreateView:
 
 class TestShoppingListDetailUpdateView:
     @pytest.mark.django_db
-    def test_retrieve_shopping_list_by_id(self, user):
-        client = APIClient()
-
+    def test_retrieve_shopping_list_by_id(self, user, api_client):
         shopping_list = create_shopping_list(name="Shopping List", user=user)
 
-        response = client.get(f"/shoppinglist/{shopping_list.pk}/edit/")
+        response = api_client.get(f"/shoppinglist/{shopping_list.pk}/edit/")
 
-        assert response.status_code == status.HTTP_200_OK
+        assert response.status_code == status.HTTP_200_OK, response.content
         assert response.data["name"] == shopping_list.name
+
+    @pytest.mark.django_db
+    def test_update_shopping_list_by_id(self, user, api_client):
+        shopping_list = create_shopping_list(name="Shopping List", user=user)
+
+        data = {
+            "name": "Test List",
+        }
+
+        response = api_client.put(f"/shoppinglist/{shopping_list.pk}/edit/", data=data)
+
+        assert response.status_code == status.HTTP_200_OK, response.content
+        assert response.data["name"] == data["name"]
