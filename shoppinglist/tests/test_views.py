@@ -21,8 +21,8 @@ def create_multiple_items(shopping_list, items_data):
     Item.objects.bulk_create(items_to_create)
 
 
+@pytest.mark.django_db
 class TestShoppingListView:
-    @pytest.mark.django_db
     def test_all_shopping_lists_are_returned(self, user):
         shopping_list_1 = create_shopping_list(name="Shopping List 1", user=user)
         shopping_list_2 = create_shopping_list(name="Shopping List 2", user=user)
@@ -34,7 +34,6 @@ class TestShoppingListView:
         assert response.status_code == status.HTTP_200_OK
         assert len(response.data) == 3
 
-    @pytest.mark.django_db
     def test_items_count_returns_correct_number(self, user):
         shopping_list_1 = create_shopping_list(name="Shopping List 1", user=user)
         shopping_list_2 = create_shopping_list(name="Shopping List 2", user=user)
@@ -59,8 +58,8 @@ class TestShoppingListView:
         assert response.data[1]["items_count"] == 2
 
 
+@pytest.mark.django_db
 class TestShoppingListCreateView:
-    @pytest.mark.django_db
     def test_create_shopping_list(self, user):
         client = APIClient()
 
@@ -75,7 +74,6 @@ class TestShoppingListCreateView:
         assert response.data["name"] == data["name"]
         assert ShoppingList.objects.filter(name=data["name"]).exists()
 
-    @pytest.mark.django_db
     def test_create_shopping_list_missing_required_fields(self, user):
         client = APIClient()
 
@@ -89,7 +87,6 @@ class TestShoppingListCreateView:
         assert response.status_code == status.HTTP_400_BAD_REQUEST, response.content
         assert response.data == {"name": ["This field is required."]}
 
-    @pytest.mark.django_db
     def test_create_shopping_list_with_invalid_data_types(self, user):
         client = APIClient()
 
@@ -114,3 +111,16 @@ class TestShoppingListCreateView:
                 ErrorDetail(string="Must be a valid boolean.", code="invalid")
             ],
         }
+
+
+class TestShoppingListDetailUpdateView:
+    @pytest.mark.django_db
+    def test_retrieve_shopping_list_by_id(self, user):
+        client = APIClient()
+
+        shopping_list = create_shopping_list(name="Shopping List", user=user)
+
+        response = client.get(f"/shoppinglist/{shopping_list.pk}/edit/")
+
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data["name"] == shopping_list.name
