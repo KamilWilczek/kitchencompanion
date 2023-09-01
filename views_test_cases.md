@@ -10,7 +10,7 @@
 
 # ShoppingListDetailUpdateView:
 
-- [ ] Test retrieving a specific shopping list by ID.
+- [x] Test retrieving a specific shopping list by ID.
 - [ ] Test updating a specific shopping list by ID.
 - [ ] Test updating a shopping list with invalid data.
 - [ ] Test trying to retrieve a non-existent shopping list (expect a 404 status).
