@@ -117,13 +117,13 @@ class TestShoppingListCreateView:
 
 @pytest.mark.django_db
 class TestShoppingListDetailUpdateView:
-    def test_retrieve_shopping_list_by_id(self, api_client, shopping_list):
+    def test_retrieve_shopping_list_by_pk(self, api_client, shopping_list):
         response = api_client.get(f"/shoppinglist/{shopping_list.pk}/edit/")
 
         assert response.status_code == status.HTTP_200_OK, response.content
         assert response.data["name"] == shopping_list.name
 
-    def test_update_shopping_list_by_id(self, api_client, shopping_list):
+    def test_update_shopping_list_by_pk(self, api_client, shopping_list):
         data = {
             "name": "Test List",
         }
@@ -155,3 +155,8 @@ class TestShoppingListDetailUpdateView:
         )
 
         assert response.status_code == status.HTTP_404_NOT_FOUND, response.content
+
+
+class TestShoppingListDeleteView:
+    def test_deleting_shopping_list_by_pk():
+        pass
