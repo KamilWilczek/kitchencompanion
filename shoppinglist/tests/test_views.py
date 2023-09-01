@@ -17,6 +17,11 @@ def user():
     return User.objects.create_user(username="testuser", password="testpassword")
 
 
+@pytest.fixture
+def shopping_list(user):
+    return create_shopping_list(user=user)
+
+
 def create_shopping_list(name="Test List", user=None):
     return ShoppingList.objects.create(name=name, user=user)
 
@@ -112,18 +117,14 @@ class TestShoppingListCreateView:
 
 class TestShoppingListDetailUpdateView:
     @pytest.mark.django_db
-    def test_retrieve_shopping_list_by_id(self, user, api_client):
-        shopping_list = create_shopping_list(name="Shopping List", user=user)
-
+    def test_retrieve_shopping_list_by_id(self, api_client, shopping_list):
         response = api_client.get(f"/shoppinglist/{shopping_list.pk}/edit/")
 
         assert response.status_code == status.HTTP_200_OK, response.content
         assert response.data["name"] == shopping_list.name
 
     @pytest.mark.django_db
-    def test_update_shopping_list_by_id(self, user, api_client):
-        shopping_list = create_shopping_list(name="Shopping List", user=user)
-
+    def test_update_shopping_list_by_id(self, api_client, shopping_list):
         data = {
             "name": "Test List",
         }
@@ -134,9 +135,7 @@ class TestShoppingListDetailUpdateView:
         assert response.data["name"] == data["name"]
 
     @pytest.mark.django_db
-    def test_update_shopping_list_with_invalid_data(self, user, api_client):
-        shopping_list = create_shopping_list(name="Shopping List", user=user)
-
+    def test_update_shopping_list_with_invalid_data(self, api_client, shopping_list):
         data = {
             "name": "Shopping List",
             "completed": "true_string",
