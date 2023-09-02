@@ -2,10 +2,35 @@
 
 # TODO
 
+## MVP
+
+- shopping list
+- accounts
+- recipe module
+
 ## Architecture
 
 - [x] ShoppingList module
 - [ ] Recipe module
+  - [ ] Basic CRUD
+  - [ ] Recipe versioning on Recipe Page, ex: on Burrito: burrito_1, burrito_2,
+  - [ ] Picture in recipe model
+  - [ ] Tags: Beef, Vegan, Pasta, Breakfast
+    - [ ] Multi-choice
+  - [ ] One click to add to shopping list
+    - [ ] Modal with list Items List, choose to add
+    - This way we won't end up with 10kg with flour
+  - [ ] Solve adding items on shopping list from two recipes
+  - [ ] Portions
+  - [ ] Time preparing
+  - [ ] Ingredients List
+    - Ingredients List and Items to buy are different
+    - Items to buy are added to Shopping Lists
+    - Ingredients List are the ones that are needed for prep recipe
+    - Ingredients List olive - 2 tablespoons, how to buy that? How to add spoons to Shopping List? How to buy 12 spoons?
+    - This way in one list we habe 2 tablespoon to prep, and on Shopping List we add just olive.
+  - [ ] Scrapping recipe from picture
+  - [ ] Scraping recipe from web
 - [ ] Pantry module
 - [ ] Planner module
 - [x] JS to TS port
@@ -21,8 +46,6 @@
 - [ ] dependencies management
   - [ ] poetry
 - [ ] Sharing list between accounts
-- [ ] Scrapping recipe from picture
-- [ ] Scraping recipe from web
 - [ ] Items tracking for charts
 - [ ] Category BREAD change to BAKERY
 
