@@ -56,17 +56,6 @@ class ShoppingListDeleteView(generics.DestroyAPIView):
         )
 
 
-class ItemUpdateView(ShoppingItemMixin, generics.RetrieveUpdateAPIView):
-    """
-    API view to retrieve or update a specific item within a given shopping list.
-    """
-
-    serializer_class: type[ItemSerializer] = ItemSerializer
-
-    def get_queryset(self) -> QuerySet[Item]:
-        return Item.objects.filter(shopping_list=self.get_shopping_list())
-
-
 class ItemCreateView(ShoppingItemMixin, generics.CreateAPIView):
     """
     API view to add a new item to a specific shopping list.
@@ -77,6 +66,17 @@ class ItemCreateView(ShoppingItemMixin, generics.CreateAPIView):
     def perform_create(self, serializer: ItemSerializer):
         shopping_list: ShoppingList = self.get_shopping_list()
         serializer.save(shopping_list=shopping_list)
+
+
+class ItemUpdateView(ShoppingItemMixin, generics.RetrieveUpdateAPIView):
+    """
+    API view to retrieve or update a specific item within a given shopping list.
+    """
+
+    serializer_class: type[ItemSerializer] = ItemSerializer
+
+    def get_queryset(self) -> QuerySet[Item]:
+        return Item.objects.filter(shopping_list=self.get_shopping_list())
 
 
 class ItemDeleteView(ShoppingItemMixin, generics.DestroyAPIView):
