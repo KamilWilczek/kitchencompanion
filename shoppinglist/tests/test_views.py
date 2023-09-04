@@ -157,15 +157,14 @@ class TestShoppingListDetailUpdateView:
         assert response.status_code == status.HTTP_404_NOT_FOUND, response.content
 
 
+@pytest.mark.django_db
 class TestShoppingListDeleteView:
-    @pytest.mark.django_db
     def test_deleting_shopping_list_by_pk(self, api_client, shopping_list):
         response = api_client.delete(f"/shoppinglist/{shopping_list.pk}/delete/")
 
         assert response.status_code == status.HTTP_204_NO_CONTENT
         assert not ShoppingList.objects.filter(pk=shopping_list.pk).exists()
 
-    @pytest.mark.django_db
     def test_delete_non_existent_shopping_list(self, api_client):
         non_existent_shopping_list_pk = 1
 
