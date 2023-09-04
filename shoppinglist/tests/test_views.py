@@ -255,3 +255,19 @@ class TestItemUpdateView:
         )
 
         assert response.status_code == status.HTTP_404_NOT_FOUND, response.content
+
+
+class TestItemCreateView:
+    @pytest.mark.django_db
+    def test_add_new_item_to_shopping_list(self, api_client, shopping_list):
+        data = {
+            "product": "Beef",
+            "category": ItemCategory.MEAT,
+            "quantity": 1,
+            "unit": ItemUnit.KILOGRAM,
+        }
+
+        response = api_client.post(f"/shoppinglist/{shopping_list.pk}/item/", data=data)
+
+        assert response.status_code == status.HTTP_201_CREATED, response.content
+        assert response.data["product"] == data["product"]
