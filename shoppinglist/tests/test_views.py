@@ -247,3 +247,14 @@ class TestItemUpdateView:
         assert response.data["completed"] == [
             ErrorDetail(string="Must be a valid boolean.", code="invalid")
         ]
+
+    @pytest.mark.django_db
+    def test_retrieve_non_existent_item_from_shopping_list(
+        self, api_client, shopping_list
+    ):
+        non_existing_item_pk = 1
+        response = api_client.get(
+            f"/shoppinglist/{shopping_list.pk}/item/{non_existing_item_pk}/"
+        )
+
+        assert response.status_code == status.HTTP_404_NOT_FOUND, response.content
