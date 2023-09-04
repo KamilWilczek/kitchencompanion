@@ -174,3 +174,20 @@ class TestShoppingListDeleteView:
         )
 
         assert response.status_code == status.HTTP_404_NOT_FOUND, response.content
+
+
+class TestItemUpdateView:
+    @pytest.mark.django_db
+    def test_retrieve_item_by_pk_from_shopping_list(self, api_client, shopping_list):
+        shopping_list_item = Item.objects.create(
+            shopping_list=shopping_list,
+            product="Milk",
+            category=ItemCategory.DAIRY,
+        )
+
+        response = api_client.get(
+            f"/shoppinglist/{shopping_list.pk}/item/{shopping_list_item.pk}/"
+        )
+
+        assert response.status_code == status.HTTP_200_OK, response.content
+        assert response.data["product"] == shopping_list_item.product

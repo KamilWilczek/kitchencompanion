@@ -22,7 +22,7 @@
 
 # ItemUpdateView:
 
-- [ ] Test retrieving a specific item by ID from a specific shopping list.
+- [x] Test retrieving a specific item by ID from a specific shopping list.
 - [ ] Test updating a specific item by ID from a shopping list.
 - [ ] Test updating an item with invalid data.
 - [ ] Test trying to retrieve a non-existent item from a shopping list.
