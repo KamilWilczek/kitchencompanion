@@ -163,6 +163,7 @@ class TestShoppingListDetailUpdateView:
         )
 
         assert response.status_code == status.HTTP_404_NOT_FOUND, response.content
+        assert response.data == {"detail": "Not found."}
 
 
 @pytest.mark.django_db
@@ -181,6 +182,7 @@ class TestShoppingListDeleteView:
         )
 
         assert response.status_code == status.HTTP_404_NOT_FOUND, response.content
+        assert response.data == {"detail": "Not found."}
 
 
 @pytest.mark.django_db
@@ -258,6 +260,7 @@ class TestItemUpdateView:
         )
 
         assert response.status_code == status.HTTP_404_NOT_FOUND, response.content
+        assert response.data == {"detail": "Not found."}
 
 
 class TestItemCreateView:
