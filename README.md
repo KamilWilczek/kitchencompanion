@@ -19,6 +19,7 @@
     - [ ] Multi-choice
   - [ ] One click to add to shopping list
     - [ ] Modal with list Items List, choose to add
+    - [ ] Shows on Recipes which ingredients I already have in my pantry
     - This way we won't end up with 10kg with flour
   - [ ] Solve adding items on shopping list from two recipes
   - [ ] Portions
@@ -48,6 +49,9 @@
 - [ ] Sharing list between accounts
 - [ ] Items tracking for charts
 - [ ] Category BREAD change to BAKERY
+- [ ] Indeks skladikow w przepisie, wyszukiwanie po skladniku, sprawdzanie w jakim przepisie jest fikusny skladnik,
+- [ ] Localize to PL
+- [ ] Shows on Recipes which ingredients I already have in my pantry
 
 ## Backend
 
