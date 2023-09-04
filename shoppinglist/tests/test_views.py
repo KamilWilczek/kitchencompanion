@@ -310,3 +310,22 @@ class TestItemCreateView:
         assert response.data["completed"] == [
             ErrorDetail(string="Must be a valid boolean.", code="invalid")
         ]
+
+    @pytest.mark.django_db
+    def test_add_item_to_non_existent_shopping_list(self, api_client):
+        non_existent_shopping_list_pk = 1
+        data = {
+            "product": "Beef",
+            "category": ItemCategory.MEAT,
+            "quantity": 1,
+            "unit": ItemUnit.KILOGRAM,
+        }
+
+        response = api_client.post(
+            f"/shoppinglist/{non_existent_shopping_list_pk}/item/", data=data
+        )
+
+        assert response.status_code == status.HTTP_404_NOT_FOUND, response.content
+        assert response.data == {
+            "detail": ErrorDetail(string="ShoppingList not found.", code="not_found")
+        }
