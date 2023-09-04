@@ -186,6 +186,75 @@ class TestShoppingListDeleteView:
 
 
 @pytest.mark.django_db
+class TestItemCreateView:
+    def test_add_new_item_to_shopping_list(self, api_client, shopping_list):
+        data = {
+            "product": "Beef",
+            "category": ItemCategory.MEAT,
+            "quantity": 1,
+            "unit": ItemUnit.KILOGRAM,
+        }
+
+        response = api_client.post(f"/shoppinglist/{shopping_list.pk}/item/", data=data)
+
+        assert response.status_code == status.HTTP_201_CREATED, response.content
+        assert response.data["product"] == data["product"]
+
+    def test_add_item_with_invalid_data_to_shopping_list(
+        self, api_client, shopping_list
+    ):
+        invalid_data = {
+            "product": "Milk",
+            "quantity": -1,
+            "unit": "invalid_unit",
+            "category": 123,
+            "completed": "true_string",
+        }
+
+        response = api_client.post(
+            f"/shoppinglist/{shopping_list.pk}/item/", data=invalid_data
+        )
+
+        assert response.status_code == status.HTTP_400_BAD_REQUEST, response.content
+        assert response.data["quantity"] == [
+            "Ensure this value is greater than or equal to 1."
+        ]
+        assert response.data["unit"] == [
+            ErrorDetail(
+                string=f'"{invalid_data["unit"]}" is not a valid choice.',
+                code="invalid_choice",
+            )
+        ]
+        assert response.data["category"] == [
+            ErrorDetail(
+                string=f'"{invalid_data["category"]}" is not a valid choice.',
+                code="invalid_choice",
+            )
+        ]
+        assert response.data["completed"] == [
+            ErrorDetail(string="Must be a valid boolean.", code="invalid")
+        ]
+
+    def test_add_item_to_non_existent_shopping_list(self, api_client):
+        non_existent_shopping_list_pk = 1
+        data = {
+            "product": "Beef",
+            "category": ItemCategory.MEAT,
+            "quantity": 1,
+            "unit": ItemUnit.KILOGRAM,
+        }
+
+        response = api_client.post(
+            f"/shoppinglist/{non_existent_shopping_list_pk}/item/", data=data
+        )
+
+        assert response.status_code == status.HTTP_404_NOT_FOUND, response.content
+        assert response.data == {
+            "detail": ErrorDetail(string="ShoppingList not found.", code="not_found")
+        }
+
+
+@pytest.mark.django_db
 class TestItemUpdateView:
     def test_retrieve_item_by_pk_from_shopping_list(self, api_client, shopping_list):
         shopping_list_item = create_item(shopping_list=shopping_list)
@@ -261,74 +330,3 @@ class TestItemUpdateView:
 
         assert response.status_code == status.HTTP_404_NOT_FOUND, response.content
         assert response.data == {"detail": "Not found."}
-
-
-class TestItemCreateView:
-    @pytest.mark.django_db
-    def test_add_new_item_to_shopping_list(self, api_client, shopping_list):
-        data = {
-            "product": "Beef",
-            "category": ItemCategory.MEAT,
-            "quantity": 1,
-            "unit": ItemUnit.KILOGRAM,
-        }
-
-        response = api_client.post(f"/shoppinglist/{shopping_list.pk}/item/", data=data)
-
-        assert response.status_code == status.HTTP_201_CREATED, response.content
-        assert response.data["product"] == data["product"]
-
-    @pytest.mark.django_db
-    def test_add_item_with_invalid_data_to_shopping_list(
-        self, api_client, shopping_list
-    ):
-        invalid_data = {
-            "product": "Milk",
-            "quantity": -1,
-            "unit": "invalid_unit",
-            "category": 123,
-            "completed": "true_string",
-        }
-
-        response = api_client.post(
-            f"/shoppinglist/{shopping_list.pk}/item/", data=invalid_data
-        )
-
-        assert response.status_code == status.HTTP_400_BAD_REQUEST, response.content
-        assert response.data["quantity"] == [
-            "Ensure this value is greater than or equal to 1."
-        ]
-        assert response.data["unit"] == [
-            ErrorDetail(
-                string=f'"{invalid_data["unit"]}" is not a valid choice.',
-                code="invalid_choice",
-            )
-        ]
-        assert response.data["category"] == [
-            ErrorDetail(
-                string=f'"{invalid_data["category"]}" is not a valid choice.',
-                code="invalid_choice",
-            )
-        ]
-        assert response.data["completed"] == [
-            ErrorDetail(string="Must be a valid boolean.", code="invalid")
-        ]
-
-    @pytest.mark.django_db
-    def test_add_item_to_non_existent_shopping_list(self, api_client):
-        non_existent_shopping_list_pk = 1
-        data = {
-            "product": "Beef",
-            "category": ItemCategory.MEAT,
-            "quantity": 1,
-            "unit": ItemUnit.KILOGRAM,
-        }
-
-        response = api_client.post(
-            f"/shoppinglist/{non_existent_shopping_list_pk}/item/", data=data
-        )
-
-        assert response.status_code == status.HTTP_404_NOT_FOUND, response.content
-        assert response.data == {
-            "detail": ErrorDetail(string="ShoppingList not found.", code="not_found")
-        }
