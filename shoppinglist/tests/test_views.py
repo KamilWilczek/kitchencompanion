@@ -26,6 +26,12 @@ def create_shopping_list(name="Test List", user=None):
     return ShoppingList.objects.create(name=name, user=user)
 
 
+def create_item(shopping_list, product="Milk", category=ItemCategory.DAIRY, **kwargs):
+    return Item.objects.create(
+        shopping_list=shopping_list, product=product, category=category, **kwargs
+    )
+
+
 def create_multiple_items(shopping_list, items_data):
     items_to_create = [Item(shopping_list=shopping_list, **data) for data in items_data]
     Item.objects.bulk_create(items_to_create)
@@ -213,3 +219,39 @@ class TestItemUpdateView:
         assert response.status_code == status.HTTP_200_OK, response.content
         assert response.data["quantity"] == data["quantity"]
         assert response.data["unit"] == data["unit"]
+
+    @pytest.mark.django_db
+    def test_update_item_with_invalid_data(self, api_client, shopping_list):
+        shopping_list_item = create_item(shopping_list=shopping_list)
+
+        data = {
+            "product": "Milk",
+            "quantity": -1,
+            "unit": "invalid_unit",
+            "category": 123,
+            "completed": "true_string",
+        }
+
+        response = api_client.put(
+            f"/shoppinglist/{shopping_list.pk}/item/{shopping_list_item.pk}/", data=data
+        )
+
+        assert response.status_code == status.HTTP_400_BAD_REQUEST, response.content
+        assert response.data["quantity"] == [
+            "Ensure this value is greater than or equal to 1."
+        ]
+        assert response.data["unit"] == [
+            ErrorDetail(
+                string=f'"{data["unit"]}" is not a valid choice.',
+                code="invalid_choice",
+            )
+        ]
+        assert response.data["category"] == [
+            ErrorDetail(
+                string=f'"{data["category"]}" is not a valid choice.',
+                code="invalid_choice",
+            )
+        ]
+        assert response.data["completed"] == [
+            ErrorDetail(string="Must be a valid boolean.", code="invalid")
+        ]
