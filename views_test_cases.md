@@ -30,7 +30,7 @@
 # ItemCreateView:
 
 - [x] Test adding a new item to a specific shopping list.
-- [ ] Test trying to add an item with invalid data to a shopping list.
+- [x] Test trying to add an item with invalid data to a shopping list.
 - [ ] Test trying to add an item to a non-existent shopping list.
 
 # ItemDeleteView:
