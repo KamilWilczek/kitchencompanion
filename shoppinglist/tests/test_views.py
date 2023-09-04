@@ -181,8 +181,8 @@ class TestShoppingListDeleteView:
         assert response.status_code == status.HTTP_404_NOT_FOUND, response.content
 
 
+@pytest.mark.django_db
 class TestItemUpdateView:
-    @pytest.mark.django_db
     def test_retrieve_item_by_pk_from_shopping_list(self, api_client, shopping_list):
         shopping_list_item = create_item(shopping_list=shopping_list)
 
@@ -193,7 +193,6 @@ class TestItemUpdateView:
         assert response.status_code == status.HTTP_200_OK, response.content
         assert response.data["product"] == shopping_list_item.product
 
-    @pytest.mark.django_db
     def test_update_item_by_pk_from_shopping_list(self, api_client, shopping_list):
         shopping_list_item = create_item(shopping_list=shopping_list)
 
@@ -212,7 +211,6 @@ class TestItemUpdateView:
         assert response.data["quantity"] == data["quantity"]
         assert response.data["unit"] == data["unit"]
 
-    @pytest.mark.django_db
     def test_update_item_with_invalid_data(self, api_client, shopping_list):
         shopping_list_item = create_item(shopping_list=shopping_list)
 
@@ -248,7 +246,6 @@ class TestItemUpdateView:
             ErrorDetail(string="Must be a valid boolean.", code="invalid")
         ]
 
-    @pytest.mark.django_db
     def test_retrieve_non_existent_item_from_shopping_list(
         self, api_client, shopping_list
     ):
