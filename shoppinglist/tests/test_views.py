@@ -184,11 +184,7 @@ class TestShoppingListDeleteView:
 class TestItemUpdateView:
     @pytest.mark.django_db
     def test_retrieve_item_by_pk_from_shopping_list(self, api_client, shopping_list):
-        shopping_list_item = Item.objects.create(
-            shopping_list=shopping_list,
-            product="Milk",
-            category=ItemCategory.DAIRY,
-        )
+        shopping_list_item = create_item(shopping_list=shopping_list)
 
         response = api_client.get(
             f"/shoppinglist/{shopping_list.pk}/item/{shopping_list_item.pk}/"
@@ -199,11 +195,7 @@ class TestItemUpdateView:
 
     @pytest.mark.django_db
     def test_update_item_by_pk_from_shopping_list(self, api_client, shopping_list):
-        shopping_list_item = Item.objects.create(
-            shopping_list=shopping_list,
-            product="Milk",
-            category=ItemCategory.DAIRY,
-        )
+        shopping_list_item = create_item(shopping_list=shopping_list)
 
         data = {
             "product": "Milk",
