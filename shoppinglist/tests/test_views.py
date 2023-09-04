@@ -98,14 +98,14 @@ class TestShoppingListCreateView:
         assert response.data == {"name": ["This field is required."]}
 
     def test_create_shopping_list_with_invalid_data_types(self, api_client):
-        data = {
+        invalid_data = {
             "user": "invalid_user_id",
             "name": 12345,
             "description": 67890,
             "completed": "true_string",
         }
 
-        response = api_client.post("/shoppinglist/create/", data=data)
+        response = api_client.post("/shoppinglist/create/", data=invalid_data)
 
         assert response.status_code == status.HTTP_400_BAD_REQUEST, response.content
         assert response.data == {
@@ -140,12 +140,14 @@ class TestShoppingListDetailUpdateView:
         assert response.data["name"] == data["name"]
 
     def test_update_shopping_list_with_invalid_data(self, api_client, shopping_list):
-        data = {
+        invalid_data = {
             "name": "Shopping List",
             "completed": "true_string",
         }
 
-        response = api_client.put(f"/shoppinglist/{shopping_list.pk}/edit/", data=data)
+        response = api_client.put(
+            f"/shoppinglist/{shopping_list.pk}/edit/", data=invalid_data
+        )
 
         assert response.status_code == status.HTTP_400_BAD_REQUEST, response.content
         assert response.data == {
@@ -214,7 +216,7 @@ class TestItemUpdateView:
     def test_update_item_with_invalid_data(self, api_client, shopping_list):
         shopping_list_item = create_item(shopping_list=shopping_list)
 
-        data = {
+        invalid_data = {
             "product": "Milk",
             "quantity": -1,
             "unit": "invalid_unit",
@@ -223,7 +225,8 @@ class TestItemUpdateView:
         }
 
         response = api_client.put(
-            f"/shoppinglist/{shopping_list.pk}/item/{shopping_list_item.pk}/", data=data
+            f"/shoppinglist/{shopping_list.pk}/item/{shopping_list_item.pk}/",
+            data=invalid_data,
         )
 
         assert response.status_code == status.HTTP_400_BAD_REQUEST, response.content
@@ -232,13 +235,13 @@ class TestItemUpdateView:
         ]
         assert response.data["unit"] == [
             ErrorDetail(
-                string=f'"{data["unit"]}" is not a valid choice.',
+                string=f'"{invalid_data["unit"]}" is not a valid choice.',
                 code="invalid_choice",
             )
         ]
         assert response.data["category"] == [
             ErrorDetail(
-                string=f'"{data["category"]}" is not a valid choice.',
+                string=f'"{invalid_data["category"]}" is not a valid choice.',
                 code="invalid_choice",
             )
         ]
@@ -276,7 +279,7 @@ class TestItemCreateView:
     def test_add_item_with_invalid_data_to_shopping_list(
         self, api_client, shopping_list
     ):
-        data = {
+        invalid_data = {
             "product": "Milk",
             "quantity": -1,
             "unit": "invalid_unit",
@@ -284,7 +287,9 @@ class TestItemCreateView:
             "completed": "true_string",
         }
 
-        response = api_client.post(f"/shoppinglist/{shopping_list.pk}/item/", data=data)
+        response = api_client.post(
+            f"/shoppinglist/{shopping_list.pk}/item/", data=invalid_data
+        )
 
         assert response.status_code == status.HTTP_400_BAD_REQUEST, response.content
         assert response.data["quantity"] == [
@@ -292,13 +297,13 @@ class TestItemCreateView:
         ]
         assert response.data["unit"] == [
             ErrorDetail(
-                string=f'"{data["unit"]}" is not a valid choice.',
+                string=f'"{invalid_data["unit"]}" is not a valid choice.',
                 code="invalid_choice",
             )
         ]
         assert response.data["category"] == [
             ErrorDetail(
-                string=f'"{data["category"]}" is not a valid choice.',
+                string=f'"{invalid_data["category"]}" is not a valid choice.',
                 code="invalid_choice",
             )
         ]
