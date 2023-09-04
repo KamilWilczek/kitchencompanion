@@ -4,7 +4,7 @@ from rest_framework import status
 from rest_framework.exceptions import ErrorDetail
 from rest_framework.test import APIClient
 from shoppinglist.models import ShoppingList, Item
-from shoppinglist.constants import ItemCategory
+from shoppinglist.constants import ItemCategory, ItemUnit
 
 
 @pytest.fixture
@@ -190,3 +190,26 @@ class TestItemUpdateView:
 
         assert response.status_code == status.HTTP_200_OK, response.content
         assert response.data["product"] == shopping_list_item.product
+
+    @pytest.mark.django_db
+    def test_update_item_by_pk_from_shopping_list(self, api_client, shopping_list):
+        shopping_list_item = Item.objects.create(
+            shopping_list=shopping_list,
+            product="Milk",
+            category=ItemCategory.DAIRY,
+        )
+
+        data = {
+            "product": "Milk",
+            "category": ItemCategory.DAIRY,
+            "quantity": 1,
+            "unit": ItemUnit.LITER,
+        }
+
+        response = api_client.put(
+            f"/shoppinglist/{shopping_list.pk}/item/{shopping_list_item.pk}/", data=data
+        )
+
+        assert response.status_code == status.HTTP_200_OK, response.content
+        assert response.data["quantity"] == data["quantity"]
+        assert response.data["unit"] == data["unit"]
