@@ -330,3 +330,16 @@ class TestItemUpdateView:
 
         assert response.status_code == status.HTTP_404_NOT_FOUND, response.content
         assert response.data == {"detail": "Not found."}
+
+
+class TestItemDeleteView:
+    @pytest.mark.django_db
+    def test_delete_item_by_pk_from_shopping_list(self, api_client, shopping_list):
+        item = create_item(shopping_list=shopping_list)
+
+        assert len(shopping_list.item.all()) == 1
+        response = api_client.delete(
+            f"/shoppinglist/{shopping_list.pk}/item/{item.pk}/delete/"
+        )
+        assert response.status_code == status.HTTP_204_NO_CONTENT, response.content
+        assert len(shopping_list.item.all()) == 0

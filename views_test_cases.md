@@ -35,7 +35,7 @@
 
 # ItemDeleteView:
 
-- [ ] Test deleting a specific item by ID from a specific shopping list.
+- [x] Test deleting a specific item by ID from a specific shopping list.
 - [ ] Test trying to delete a non-existent item from a shopping list.
 
 # Additional Cases for All Views:
