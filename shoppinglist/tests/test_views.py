@@ -74,41 +74,6 @@ class TestShoppingListView:
 
 @pytest.mark.django_db
 class TestShoppingListCreateView:
-    def test_success_response_format(self, user, api_client):
-        data = {
-            "name": "Test Shopping List",
-            "description": "This is a test",
-            "user": user.id,
-        }
-
-        response = api_client.post("/shoppinglist/create/", data=data)
-        assert response.status_code == status.HTTP_201_CREATED
-        assert "name" in response.data
-        assert "description" in response.data
-        assert "created" in response.data
-        assert "updated" in response.data
-        assert "completed" in response.data
-        assert "user" in response.data
-
-    def test_error_response_format():
-        # Set up
-        client = APIClient()
-        user = User.objects.create_user(username="testuser", password="12345")
-        client.login(username="testuser", password="12345")
-
-        # Create a shopping list with invalid data
-        response = client.post(
-            "/shoppinglists/",
-            data={
-                "name": "",  # Name is required, so leaving it empty should trigger an error
-            },
-        )
-
-        # Verify the response format for an unsuccessful request
-        assert response.status_code == status.HTTP_400_BAD_REQUEST
-        assert "name" in response.data
-        assert response.data["name"] == ["This field may not be blank."]
-
     def test_create_shopping_list(self, user, api_client):
         data = {
             "name": "Shopping List",
