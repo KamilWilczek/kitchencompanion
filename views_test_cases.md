@@ -42,4 +42,4 @@
 
 - [ ] Test response format (to make sure it's returning the expected format for both success and error scenarios).
 - [ ] Ensure that unauthorized users can't create a shopping list. Similarly, test whether users can create lists for other users.
-- [ ] If creating a shopping list with the same data multiple times should lead to unique entries each time, ensure that this is the case. On the other hand, if it shouldn't, then ensure that subsequent POSTs with the same data don't create duplicates.
+- [x] If creating a shopping list with the same data multiple times should lead to unique entries each time, ensure that this is the case. On the other hand, if it shouldn't, then ensure that subsequent POSTs with the same data don't create duplicates.

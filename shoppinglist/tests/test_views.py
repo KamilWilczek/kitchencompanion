@@ -120,6 +120,20 @@ class TestShoppingListCreateView:
             ],
         }
 
+    def test_create_unique_shopping_list_multiple_times(self, user, api_client):
+        data = {
+            "name": "Shopping List",
+            "user": user.id,
+        }
+
+        response1 = api_client.post("/shoppinglist/create/", data=data)
+        assert response1.status_code == status.HTTP_201_CREATED, response1.content
+
+        response2 = api_client.post("/shoppinglist/create/", data=data)
+        assert response2.status_code == status.HTTP_201_CREATED, response2.content
+
+        assert response1.data["id"] != response2.data["id"]
+
 
 @pytest.mark.django_db
 class TestShoppingListDetailUpdateView:
