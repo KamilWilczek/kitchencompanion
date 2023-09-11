@@ -78,7 +78,9 @@
   - [x] `pytest` and `pytest-django` plugin
   - [ ] Unit tests
     - [x] models.py
-    - [ ] views.py
+    - [x] views.py
+    - [ ] serializers.py
+    - [ ] mixins.py
   - [ ] Integration tests
 
 ## Frontend

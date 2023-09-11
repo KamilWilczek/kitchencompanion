@@ -10,7 +10,6 @@ class ShoppingItemMixin:
     Mixin to centralize the logic of retrieving shopping list from parent_pk.
     """
 
-    # Assuming that self.kwargs comes from Django's class-based views or DRF
     kwargs: Dict[str, Any]
 
     def get_shopping_list(self) -> ShoppingList:
