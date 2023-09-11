@@ -1,28 +1,10 @@
 import pytest
 from rest_framework import status
-from rest_framework.exceptions import ErrorDetail
 from shoppinglist.models import ShoppingList
 from shoppinglist.constants import ItemCategory, ItemUnit
 from conftest import create_item, create_shopping_list, create_multiple_items
-from urls import (
-    SHOPPING_LIST_URL,
-    SHOPPING_LIST_EDIT_URL,
-    SHOPPING_LIST_CREATE_URL,
-    SHOPPING_LIST_DELETE_URL,
-    ITEM_URL,
-    ITEM_DETAIL_URL,
-    ITEM_DELETE_URL,
-)
-from error_messages import (
-    INCORRECT_TYPE_ERROR,
-    INVALID_BOOLEAN_ERROR,
-    INVALID_CHOICE_ERROR_UNIT,
-    INVALID_CHOICE_ERROR_CATEGORY,
-    MIN_QUANTITY_ERROR,
-    FIELD_REQUIRED_ERROR,
-    NOT_FOUND_ERROR,
-    SH_LIST_NOT_FOUND_ERROR,
-)
+from urls import URLS
+from error_messages import ERRORS
 
 
 @pytest.mark.django_db
@@ -32,7 +14,7 @@ class TestShoppingListView:
         shopping_list_2 = create_shopping_list(name="Shopping List 2", user=user)
         shopping_list_3 = create_shopping_list(name="Shopping List 3", user=user)
 
-        response = api_client.get(f"{SHOPPING_LIST_URL}/")
+        response = api_client.get(f"{URLS.SHOPPING_LIST_URL}/")
 
         assert response.status_code == status.HTTP_200_OK
         assert len(response.data) == 3
@@ -53,7 +35,7 @@ class TestShoppingListView:
         create_multiple_items(shopping_list_1, items_data_1)
         create_multiple_items(shopping_list_2, items_data_2)
 
-        response = api_client.get(f"{SHOPPING_LIST_URL}/")
+        response = api_client.get(f"{URLS.SHOPPING_LIST_URL}/")
 
         assert response.status_code == status.HTTP_200_OK, response.content
         assert response.data[0]["items_count"] == 3
@@ -68,7 +50,7 @@ class TestShoppingListCreateView:
             "user": user.id,
         }
 
-        response = api_client.post(SHOPPING_LIST_CREATE_URL, data=data)
+        response = api_client.post(URLS.SHOPPING_LIST_CREATE_URL, data=data)
 
         assert response.status_code == status.HTTP_201_CREATED, response.content
         assert response.data["name"] == data["name"]
@@ -80,10 +62,10 @@ class TestShoppingListCreateView:
             "description": "Groceries",
         }
 
-        response = api_client.post(SHOPPING_LIST_CREATE_URL, data=data)
+        response = api_client.post(URLS.SHOPPING_LIST_CREATE_URL, data=data)
 
         assert response.status_code == status.HTTP_400_BAD_REQUEST, response.content
-        assert response.data == {"name": FIELD_REQUIRED_ERROR}
+        assert response.data == {"name": ERRORS.FIELD_REQUIRED_ERROR}
 
     @pytest.mark.parametrize(
         "invalid_data, expected_response",
@@ -96,8 +78,8 @@ class TestShoppingListCreateView:
                     "completed": "true_string",
                 },
                 {
-                    "user": [INCORRECT_TYPE_ERROR],
-                    "completed": [INVALID_BOOLEAN_ERROR],
+                    "user": [ERRORS.INCORRECT_TYPE_ERROR],
+                    "completed": [ERRORS.INVALID_BOOLEAN_ERROR],
                 },
             ),
         ],
@@ -105,7 +87,7 @@ class TestShoppingListCreateView:
     def test_create_shopping_list_with_invalid_data_types(
         self, api_client, invalid_data, expected_response
     ):
-        response = api_client.post(SHOPPING_LIST_CREATE_URL, data=invalid_data)
+        response = api_client.post(URLS.SHOPPING_LIST_CREATE_URL, data=invalid_data)
         assert response.status_code == status.HTTP_400_BAD_REQUEST, response.content
         assert response.data == expected_response
 
@@ -115,10 +97,10 @@ class TestShoppingListCreateView:
             "user": user.id,
         }
 
-        response1 = api_client.post(SHOPPING_LIST_CREATE_URL, data=data)
+        response1 = api_client.post(URLS.SHOPPING_LIST_CREATE_URL, data=data)
         assert response1.status_code == status.HTTP_201_CREATED, response1.content
 
-        response2 = api_client.post(SHOPPING_LIST_CREATE_URL, data=data)
+        response2 = api_client.post(URLS.SHOPPING_LIST_CREATE_URL, data=data)
         assert response2.status_code == status.HTTP_201_CREATED, response2.content
 
         assert response1.data["id"] != response2.data["id"]
@@ -127,14 +109,14 @@ class TestShoppingListCreateView:
 @pytest.mark.django_db
 class TestShoppingListDetailUpdateView:
     def test_retrieve_shopping_list_by_pk(self, api_client, shopping_list):
-        url = SHOPPING_LIST_EDIT_URL.format(pk=shopping_list.pk)
+        url = URLS.SHOPPING_LIST_EDIT_URL.format(pk=shopping_list.pk)
         response = api_client.get(url)
 
         assert response.status_code == status.HTTP_200_OK, response.content
         assert response.data["name"] == shopping_list.name
 
     def test_update_shopping_list_by_pk(self, api_client, shopping_list):
-        url = SHOPPING_LIST_EDIT_URL.format(pk=shopping_list.pk)
+        url = URLS.SHOPPING_LIST_EDIT_URL.format(pk=shopping_list.pk)
         data = {
             "name": "Test List",
         }
@@ -155,8 +137,8 @@ class TestShoppingListDetailUpdateView:
                     "completed": "true_string",
                 },
                 {
-                    "user": [INCORRECT_TYPE_ERROR],
-                    "completed": [INVALID_BOOLEAN_ERROR],
+                    "user": [ERRORS.INCORRECT_TYPE_ERROR],
+                    "completed": [ERRORS.INVALID_BOOLEAN_ERROR],
                 },
             ),
         ],
@@ -164,7 +146,7 @@ class TestShoppingListDetailUpdateView:
     def test_update_shopping_list_with_invalid_data(
         self, api_client, shopping_list, invalid_data, expected_response
     ):
-        url = SHOPPING_LIST_EDIT_URL.format(pk=shopping_list.pk)
+        url = URLS.SHOPPING_LIST_EDIT_URL.format(pk=shopping_list.pk)
         response = api_client.put(url, data=invalid_data)
 
         assert response.status_code == status.HTTP_400_BAD_REQUEST, response.content
@@ -172,17 +154,17 @@ class TestShoppingListDetailUpdateView:
 
     def test_retrieve_non_existent_shopping_list(self, api_client):
         non_existent_shopping_list_pk = 1
-        url = SHOPPING_LIST_EDIT_URL.format(pk=non_existent_shopping_list_pk)
+        url = URLS.SHOPPING_LIST_EDIT_URL.format(pk=non_existent_shopping_list_pk)
         response = api_client.get(url)
 
         assert response.status_code == status.HTTP_404_NOT_FOUND, response.content
-        assert response.data == NOT_FOUND_ERROR
+        assert response.data == ERRORS.NOT_FOUND_ERROR
 
 
 @pytest.mark.django_db
 class TestShoppingListDeleteView:
     def test_deleting_shopping_list_by_pk(self, api_client, shopping_list):
-        url = SHOPPING_LIST_DELETE_URL.format(pk=shopping_list.pk)
+        url = URLS.SHOPPING_LIST_DELETE_URL.format(pk=shopping_list.pk)
         response = api_client.delete(url)
 
         assert response.status_code == status.HTTP_204_NO_CONTENT
@@ -190,18 +172,18 @@ class TestShoppingListDeleteView:
 
     def test_delete_non_existent_shopping_list(self, api_client):
         non_existent_shopping_list_pk = 1
-        url = SHOPPING_LIST_DELETE_URL.format(pk=non_existent_shopping_list_pk)
+        url = URLS.SHOPPING_LIST_DELETE_URL.format(pk=non_existent_shopping_list_pk)
 
         response = api_client.delete(url)
 
         assert response.status_code == status.HTTP_404_NOT_FOUND, response.content
-        assert response.data == NOT_FOUND_ERROR
+        assert response.data == ERRORS.NOT_FOUND_ERROR
 
 
 @pytest.mark.django_db
 class TestItemCreateView:
     def test_add_new_item_to_shopping_list(self, api_client, shopping_list):
-        url = ITEM_URL.format(shopping_list_pk=shopping_list.pk)
+        url = URLS.ITEM_URL.format(shopping_list_pk=shopping_list.pk)
         data = {
             "product": "Beef",
             "category": ItemCategory.MEAT,
@@ -226,10 +208,10 @@ class TestItemCreateView:
                     "completed": "true_string",
                 },
                 {
-                    "quantity": [MIN_QUANTITY_ERROR],
-                    "unit": [INVALID_CHOICE_ERROR_UNIT],
-                    "category": [INVALID_CHOICE_ERROR_CATEGORY],
-                    "completed": [INVALID_BOOLEAN_ERROR],
+                    "quantity": [ERRORS.MIN_QUANTITY_ERROR],
+                    "unit": [ERRORS.INVALID_CHOICE_ERROR_UNIT],
+                    "category": [ERRORS.INVALID_CHOICE_ERROR_CATEGORY],
+                    "completed": [ERRORS.INVALID_BOOLEAN_ERROR],
                 },
             ),
         ],
@@ -237,14 +219,14 @@ class TestItemCreateView:
     def test_add_item_with_invalid_data_to_shopping_list(
         self, api_client, shopping_list, invalid_data, expected_response
     ):
-        url = ITEM_URL.format(shopping_list_pk=shopping_list.pk)
+        url = URLS.ITEM_URL.format(shopping_list_pk=shopping_list.pk)
         response = api_client.post(url, data=invalid_data)
         assert response.status_code == status.HTTP_400_BAD_REQUEST, response.content
         assert response.data == expected_response
 
     def test_add_item_to_non_existent_shopping_list(self, api_client):
         non_existent_shopping_list_pk = 1
-        url = ITEM_URL.format(shopping_list_pk=non_existent_shopping_list_pk)
+        url = URLS.ITEM_URL.format(shopping_list_pk=non_existent_shopping_list_pk)
         data = {
             "product": "Beef",
             "category": ItemCategory.MEAT,
@@ -255,14 +237,14 @@ class TestItemCreateView:
         response = api_client.post(url, data=data)
 
         assert response.status_code == status.HTTP_404_NOT_FOUND, response.content
-        assert response.data == SH_LIST_NOT_FOUND_ERROR
+        assert response.data == ERRORS.SH_LIST_NOT_FOUND_ERROR
 
 
 @pytest.mark.django_db
 class TestItemUpdateView:
     def test_retrieve_item_by_pk_from_shopping_list(self, api_client, shopping_list):
         shopping_list_item = create_item(shopping_list=shopping_list)
-        url = ITEM_DETAIL_URL.format(
+        url = URLS.ITEM_DETAIL_URL.format(
             shopping_list_pk=shopping_list.pk, item_pk=shopping_list_item.pk
         )
 
@@ -273,7 +255,7 @@ class TestItemUpdateView:
 
     def test_update_item_by_pk_from_shopping_list(self, api_client, shopping_list):
         shopping_list_item = create_item(shopping_list=shopping_list)
-        url = ITEM_DETAIL_URL.format(
+        url = URLS.ITEM_DETAIL_URL.format(
             shopping_list_pk=shopping_list.pk, item_pk=shopping_list_item.pk
         )
 
@@ -305,10 +287,10 @@ class TestItemUpdateView:
                     "completed": "true_string",
                 },
                 {
-                    "quantity": [MIN_QUANTITY_ERROR],
-                    "unit": [INVALID_CHOICE_ERROR_UNIT],
-                    "category": [INVALID_CHOICE_ERROR_CATEGORY],
-                    "completed": [INVALID_BOOLEAN_ERROR],
+                    "quantity": [ERRORS.MIN_QUANTITY_ERROR],
+                    "unit": [ERRORS.INVALID_CHOICE_ERROR_UNIT],
+                    "category": [ERRORS.INVALID_CHOICE_ERROR_CATEGORY],
+                    "completed": [ERRORS.INVALID_BOOLEAN_ERROR],
                 },
             ),
         ],
@@ -317,7 +299,7 @@ class TestItemUpdateView:
         self, api_client, shopping_list, invalid_data, expected_response
     ):
         shopping_list_item = create_item(shopping_list=shopping_list)
-        url = ITEM_DETAIL_URL.format(
+        url = URLS.ITEM_DETAIL_URL.format(
             shopping_list_pk=shopping_list.pk, item_pk=shopping_list_item.pk
         )
 
@@ -333,20 +315,20 @@ class TestItemUpdateView:
         self, api_client, shopping_list
     ):
         non_existing_item_pk = 1
-        url = ITEM_DETAIL_URL.format(
+        url = URLS.ITEM_DETAIL_URL.format(
             shopping_list_pk=shopping_list.pk, item_pk=non_existing_item_pk
         )
         response = api_client.get(url)
 
         assert response.status_code == status.HTTP_404_NOT_FOUND, response.content
-        assert response.data == NOT_FOUND_ERROR
+        assert response.data == ERRORS.NOT_FOUND_ERROR
 
 
 @pytest.mark.django_db
 class TestItemDeleteView:
     def test_delete_item_by_pk_from_shopping_list(self, api_client, shopping_list):
         shopping_list_item = create_item(shopping_list=shopping_list)
-        url = ITEM_DELETE_URL.format(
+        url = URLS.ITEM_DELETE_URL.format(
             shopping_list_pk=shopping_list.pk, item_pk=shopping_list_item.pk
         )
 
@@ -361,11 +343,11 @@ class TestItemDeleteView:
         self, api_client, shopping_list
     ):
         non_existing_item_pk = 1
-        url = ITEM_DELETE_URL.format(
+        url = URLS.ITEM_DELETE_URL.format(
             shopping_list_pk=shopping_list.pk, item_pk=non_existing_item_pk
         )
 
         response = api_client.delete(url)
 
         assert response.status_code == status.HTTP_404_NOT_FOUND, response.content
-        assert response.data == NOT_FOUND_ERROR
+        assert response.data == ERRORS.NOT_FOUND_ERROR
