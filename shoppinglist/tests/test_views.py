@@ -4,31 +4,25 @@ from rest_framework.exceptions import ErrorDetail
 from shoppinglist.models import ShoppingList
 from shoppinglist.constants import ItemCategory, ItemUnit
 from conftest import create_item, create_shopping_list, create_multiple_items
-
-SHOPPING_LIST_URL = "/shoppinglist"
-SHOPPING_LIST_CREATE_URL = f"{SHOPPING_LIST_URL}/create/"
-SHOPPING_LIST_EDIT_URL = f"{SHOPPING_LIST_URL}/{{pk}}/edit/"
-SHOPPING_LIST_DELETE_URL = f"{SHOPPING_LIST_URL}/{{pk}}/delete/"
-ITEM_URL = f"{SHOPPING_LIST_URL}/{{shopping_list_pk}}/item/"
-ITEM_DETAIL_URL = f"{SHOPPING_LIST_URL}/{{shopping_list_pk}}/item/{{item_pk}}/"
-ITEM_DELETE_URL = f"{SHOPPING_LIST_URL}/{{shopping_list_pk}}/item/{{item_pk}}/delete/"
-
-INCORRECT_TYPE_ERROR = ErrorDetail(
-    string="Incorrect type. Expected pk value, received str.", code="incorrect_type"
+from urls import (
+    SHOPPING_LIST_URL,
+    SHOPPING_LIST_EDIT_URL,
+    SHOPPING_LIST_CREATE_URL,
+    SHOPPING_LIST_DELETE_URL,
+    ITEM_URL,
+    ITEM_DETAIL_URL,
+    ITEM_DELETE_URL,
 )
-INVALID_BOOLEAN_ERROR = ErrorDetail(string="Must be a valid boolean.", code="invalid")
-INVALID_CHOICE_ERROR_UNIT = ErrorDetail(
-    string='"invalid_unit" is not a valid choice.', code="invalid_choice"
+from error_messages import (
+    INCORRECT_TYPE_ERROR,
+    INVALID_BOOLEAN_ERROR,
+    INVALID_CHOICE_ERROR_UNIT,
+    INVALID_CHOICE_ERROR_CATEGORY,
+    MIN_QUANTITY_ERROR,
+    FIELD_REQUIRED_ERROR,
+    NOT_FOUND_ERROR,
+    SH_LIST_NOT_FOUND_ERROR,
 )
-INVALID_CHOICE_ERROR_CATEGORY = ErrorDetail(
-    string='"123" is not a valid choice.', code="invalid_choice"
-)
-MIN_QUANTITY_ERROR = "Ensure this value is greater than or equal to 1."
-FIELD_REQUIRED_ERROR = ["This field is required."]
-NOT_FOUND_ERROR = {"detail": "Not found."}
-SH_LIST_NOT_FOUND_ERROR = {
-    "detail": ErrorDetail(string="ShoppingList not found.", code="not_found")
-}
 
 
 @pytest.mark.django_db
