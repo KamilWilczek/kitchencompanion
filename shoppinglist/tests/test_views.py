@@ -8,6 +8,23 @@ from conftest import create_item, create_shopping_list, create_multiple_items
 SHOPPING_LIST_URL = "/shoppinglist"
 SHOPPING_LIST_CREATE_URL = f"{SHOPPING_LIST_URL}/create/"
 
+INCORRECT_TYPE_ERROR = ErrorDetail(
+    string="Incorrect type. Expected pk value, received str.", code="incorrect_type"
+)
+INVALID_BOOLEAN_ERROR = ErrorDetail(string="Must be a valid boolean.", code="invalid")
+INVALID_CHOICE_ERROR_UNIT = ErrorDetail(
+    string='"invalid_unit" is not a valid choice.', code="invalid_choice"
+)
+INVALID_CHOICE_ERROR_CATEGORY = ErrorDetail(
+    string='"123" is not a valid choice.', code="invalid_choice"
+)
+MIN_QUANTITY_ERROR = "Ensure this value is greater than or equal to 1."
+FIELD_REQUIRED_ERROR = ["This field is required."]
+NOT_FOUND_ERROR = {"detail": "Not found."}
+SH_LIST_NOT_FOUND_ERROR = {
+    "detail": ErrorDetail(string="ShoppingList not found.", code="not_found")
+}
+
 
 @pytest.mark.django_db
 class TestShoppingListView:
@@ -67,7 +84,7 @@ class TestShoppingListCreateView:
         response = api_client.post(SHOPPING_LIST_CREATE_URL, data=data)
 
         assert response.status_code == status.HTTP_400_BAD_REQUEST, response.content
-        assert response.data == {"name": ["This field is required."]}
+        assert response.data == {"name": FIELD_REQUIRED_ERROR}
 
     @pytest.mark.parametrize(
         "invalid_data, expected_response",
@@ -80,15 +97,8 @@ class TestShoppingListCreateView:
                     "completed": "true_string",
                 },
                 {
-                    "user": [
-                        ErrorDetail(
-                            string="Incorrect type. Expected pk value, received str.",
-                            code="incorrect_type",
-                        )
-                    ],
-                    "completed": [
-                        ErrorDetail(string="Must be a valid boolean.", code="invalid")
-                    ],
+                    "user": [INCORRECT_TYPE_ERROR],
+                    "completed": [INVALID_BOOLEAN_ERROR],
                 },
             ),
         ],
@@ -146,15 +156,8 @@ class TestShoppingListDetailUpdateView:
                     "completed": "true_string",
                 },
                 {
-                    "user": [
-                        ErrorDetail(
-                            string="Incorrect type. Expected pk value, received str.",
-                            code="incorrect_type",
-                        )
-                    ],
-                    "completed": [
-                        ErrorDetail(string="Must be a valid boolean.", code="invalid")
-                    ],
+                    "user": [INCORRECT_TYPE_ERROR],
+                    "completed": [INVALID_BOOLEAN_ERROR],
                 },
             ),
         ],
@@ -176,7 +179,7 @@ class TestShoppingListDetailUpdateView:
         )
 
         assert response.status_code == status.HTTP_404_NOT_FOUND, response.content
-        assert response.data == {"detail": "Not found."}
+        assert response.data == NOT_FOUND_ERROR
 
 
 @pytest.mark.django_db
@@ -195,7 +198,7 @@ class TestShoppingListDeleteView:
         )
 
         assert response.status_code == status.HTTP_404_NOT_FOUND, response.content
-        assert response.data == {"detail": "Not found."}
+        assert response.data == NOT_FOUND_ERROR
 
 
 @pytest.mark.django_db
@@ -227,21 +230,10 @@ class TestItemCreateView:
                     "completed": "true_string",
                 },
                 {
-                    "quantity": ["Ensure this value is greater than or equal to 1."],
-                    "unit": [
-                        ErrorDetail(
-                            string='"invalid_unit" is not a valid choice.',
-                            code="invalid_choice",
-                        )
-                    ],
-                    "category": [
-                        ErrorDetail(
-                            string='"123" is not a valid choice.', code="invalid_choice"
-                        )
-                    ],
-                    "completed": [
-                        ErrorDetail(string="Must be a valid boolean.", code="invalid")
-                    ],
+                    "quantity": [MIN_QUANTITY_ERROR],
+                    "unit": [INVALID_CHOICE_ERROR_UNIT],
+                    "category": [INVALID_CHOICE_ERROR_CATEGORY],
+                    "completed": [INVALID_BOOLEAN_ERROR],
                 },
             ),
         ],
@@ -269,9 +261,7 @@ class TestItemCreateView:
         )
 
         assert response.status_code == status.HTTP_404_NOT_FOUND, response.content
-        assert response.data == {
-            "detail": ErrorDetail(string="ShoppingList not found.", code="not_found")
-        }
+        assert response.data == SH_LIST_NOT_FOUND_ERROR
 
 
 @pytest.mark.django_db
@@ -317,21 +307,10 @@ class TestItemUpdateView:
                     "completed": "true_string",
                 },
                 {
-                    "quantity": ["Ensure this value is greater than or equal to 1."],
-                    "unit": [
-                        ErrorDetail(
-                            string='"invalid_unit" is not a valid choice.',
-                            code="invalid_choice",
-                        )
-                    ],
-                    "category": [
-                        ErrorDetail(
-                            string='"123" is not a valid choice.', code="invalid_choice"
-                        )
-                    ],
-                    "completed": [
-                        ErrorDetail(string="Must be a valid boolean.", code="invalid")
-                    ],
+                    "quantity": [MIN_QUANTITY_ERROR],
+                    "unit": [INVALID_CHOICE_ERROR_UNIT],
+                    "category": [INVALID_CHOICE_ERROR_CATEGORY],
+                    "completed": [INVALID_BOOLEAN_ERROR],
                 },
             ),
         ],
@@ -358,7 +337,7 @@ class TestItemUpdateView:
         )
 
         assert response.status_code == status.HTTP_404_NOT_FOUND, response.content
-        assert response.data == {"detail": "Not found."}
+        assert response.data == NOT_FOUND_ERROR
 
 
 @pytest.mark.django_db
@@ -385,4 +364,4 @@ class TestItemDeleteView:
         )
 
         assert response.status_code == status.HTTP_404_NOT_FOUND, response.content
-        assert response.data == {"detail": "Not found."}
+        assert response.data == NOT_FOUND_ERROR
