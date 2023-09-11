@@ -1,7 +1,7 @@
 import pytest
 from rest_framework import status
 from rest_framework.exceptions import ErrorDetail
-from shoppinglist.models import ShoppingList, Item
+from shoppinglist.models import ShoppingList
 from shoppinglist.constants import ItemCategory, ItemUnit
 from conftest import create_item, create_shopping_list, create_multiple_items
 
