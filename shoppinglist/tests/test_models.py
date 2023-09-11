@@ -4,37 +4,7 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from shoppinglist.models import ShoppingList, Item
 from shoppinglist.constants import ItemCategory, ItemUnit
-
-
-def create_user():
-    return User.objects.create_user(username="testuser", password="testpassword")
-
-
-def create_shopping_list(name="Test List", user=None):
-    return ShoppingList.objects.create(name=name, user=user)
-
-
-def create_item(
-    shopping_list, product="Test Product", category=ItemCategory.DAIRY, **kwargs
-):
-    return Item.objects.create(
-        shopping_list=shopping_list, product=product, category=category, **kwargs
-    )
-
-
-def create_multiple_items(shopping_list, items_data):
-    items_to_create = [Item(shopping_list=shopping_list, **data) for data in items_data]
-    Item.objects.bulk_create(items_to_create)
-
-
-@pytest.fixture
-def user():
-    return create_user()
-
-
-@pytest.fixture
-def shopping_list(user):
-    return create_shopping_list(user=user)
+from conftest import create_multiple_items, create_item, create_shopping_list
 
 
 class TestShoppingList:
@@ -60,7 +30,7 @@ class TestShoppingList:
 
         item = create_item(shopping_list=shopping_list, quantity=12)
 
-        assert item.product == "Test Product"
+        assert item.product == "Milk"
         assert item.quantity == 12
         assert item.category == ItemCategory.DAIRY
 
@@ -69,7 +39,7 @@ class TestShoppingList:
         items_linked_to_list = shopping_list.item.all()
 
         assert len(items_linked_to_list) == 1
-        assert items_linked_to_list[0].product == "Test Product"
+        assert items_linked_to_list[0].product == "Milk"
 
     @pytest.mark.django_db
     def test_shoppinglist_name_field(self, shopping_list):
@@ -116,7 +86,7 @@ class TestItem:
         item = create_item(shopping_list=shopping_list)
         retrieved_item = Item.objects.get(pk=item.pk)
 
-        assert retrieved_item.product == "Test Product"
+        assert retrieved_item.product == "Milk"
         assert Item._meta.get_field("product").max_length == 200
 
     @pytest.mark.django_db
@@ -259,4 +229,4 @@ class TestItem:
             shopping_list=shopping_list,
             quantity=12,
         )
-        assert str(item) == "Test Product"
+        assert str(item) == "Milk"
