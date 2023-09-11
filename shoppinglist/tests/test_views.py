@@ -69,28 +69,36 @@ class TestShoppingListCreateView:
         assert response.status_code == status.HTTP_400_BAD_REQUEST, response.content
         assert response.data == {"name": ["This field is required."]}
 
-    def test_create_shopping_list_with_invalid_data_types(self, api_client):
-        invalid_data = {
-            "user": "invalid_user_id",
-            "name": 12345,
-            "description": 67890,
-            "completed": "true_string",
-        }
-
+    @pytest.mark.parametrize(
+        "invalid_data, expected_response",
+        [
+            (
+                {
+                    "user": "invalid_user_id",
+                    "name": 12345,
+                    "description": 67890,
+                    "completed": "true_string",
+                },
+                {
+                    "user": [
+                        ErrorDetail(
+                            string="Incorrect type. Expected pk value, received str.",
+                            code="incorrect_type",
+                        )
+                    ],
+                    "completed": [
+                        ErrorDetail(string="Must be a valid boolean.", code="invalid")
+                    ],
+                },
+            ),
+        ],
+    )
+    def test_create_shopping_list_with_invalid_data_types(
+        self, api_client, invalid_data, expected_response
+    ):
         response = api_client.post(SHOPPING_LIST_CREATE_URL, data=invalid_data)
-
         assert response.status_code == status.HTTP_400_BAD_REQUEST, response.content
-        assert response.data == {
-            "user": [
-                ErrorDetail(
-                    string="Incorrect type. Expected pk value, received str.",
-                    code="incorrect_type",
-                )
-            ],
-            "completed": [
-                ErrorDetail(string="Must be a valid boolean.", code="invalid")
-            ],
-        }
+        assert response.data == expected_response
 
     def test_create_unique_shopping_list_multiple_times(self, user, api_client):
         data = {
@@ -127,22 +135,39 @@ class TestShoppingListDetailUpdateView:
         assert response.status_code == status.HTTP_200_OK, response.content
         assert response.data["name"] == data["name"]
 
-    def test_update_shopping_list_with_invalid_data(self, api_client, shopping_list):
-        invalid_data = {
-            "name": "Shopping List",
-            "completed": "true_string",
-        }
-
+    @pytest.mark.parametrize(
+        "invalid_data, expected_response",
+        [
+            (
+                {
+                    "user": "invalid_user_id",
+                    "name": 12345,
+                    "description": 67890,
+                    "completed": "true_string",
+                },
+                {
+                    "user": [
+                        ErrorDetail(
+                            string="Incorrect type. Expected pk value, received str.",
+                            code="incorrect_type",
+                        )
+                    ],
+                    "completed": [
+                        ErrorDetail(string="Must be a valid boolean.", code="invalid")
+                    ],
+                },
+            ),
+        ],
+    )
+    def test_update_shopping_list_with_invalid_data(
+        self, api_client, shopping_list, invalid_data, expected_response
+    ):
         response = api_client.put(
             f"{SHOPPING_LIST_URL}/{shopping_list.pk}/edit/", data=invalid_data
         )
 
         assert response.status_code == status.HTTP_400_BAD_REQUEST, response.content
-        assert response.data == {
-            "completed": [
-                ErrorDetail(string="Must be a valid boolean.", code="invalid")
-            ]
-        }
+        assert response.data == expected_response
 
     def test_retrieve_non_existent_shopping_list(self, api_client):
         non_existent_shopping_list_pk = 1
@@ -190,40 +215,45 @@ class TestItemCreateView:
         assert response.status_code == status.HTTP_201_CREATED, response.content
         assert response.data["product"] == data["product"]
 
+    @pytest.mark.parametrize(
+        "invalid_data, expected_response",
+        [
+            (
+                {
+                    "product": "Milk",
+                    "quantity": -1,
+                    "unit": "invalid_unit",
+                    "category": 123,
+                    "completed": "true_string",
+                },
+                {
+                    "quantity": ["Ensure this value is greater than or equal to 1."],
+                    "unit": [
+                        ErrorDetail(
+                            string='"invalid_unit" is not a valid choice.',
+                            code="invalid_choice",
+                        )
+                    ],
+                    "category": [
+                        ErrorDetail(
+                            string='"123" is not a valid choice.', code="invalid_choice"
+                        )
+                    ],
+                    "completed": [
+                        ErrorDetail(string="Must be a valid boolean.", code="invalid")
+                    ],
+                },
+            ),
+        ],
+    )
     def test_add_item_with_invalid_data_to_shopping_list(
-        self, api_client, shopping_list
+        self, api_client, shopping_list, invalid_data, expected_response
     ):
-        invalid_data = {
-            "product": "Milk",
-            "quantity": -1,
-            "unit": "invalid_unit",
-            "category": 123,
-            "completed": "true_string",
-        }
-
         response = api_client.post(
             f"{SHOPPING_LIST_URL}/{shopping_list.pk}/item/", data=invalid_data
         )
-
         assert response.status_code == status.HTTP_400_BAD_REQUEST, response.content
-        assert response.data["quantity"] == [
-            "Ensure this value is greater than or equal to 1."
-        ]
-        assert response.data["unit"] == [
-            ErrorDetail(
-                string=f'"{invalid_data["unit"]}" is not a valid choice.',
-                code="invalid_choice",
-            )
-        ]
-        assert response.data["category"] == [
-            ErrorDetail(
-                string=f'"{invalid_data["category"]}" is not a valid choice.',
-                code="invalid_choice",
-            )
-        ]
-        assert response.data["completed"] == [
-            ErrorDetail(string="Must be a valid boolean.", code="invalid")
-        ]
+        assert response.data == expected_response
 
     def test_add_item_to_non_existent_shopping_list(self, api_client):
         non_existent_shopping_list_pk = 1
@@ -275,16 +305,41 @@ class TestItemUpdateView:
         assert response.data["quantity"] == data["quantity"]
         assert response.data["unit"] == data["unit"]
 
-    def test_update_item_with_invalid_data(self, api_client, shopping_list):
+    @pytest.mark.parametrize(
+        "invalid_data, expected_response",
+        [
+            (
+                {
+                    "product": "Milk",
+                    "quantity": -1,
+                    "unit": "invalid_unit",
+                    "category": 123,
+                    "completed": "true_string",
+                },
+                {
+                    "quantity": ["Ensure this value is greater than or equal to 1."],
+                    "unit": [
+                        ErrorDetail(
+                            string='"invalid_unit" is not a valid choice.',
+                            code="invalid_choice",
+                        )
+                    ],
+                    "category": [
+                        ErrorDetail(
+                            string='"123" is not a valid choice.', code="invalid_choice"
+                        )
+                    ],
+                    "completed": [
+                        ErrorDetail(string="Must be a valid boolean.", code="invalid")
+                    ],
+                },
+            ),
+        ],
+    )
+    def test_update_item_with_invalid_data(
+        self, api_client, shopping_list, invalid_data, expected_response
+    ):
         shopping_list_item = create_item(shopping_list=shopping_list)
-
-        invalid_data = {
-            "product": "Milk",
-            "quantity": -1,
-            "unit": "invalid_unit",
-            "category": 123,
-            "completed": "true_string",
-        }
 
         response = api_client.put(
             f"{SHOPPING_LIST_URL}/{shopping_list.pk}/item/{shopping_list_item.pk}/",
@@ -292,24 +347,7 @@ class TestItemUpdateView:
         )
 
         assert response.status_code == status.HTTP_400_BAD_REQUEST, response.content
-        assert response.data["quantity"] == [
-            "Ensure this value is greater than or equal to 1."
-        ]
-        assert response.data["unit"] == [
-            ErrorDetail(
-                string=f'"{invalid_data["unit"]}" is not a valid choice.',
-                code="invalid_choice",
-            )
-        ]
-        assert response.data["category"] == [
-            ErrorDetail(
-                string=f'"{invalid_data["category"]}" is not a valid choice.',
-                code="invalid_choice",
-            )
-        ]
-        assert response.data["completed"] == [
-            ErrorDetail(string="Must be a valid boolean.", code="invalid")
-        ]
+        assert response.data == expected_response
 
     def test_retrieve_non_existent_item_from_shopping_list(
         self, api_client, shopping_list
