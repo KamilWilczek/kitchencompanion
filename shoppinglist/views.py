@@ -17,7 +17,7 @@ class ShoppingListView(generics.ListAPIView):
 
     serializer_class: type[ShoppingListSerializer] = ShoppingListSerializer
 
-    def get_queryset(self):
+    def get_queryset(self) -> QuerySet[ShoppingList]:
         return ShoppingList.objects.prefetch_related(
             Prefetch("items", queryset=Item.objects.only("id"))
         )
