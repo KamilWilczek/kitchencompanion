@@ -50,7 +50,7 @@ class Item(models.Model):
     """
 
     shopping_list = models.ForeignKey(
-        ShoppingList, on_delete=models.CASCADE, related_name="item"
+        ShoppingList, on_delete=models.CASCADE, related_name="items"
     )
     product = models.CharField(max_length=200)
     quantity = models.PositiveIntegerField(

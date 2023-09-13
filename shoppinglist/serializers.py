@@ -11,8 +11,14 @@ class ItemSerializer(serializers.ModelSerializer):
 
 class ShoppingListSerializer(serializers.ModelSerializer):
     items = ItemSerializer(many=True, read_only=True)
-    items_count = serializers.IntegerField(read_only=True)
+    items_count = serializers.SerializerMethodField()
 
     class Meta:
         model: Type[ShoppingList] = ShoppingList
         fields = "__all__"
+
+    def get_items_count(self, obj):
+        try:
+            return obj.items.count()
+        except AttributeError:
+            return 0

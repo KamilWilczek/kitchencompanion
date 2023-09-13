@@ -1,8 +1,9 @@
 from typing import Union
-from django.db.models import Count, QuerySet
+from django.db.models import Prefetch, QuerySet
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework import generics, status
+
 
 from .models import Item, ShoppingList
 from .mixins import ShoppingItemMixin
@@ -14,10 +15,12 @@ class ShoppingListView(generics.ListAPIView):
     API view to list all the shopping lists along with an annotation of the number of items each list contains.
     """
 
-    queryset: QuerySet[ShoppingList] = ShoppingList.objects.annotate(
-        items_count=Count("item")
-    )
     serializer_class: type[ShoppingListSerializer] = ShoppingListSerializer
+
+    def get_queryset(self):
+        return ShoppingList.objects.prefetch_related(
+            Prefetch("items", queryset=Item.objects.only("id"))
+        )
 
 
 class ShoppingListCreateView(generics.CreateAPIView):
