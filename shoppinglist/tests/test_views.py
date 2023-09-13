@@ -12,9 +12,9 @@ from django.db import connections
 @pytest.mark.django_db
 class TestShoppingListView:
     def test_all_shopping_lists_are_returned(self, user, api_client):
-        shopping_list_1 = create_shopping_list(name="Shopping List 1", user=user)
-        shopping_list_2 = create_shopping_list(name="Shopping List 2", user=user)
-        shopping_list_3 = create_shopping_list(name="Shopping List 3", user=user)
+        create_shopping_list(name="Shopping List 1", user=user)
+        create_shopping_list(name="Shopping List 2", user=user)
+        create_shopping_list(name="Shopping List 3", user=user)
 
         response = api_client.get(f"{URLS.SHOPPING_LIST_URL}/")
 
