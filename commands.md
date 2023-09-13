@@ -31,3 +31,4 @@
 `pip install pytest pytest-django`
 `pip install freezegun`
 `pip install django-stubs`
+`pip install isort`

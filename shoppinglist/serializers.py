@@ -1,6 +1,8 @@
 from typing import Type
+
 from rest_framework import serializers
-from .models import ShoppingList, Item
+
+from .models import Item, ShoppingList
 
 
 class ItemSerializer(serializers.ModelSerializer):

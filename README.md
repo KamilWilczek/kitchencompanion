@@ -73,7 +73,7 @@
 - [ ] Field validation
 - [ ] Linting
   - [ ] pylint
-  - [ ] isort
+  - [x] isort
 - [ ] Tests
   - [x] `pytest` and `pytest-django` plugin
   - [ ] Unit tests

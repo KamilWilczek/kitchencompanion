@@ -1,9 +1,11 @@
 import pytest
-from freezegun import freeze_time
 from django.core.exceptions import ValidationError
-from shoppinglist.models import ShoppingList, Item
+from freezegun import freeze_time
+
 from shoppinglist.constants import ItemCategory, ItemUnit
-from .conftest import create_multiple_items, create_item, create_shopping_list
+from shoppinglist.models import Item, ShoppingList
+
+from .conftest import create_item, create_multiple_items, create_shopping_list
 
 
 class TestShoppingList:

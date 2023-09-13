@@ -1,13 +1,13 @@
 from typing import Union
+
 from django.db.models import Prefetch, QuerySet
+from rest_framework import generics, status
 from rest_framework.request import Request
 from rest_framework.response import Response
-from rest_framework import generics, status
 
-
-from .models import Item, ShoppingList
 from .mixins import ShoppingItemMixin
-from .serializers import ShoppingListSerializer, ItemSerializer
+from .models import Item, ShoppingList
+from .serializers import ItemSerializer, ShoppingListSerializer
 
 
 class ShoppingListView(generics.ListAPIView):

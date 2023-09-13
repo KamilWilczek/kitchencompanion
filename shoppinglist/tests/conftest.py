@@ -1,8 +1,9 @@
 import pytest
 from django.contrib.auth.models import User
 from rest_framework.test import APIClient
-from shoppinglist.models import ShoppingList, Item
+
 from shoppinglist.constants import ItemCategory
+from shoppinglist.models import Item, ShoppingList
 
 
 @pytest.fixture

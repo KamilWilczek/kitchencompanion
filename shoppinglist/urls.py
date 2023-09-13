@@ -1,13 +1,8 @@
 from django.urls import path
-from .views import (
-    ShoppingListView,
-    ShoppingListCreateView,
-    ShoppingListDetailUpdateView,
-    ShoppingListDeleteView,
-    ItemUpdateView,
-    ItemCreateView,
-    ItemDeleteView,
-)
+
+from .views import (ItemCreateView, ItemDeleteView, ItemUpdateView,
+                    ShoppingListCreateView, ShoppingListDeleteView,
+                    ShoppingListDetailUpdateView, ShoppingListView)
 
 app_name = "shoppinglist"
 

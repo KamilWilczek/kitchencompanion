@@ -1,12 +1,14 @@
 import pytest
-from rest_framework import status
-from shoppinglist.models import ShoppingList
-from shoppinglist.constants import ItemCategory, ItemUnit
-from .conftest import create_item, create_shopping_list, create_multiple_items
-from .urls import URLS
-from .error_messages import ERRORS
-from django.test.utils import CaptureQueriesContext
 from django.db import connections
+from django.test.utils import CaptureQueriesContext
+from rest_framework import status
+
+from shoppinglist.constants import ItemCategory, ItemUnit
+from shoppinglist.models import ShoppingList
+
+from .conftest import create_item, create_multiple_items, create_shopping_list
+from .error_messages import ERRORS
+from .urls import URLS
 
 
 @pytest.mark.django_db
