@@ -1,6 +1,10 @@
+from typing import Any, Dict, List
+
 import pytest
+from django.contrib.auth.models import User
 
 from shoppinglist.constants import ItemCategory, ItemUnit
+from shoppinglist.models import ShoppingList
 from shoppinglist.serializers import ItemSerializer, ShoppingListSerializer
 
 from .conftest import create_item
@@ -9,8 +13,8 @@ from .error_messages import ERRORS
 
 class TestShoppingListSerializer:
     @pytest.mark.django_db
-    def test_shopping_list_serializer_valid_data(self, user):
-        data = {
+    def test_shopping_list_serializer_valid_data(self, user: User) -> None:
+        data: Dict[str, Any] = {
             "user": user.id,
             "name": "Test Shopping List",
             "description": "This is test shopping list",
@@ -37,13 +41,15 @@ class TestShoppingListSerializer:
             ),
         ],
     )
-    def test_shopping_list_serializer_invalid_data(self, data, expected_errors):
+    def test_shopping_list_serializer_invalid_data(
+        self, data: Dict[str, Any], expected_errors: Dict[str, List[str]]
+    ) -> None:
         serializer = ShoppingListSerializer(data=data)
         assert not serializer.is_valid()
         assert serializer.errors == expected_errors
 
     @pytest.mark.django_db
-    def test_items_and_items_count_fields(self, shopping_list):
+    def test_items_and_items_count_fields(self, shopping_list: ShoppingList) -> None:
         create_item(
             shopping_list=shopping_list, quantity=1, note="Test Note 1", completed=False
         )
@@ -66,8 +72,8 @@ class TestShoppingListSerializer:
 
 
 class TestItemSerializer:
-    def test_item_serializer_valid_data(self):
-        data = {
+    def test_item_serializer_valid_data(self) -> None:
+        data: Dict[str, Any] = {
             "product": "Test Product",
             "quantity": 2,
             "unit": ItemUnit.KILOGRAM,
@@ -99,7 +105,9 @@ class TestItemSerializer:
             ),
         ],
     )
-    def test_item_serializer_invalid_data(self, data, expected_errors):
+    def test_item_serializer_invalid_data(
+        self, data: Dict[str, Any], expected_errors: Dict[str, List[str]]
+    ) -> None:
         serializer = ItemSerializer(data=data)
         assert not serializer.is_valid()
         assert serializer.errors == expected_errors
