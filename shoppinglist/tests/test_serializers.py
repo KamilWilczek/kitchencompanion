@@ -1,8 +1,8 @@
 import pytest
 from shoppinglist.serializers import ItemSerializer, ShoppingListSerializer
 from shoppinglist.constants import ItemCategory, ItemUnit
-from error_messages import ERRORS
-from conftest import create_item
+from .error_messages import ERRORS
+from .conftest import create_item
 
 
 class TestShoppingListSerializer:
