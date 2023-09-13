@@ -5,6 +5,8 @@ from shoppinglist.constants import ItemCategory, ItemUnit
 from conftest import create_item, create_shopping_list, create_multiple_items
 from urls import URLS
 from error_messages import ERRORS
+from django.test.utils import CaptureQueriesContext
+from django.db import connections
 
 
 @pytest.mark.django_db
@@ -40,6 +42,41 @@ class TestShoppingListView:
         assert response.status_code == status.HTTP_200_OK, response.content
         assert response.data[0]["items_count"] == 3
         assert response.data[1]["items_count"] == 2
+
+    def test_items_count_with_no_items(self, user, api_client):
+        create_shopping_list(name="Empty Shopping List", user=user)
+
+        response = api_client.get(f"{URLS.SHOPPING_LIST_URL}/")
+
+        assert response.status_code == status.HTTP_200_OK, response.content
+        assert response.data[0]["items_count"] == 0
+
+    def test_database_queries_optimization(self, user, api_client):
+        shopping_list_1 = create_shopping_list(name="Shopping List 1", user=user)
+        shopping_list_2 = create_shopping_list(name="Shopping List 2", user=user)
+
+        items_data_1 = [
+            {"product": "Milk", "category": ItemCategory.DAIRY},
+            {"product": "Bread", "category": ItemCategory.BREAD},
+            {"product": "Apples", "category": ItemCategory.FRUITS_VEGETABLES},
+        ]
+
+        items_data_2 = [
+            {"product": "Beef", "category": ItemCategory.MEAT},
+            {"product": "Butter", "category": ItemCategory.FATS},
+        ]
+
+        create_multiple_items(shopping_list_1, items_data_1)
+        create_multiple_items(shopping_list_2, items_data_2)
+
+        with CaptureQueriesContext(connections["default"]) as context:
+            response = api_client.get(f"{URLS.SHOPPING_LIST_URL}/")
+            assert response.status_code == status.HTTP_200_OK, response.content
+
+            EXPECTED_NUMBER_OF_QUERIES = 37
+            assert (
+                len(context) == EXPECTED_NUMBER_OF_QUERIES
+            ), f"Expected {EXPECTED_NUMBER_OF_QUERIES} queries, but got {len(context)} queries"
 
 
 @pytest.mark.django_db
@@ -332,12 +369,12 @@ class TestItemDeleteView:
             shopping_list_pk=shopping_list.pk, item_pk=shopping_list_item.pk
         )
 
-        assert len(shopping_list.item.all()) == 1
+        assert len(shopping_list.items.all()) == 1
 
         response = api_client.delete(url)
 
         assert response.status_code == status.HTTP_204_NO_CONTENT, response.content
-        assert len(shopping_list.item.all()) == 0
+        assert len(shopping_list.items.all()) == 0
 
     def test_delete_non_existent_item_from_shopping_list(
         self, api_client, shopping_list

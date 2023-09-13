@@ -36,7 +36,7 @@ class ShoppingListDetailUpdateView(generics.RetrieveUpdateAPIView):
     API view to retrieve or update the details of a specific shopping list.
     """
 
-    queryset: QuerySet[ShoppingList] = ShoppingList.objects.prefetch_related("item")
+    queryset: QuerySet[ShoppingList] = ShoppingList.objects.prefetch_related("items")
     serializer_class: type[ShoppingListSerializer] = ShoppingListSerializer
 
 

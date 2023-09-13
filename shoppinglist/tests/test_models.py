@@ -36,7 +36,7 @@ class TestShoppingList:
 
         assert item.completed == False
 
-        items_linked_to_list = shopping_list.item.all()
+        items_linked_to_list = shopping_list.items.all()
 
         assert len(items_linked_to_list) == 1
         assert items_linked_to_list[0].product == "Milk"
