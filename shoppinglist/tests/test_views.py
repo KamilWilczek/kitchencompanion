@@ -1,7 +1,11 @@
+from typing import Dict, List, Union
+
 import pytest
+from django.contrib.auth.models import User
 from django.db import connections
 from django.test.utils import CaptureQueriesContext
 from rest_framework import status
+from rest_framework.test import APIClient
 
 from shoppinglist.constants import ItemCategory, ItemUnit
 from shoppinglist.models import ShoppingList
@@ -13,7 +17,9 @@ from .urls import URLS
 
 @pytest.mark.django_db
 class TestShoppingListView:
-    def test_all_shopping_lists_are_returned(self, user, api_client):
+    def test_all_shopping_lists_are_returned(
+        self, user: User, api_client: APIClient
+    ) -> None:
         create_shopping_list(name="Shopping List 1", user=user)
         create_shopping_list(name="Shopping List 2", user=user)
         create_shopping_list(name="Shopping List 3", user=user)
@@ -23,15 +29,17 @@ class TestShoppingListView:
         assert response.status_code == status.HTTP_200_OK
         assert len(response.data) == 3
 
-    def test_items_count_returns_correct_number(self, user, api_client):
+    def test_items_count_returns_correct_number(
+        self, user: User, api_client: APIClient
+    ) -> None:
         shopping_list_1 = create_shopping_list(name="Shopping List 1", user=user)
         shopping_list_2 = create_shopping_list(name="Shopping List 2", user=user)
-        items_data_1 = [
+        items_data_1: List[Dict[str, Union[str, ItemCategory]]] = [
             {"product": "Milk", "category": ItemCategory.DAIRY},
             {"product": "Bread", "category": ItemCategory.BREAD},
             {"product": "Apples", "category": ItemCategory.FRUITS_VEGETABLES},
         ]
-        items_data_2 = [
+        items_data_2: List[Dict[str, Union[str, ItemCategory]]] = [
             {"product": "Beef", "category": ItemCategory.MEAT},
             {"product": "Butter", "category": ItemCategory.FATS},
         ]
@@ -45,7 +53,7 @@ class TestShoppingListView:
         assert response.data[0]["items_count"] == 3
         assert response.data[1]["items_count"] == 2
 
-    def test_items_count_with_no_items(self, user, api_client):
+    def test_items_count_with_no_items(self, user: User, api_client: APIClient) -> None:
         create_shopping_list(name="Empty Shopping List", user=user)
 
         response = api_client.get(f"{URLS.SHOPPING_LIST_URL}/")
@@ -53,17 +61,19 @@ class TestShoppingListView:
         assert response.status_code == status.HTTP_200_OK, response.content
         assert response.data[0]["items_count"] == 0
 
-    def test_database_queries_optimization(self, user, api_client):
+    def test_database_queries_optimization(
+        self, user: User, api_client: APIClient
+    ) -> None:
         shopping_list_1 = create_shopping_list(name="Shopping List 1", user=user)
         shopping_list_2 = create_shopping_list(name="Shopping List 2", user=user)
 
-        items_data_1 = [
+        items_data_1: List[Dict[str, Union[str, ItemCategory]]] = [
             {"product": "Milk", "category": ItemCategory.DAIRY},
             {"product": "Bread", "category": ItemCategory.BREAD},
             {"product": "Apples", "category": ItemCategory.FRUITS_VEGETABLES},
         ]
 
-        items_data_2 = [
+        items_data_2: List[Dict[str, Union[str, ItemCategory]]] = [
             {"product": "Beef", "category": ItemCategory.MEAT},
             {"product": "Butter", "category": ItemCategory.FATS},
         ]
@@ -83,10 +93,10 @@ class TestShoppingListView:
 
 @pytest.mark.django_db
 class TestShoppingListCreateView:
-    def test_create_shopping_list(self, user, api_client):
-        data = {
-            "name": "Shopping List",
+    def test_create_shopping_list(self, user: User, api_client: APIClient) -> None:
+        data: Dict[str, Union[int, str]] = {
             "user": user.id,
+            "name": "Shopping List",
         }
 
         response = api_client.post(URLS.SHOPPING_LIST_CREATE_URL, data=data)
@@ -95,8 +105,10 @@ class TestShoppingListCreateView:
         assert response.data["name"] == data["name"]
         assert ShoppingList.objects.filter(name=data["name"]).exists()
 
-    def test_create_shopping_list_missing_required_fields(self, user, api_client):
-        data = {
+    def test_create_shopping_list_missing_required_fields(
+        self, user: User, api_client: APIClient
+    ) -> None:
+        data: Dict[str, Union[int, str]] = {
             "user": user.id,
             "description": "Groceries",
         }
@@ -124,16 +136,21 @@ class TestShoppingListCreateView:
         ],
     )
     def test_create_shopping_list_with_invalid_data_types(
-        self, api_client, invalid_data, expected_response
-    ):
+        self,
+        api_client: APIClient,
+        invalid_data: Dict[str, Union[str, int]],
+        expected_response: Dict[str, List[str]],
+    ) -> None:
         response = api_client.post(URLS.SHOPPING_LIST_CREATE_URL, data=invalid_data)
         assert response.status_code == status.HTTP_400_BAD_REQUEST, response.content
         assert response.data == expected_response
 
-    def test_create_unique_shopping_list_multiple_times(self, user, api_client):
-        data = {
-            "name": "Shopping List",
+    def test_create_unique_shopping_list_multiple_times(
+        self, user: User, api_client: APIClient
+    ) -> None:
+        data: Dict[str, Union[int, str]] = {
             "user": user.id,
+            "name": "Shopping List",
         }
 
         response1 = api_client.post(URLS.SHOPPING_LIST_CREATE_URL, data=data)
@@ -147,16 +164,20 @@ class TestShoppingListCreateView:
 
 @pytest.mark.django_db
 class TestShoppingListDetailUpdateView:
-    def test_retrieve_shopping_list_by_pk(self, api_client, shopping_list):
+    def test_retrieve_shopping_list_by_pk(
+        self, api_client: APIClient, shopping_list: ShoppingList
+    ) -> None:
         url = URLS.SHOPPING_LIST_EDIT_URL.format(pk=shopping_list.pk)
         response = api_client.get(url)
 
         assert response.status_code == status.HTTP_200_OK, response.content
         assert response.data["name"] == shopping_list.name
 
-    def test_update_shopping_list_by_pk(self, api_client, shopping_list):
+    def test_update_shopping_list_by_pk(
+        self, api_client: APIClient, shopping_list: ShoppingList
+    ) -> None:
         url = URLS.SHOPPING_LIST_EDIT_URL.format(pk=shopping_list.pk)
-        data = {
+        data: Dict[str, str] = {
             "name": "Test List",
         }
 
@@ -183,15 +204,19 @@ class TestShoppingListDetailUpdateView:
         ],
     )
     def test_update_shopping_list_with_invalid_data(
-        self, api_client, shopping_list, invalid_data, expected_response
-    ):
+        self,
+        api_client: APIClient,
+        shopping_list: ShoppingList,
+        invalid_data: Dict[str, Union[str, int]],
+        expected_response: Dict[str, List[str]],
+    ) -> None:
         url = URLS.SHOPPING_LIST_EDIT_URL.format(pk=shopping_list.pk)
         response = api_client.put(url, data=invalid_data)
 
         assert response.status_code == status.HTTP_400_BAD_REQUEST, response.content
         assert response.data == expected_response
 
-    def test_retrieve_non_existent_shopping_list(self, api_client):
+    def test_retrieve_non_existent_shopping_list(self, api_client: APIClient):
         non_existent_shopping_list_pk = 1
         url = URLS.SHOPPING_LIST_EDIT_URL.format(pk=non_existent_shopping_list_pk)
         response = api_client.get(url)
@@ -202,14 +227,16 @@ class TestShoppingListDetailUpdateView:
 
 @pytest.mark.django_db
 class TestShoppingListDeleteView:
-    def test_deleting_shopping_list_by_pk(self, api_client, shopping_list):
+    def test_deleting_shopping_list_by_pk(
+        self, api_client: APIClient, shopping_list: ShoppingList
+    ) -> None:
         url = URLS.SHOPPING_LIST_DELETE_URL.format(pk=shopping_list.pk)
         response = api_client.delete(url)
 
         assert response.status_code == status.HTTP_204_NO_CONTENT
         assert not ShoppingList.objects.filter(pk=shopping_list.pk).exists()
 
-    def test_delete_non_existent_shopping_list(self, api_client):
+    def test_delete_non_existent_shopping_list(self, api_client: APIClient):
         non_existent_shopping_list_pk = 1
         url = URLS.SHOPPING_LIST_DELETE_URL.format(pk=non_existent_shopping_list_pk)
 
@@ -221,9 +248,11 @@ class TestShoppingListDeleteView:
 
 @pytest.mark.django_db
 class TestItemCreateView:
-    def test_add_new_item_to_shopping_list(self, api_client, shopping_list):
+    def test_add_new_item_to_shopping_list(
+        self, api_client: APIClient, shopping_list: ShoppingList
+    ) -> None:
         url = URLS.ITEM_URL.format(shopping_list_pk=shopping_list.pk)
-        data = {
+        data: Dict[str, Union[str, ItemCategory, ItemUnit, int]] = {
             "product": "Beef",
             "category": ItemCategory.MEAT,
             "quantity": 1,
@@ -256,17 +285,23 @@ class TestItemCreateView:
         ],
     )
     def test_add_item_with_invalid_data_to_shopping_list(
-        self, api_client, shopping_list, invalid_data, expected_response
-    ):
+        self,
+        api_client: APIClient,
+        shopping_list: ShoppingList,
+        invalid_data: Dict[str, Union[str, int]],
+        expected_response: Dict[str, List[str]],
+    ) -> None:
         url = URLS.ITEM_URL.format(shopping_list_pk=shopping_list.pk)
         response = api_client.post(url, data=invalid_data)
         assert response.status_code == status.HTTP_400_BAD_REQUEST, response.content
         assert response.data == expected_response
 
-    def test_add_item_to_non_existent_shopping_list(self, api_client):
+    def test_add_item_to_non_existent_shopping_list(
+        self, api_client: APIClient
+    ) -> None:
         non_existent_shopping_list_pk = 1
         url = URLS.ITEM_URL.format(shopping_list_pk=non_existent_shopping_list_pk)
-        data = {
+        data: Dict[str, Union[str, ItemCategory, ItemUnit, int]] = {
             "product": "Beef",
             "category": ItemCategory.MEAT,
             "quantity": 1,
@@ -281,7 +316,9 @@ class TestItemCreateView:
 
 @pytest.mark.django_db
 class TestItemUpdateView:
-    def test_retrieve_item_by_pk_from_shopping_list(self, api_client, shopping_list):
+    def test_retrieve_item_by_pk_from_shopping_list(
+        self, api_client: APIClient, shopping_list: ShoppingList
+    ) -> None:
         shopping_list_item = create_item(shopping_list=shopping_list)
         url = URLS.ITEM_DETAIL_URL.format(
             shopping_list_pk=shopping_list.pk, item_pk=shopping_list_item.pk
@@ -292,13 +329,15 @@ class TestItemUpdateView:
         assert response.status_code == status.HTTP_200_OK, response.content
         assert response.data["product"] == shopping_list_item.product
 
-    def test_update_item_by_pk_from_shopping_list(self, api_client, shopping_list):
+    def test_update_item_by_pk_from_shopping_list(
+        self, api_client: APIClient, shopping_list: ShoppingList
+    ) -> None:
         shopping_list_item = create_item(shopping_list=shopping_list)
         url = URLS.ITEM_DETAIL_URL.format(
             shopping_list_pk=shopping_list.pk, item_pk=shopping_list_item.pk
         )
 
-        data = {
+        data: Dict[str, Union[str, ItemCategory, ItemUnit, int]] = {
             "product": "Milk",
             "category": ItemCategory.DAIRY,
             "quantity": 1,
@@ -335,8 +374,12 @@ class TestItemUpdateView:
         ],
     )
     def test_update_item_with_invalid_data(
-        self, api_client, shopping_list, invalid_data, expected_response
-    ):
+        self,
+        api_client: APIClient,
+        shopping_list: ShoppingList,
+        invalid_data: Dict[str, Union[str, int]],
+        expected_response: Dict[str, List[str]],
+    ) -> None:
         shopping_list_item = create_item(shopping_list=shopping_list)
         url = URLS.ITEM_DETAIL_URL.format(
             shopping_list_pk=shopping_list.pk, item_pk=shopping_list_item.pk
@@ -351,8 +394,8 @@ class TestItemUpdateView:
         assert response.data == expected_response
 
     def test_retrieve_non_existent_item_from_shopping_list(
-        self, api_client, shopping_list
-    ):
+        self, api_client: APIClient, shopping_list: ShoppingList
+    ) -> None:
         non_existing_item_pk = 1
         url = URLS.ITEM_DETAIL_URL.format(
             shopping_list_pk=shopping_list.pk, item_pk=non_existing_item_pk
@@ -365,7 +408,9 @@ class TestItemUpdateView:
 
 @pytest.mark.django_db
 class TestItemDeleteView:
-    def test_delete_item_by_pk_from_shopping_list(self, api_client, shopping_list):
+    def test_delete_item_by_pk_from_shopping_list(
+        self, api_client: APIClient, shopping_list: ShoppingList
+    ) -> None:
         shopping_list_item = create_item(shopping_list=shopping_list)
         url = URLS.ITEM_DELETE_URL.format(
             shopping_list_pk=shopping_list.pk, item_pk=shopping_list_item.pk
@@ -379,8 +424,8 @@ class TestItemDeleteView:
         assert len(shopping_list.items.all()) == 0
 
     def test_delete_non_existent_item_from_shopping_list(
-        self, api_client, shopping_list
-    ):
+        self, api_client: APIClient, shopping_list: ShoppingList
+    ) -> None:
         non_existing_item_pk = 1
         url = URLS.ITEM_DELETE_URL.format(
             shopping_list_pk=shopping_list.pk, item_pk=non_existing_item_pk

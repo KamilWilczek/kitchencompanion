@@ -1,4 +1,4 @@
-from typing import Any, Dict, List
+from typing import Dict, List, Union
 
 import pytest
 from django.contrib.auth.models import User
@@ -14,7 +14,7 @@ from .error_messages import ERRORS
 class TestShoppingListSerializer:
     @pytest.mark.django_db
     def test_shopping_list_serializer_valid_data(self, user: User) -> None:
-        data: Dict[str, Any] = {
+        data: Dict[str, Union[User, str, bool, int]] = {
             "user": user.id,
             "name": "Test Shopping List",
             "description": "This is test shopping list",
@@ -26,7 +26,7 @@ class TestShoppingListSerializer:
         assert serializer.data == data
 
     @pytest.mark.parametrize(
-        "data, expected_errors",
+        "invalid_data, expected_errors",
         [
             (
                 {
@@ -42,9 +42,9 @@ class TestShoppingListSerializer:
         ],
     )
     def test_shopping_list_serializer_invalid_data(
-        self, data: Dict[str, Any], expected_errors: Dict[str, List[str]]
+        self, invalid_data: Dict[str, str], expected_errors: Dict[str, List[str]]
     ) -> None:
-        serializer = ShoppingListSerializer(data=data)
+        serializer = ShoppingListSerializer(data=invalid_data)
         assert not serializer.is_valid()
         assert serializer.errors == expected_errors
 
@@ -73,7 +73,7 @@ class TestShoppingListSerializer:
 
 class TestItemSerializer:
     def test_item_serializer_valid_data(self) -> None:
-        data: Dict[str, Any] = {
+        data: Dict[str, Union[str, int, ItemUnit, ItemCategory, bool]] = {
             "product": "Test Product",
             "quantity": 2,
             "unit": ItemUnit.KILOGRAM,
@@ -86,7 +86,7 @@ class TestItemSerializer:
         assert serializer.data == data
 
     @pytest.mark.parametrize(
-        "data, expected_errors",
+        "invalid_data, expected_errors",
         [
             (
                 {
@@ -106,8 +106,10 @@ class TestItemSerializer:
         ],
     )
     def test_item_serializer_invalid_data(
-        self, data: Dict[str, Any], expected_errors: Dict[str, List[str]]
+        self,
+        invalid_data: Dict[str, Union[str, int]],
+        expected_errors: Dict[str, List[str]],
     ) -> None:
-        serializer = ItemSerializer(data=data)
+        serializer = ItemSerializer(data=invalid_data)
         assert not serializer.is_valid()
         assert serializer.errors == expected_errors
