@@ -17,7 +17,7 @@ class ShoppingListSerializer(serializers.ModelSerializer):
         model: Type[ShoppingList] = ShoppingList
         fields = "__all__"
 
-    def get_items_count(self, obj):
+    def get_items_count(self, obj: ShoppingList) -> int:
         try:
             return obj.items.count()
         except AttributeError:
