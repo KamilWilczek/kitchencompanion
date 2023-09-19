@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     "corsheaders",
     "rest_framework",
     # my apps
+    "users.apps.UsersConfig",
     "shoppinglist.apps.ShoppinglistConfig",
 ]
 
@@ -88,6 +89,8 @@ DATABASES = {
         "NAME": BASE_DIR / "db.sqlite3",
     }
 }
+
+AUTH_USER_MODEL = "users.CustomUser"
 
 
 # Password validation
