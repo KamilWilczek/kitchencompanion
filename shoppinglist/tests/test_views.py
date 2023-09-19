@@ -124,12 +124,13 @@ class TestShoppingListCreateView:
             (
                 {
                     "user": "invalid_user_id",
-                    "name": 12345,
+                    "name": "",
                     "description": 67890,
                     "completed": "true_string",
                 },
                 {
                     "user": [ERRORS.INCORRECT_TYPE_ERROR],
+                    "name": [ERRORS.NOT_BLANK_ERROR],
                     "completed": [ERRORS.INVALID_BOOLEAN_ERROR],
                 },
             ),
@@ -269,13 +270,14 @@ class TestItemCreateView:
         [
             (
                 {
-                    "product": "Milk",
+                    "product": "",
                     "quantity": -1,
                     "unit": "invalid_unit",
                     "category": 123,
                     "completed": "true_string",
                 },
                 {
+                    "product": [ERRORS.NOT_BLANK_ERROR],
                     "quantity": [ERRORS.MIN_QUANTITY_ERROR],
                     "unit": [ERRORS.INVALID_CHOICE_ERROR_UNIT],
                     "category": [ERRORS.INVALID_CHOICE_ERROR_CATEGORY],

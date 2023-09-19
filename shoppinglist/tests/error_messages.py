@@ -20,3 +20,4 @@ class ERRORS:
     SH_LIST_NOT_FOUND_ERROR = {
         "detail": ErrorDetail(string="ShoppingList not found.", code="not_found")
     }
+    NOT_BLANK_ERROR = ErrorDetail(string="This field may not be blank.", code="blank")
