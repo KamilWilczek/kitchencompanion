@@ -41,8 +41,6 @@
   - [ ] React MUI
   - [ ] Figma
   - [ ] Canva
-- [ ] Add user creation UsersApp
-  - [ ] some plugins for user creation in Django
 - [ ] Authentication
 - [ ] dependencies management
   - [ ] poetry
@@ -64,10 +62,17 @@
   - [x] Item product validation
     - [x] Do not allow for `'     '`
   - [ ] ...
+- [ ] Users module
+  - [x] Add user creation UsersApp
+    - [ ] some plugins for user creation in Django
+  - [ ] User model
+  - [ ] User serializer
+  - [ ] Authentication views
+  - [ ] urls
 - [x] Typing
 - [ ] Refactor views.py
   - [x] Class based views
-  - [ ] Exception Handling in ShoppingItemMixin
+  - [x] Exception Handling in ShoppingItemMixin
 - [ ] Field validation
 - [x] Linting
   - [x] pylint

@@ -32,3 +32,4 @@
 `pip install freezegun`
 `pip install django-stubs`
 `pip install isort`
+`python manage.py startapp users`
