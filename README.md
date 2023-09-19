@@ -69,16 +69,16 @@
   - [x] Class based views
   - [ ] Exception Handling in ShoppingItemMixin
 - [ ] Field validation
-- [ ] Linting
-  - [ ] pylint
+- [x] Linting
+  - [x] pylint
   - [x] isort
 - [ ] Tests
   - [x] `pytest` and `pytest-django` plugin
   - [ ] Unit tests
     - [x] models.py
     - [x] views.py
-    - [ ] serializers.py
-    - [ ] mixins.py
+    - [x] serializers.py
+    - [x] mixins.py
   - [ ] Integration tests
 
 ## Frontend
