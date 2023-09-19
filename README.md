@@ -59,9 +59,9 @@
   - [x] Models for ShoppingList
   - [x] Basic CRUD for ShoppingList
   - [x] Basic CRUD for ShoppingListItem
-  - [ ] Shopping List name validation
+  - [x] Shopping List name validation
     - [x] Do not allow for `'     '`
-  - [ ] Item product validation
+  - [x] Item product validation
     - [x] Do not allow for `'     '`
   - [ ] ...
 - [x] Typing
