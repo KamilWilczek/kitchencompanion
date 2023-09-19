@@ -60,11 +60,9 @@
   - [x] Basic CRUD for ShoppingList
   - [x] Basic CRUD for ShoppingListItem
   - [ ] Shopping List name validation
-    - [ ] Allow only letters, digits, spaces (between words), underscores and hyphens.
-    - [ ] Do not allow for `'     '`
+    - [x] Do not allow for `'     '`
   - [ ] Item product validation
-    - [ ] Allow only letters, digits, spaces (between words), underscores and hyphens.
-    - [ ] Do not allow for `'     '`
+    - [x] Do not allow for `'     '`
   - [ ] ...
 - [x] Typing
 - [ ] Refactor views.py
