@@ -68,7 +68,7 @@
   - [x] User model
   - [x] User serializer
   - [x] Authentication views
-  - [ ] urls
+  - [x] urls
 - [x] Typing
 - [ ] Refactor views.py
   - [x] Class based views
