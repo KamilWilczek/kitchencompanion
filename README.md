@@ -67,7 +67,7 @@
     - [ ] some plugins for user creation in Django
   - [x] User model
   - [x] User serializer
-  - [ ] Authentication views
+  - [x] Authentication views
   - [ ] urls
 - [x] Typing
 - [ ] Refactor views.py
