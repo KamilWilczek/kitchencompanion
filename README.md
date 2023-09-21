@@ -66,7 +66,7 @@
   - [x] Add user creation UsersApp
     - [ ] some plugins for user creation in Django
   - [x] User model
-  - [ ] User serializer
+  - [x] User serializer
   - [ ] Authentication views
   - [ ] urls
 - [x] Typing
