@@ -1,6 +1,7 @@
-from django.contrib.auth.models import User
 from django.core.validators import MinValueValidator
 from django.db import models
+
+from kitchencompanion.settings import AUTH_USER_MODEL
 
 from .constants import ItemCategory, ItemUnit
 
@@ -18,7 +19,9 @@ class ShoppingList(models.Model):
     - completed: Flag to mark if the shopping list is completed.
     """
 
-    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
+    user = models.ForeignKey(
+        AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True
+    )
     name = models.CharField(max_length=220)
     description = models.TextField(blank=True, null=True)
     created = models.DateTimeField(auto_now_add=True)
