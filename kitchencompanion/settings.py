@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     # 3rd party
     "corsheaders",
     "rest_framework",
+    "rest_framework.authtoken",
     # my apps
     "users.apps.UsersConfig",
     "shoppinglist.apps.ShoppinglistConfig",
