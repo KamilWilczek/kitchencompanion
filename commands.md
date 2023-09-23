@@ -33,3 +33,5 @@
 `pip install django-stubs`
 `pip install isort`
 `python manage.py startapp users`
+`pip install python-decouple`
+`pip freeze > requirements.txt`

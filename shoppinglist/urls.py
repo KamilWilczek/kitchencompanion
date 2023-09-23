@@ -1,8 +1,15 @@
 from django.urls import path
 
-from .views import (ItemCreateView, ItemDeleteView, ItemUpdateView,
-                    ShoppingListCreateView, ShoppingListDeleteView,
-                    ShoppingListDetailUpdateView, ShoppingListView)
+from .views import (
+    ItemCreateView,
+    ItemDeleteView,
+    ItemUpdateView,
+    ShareShoppingListView,
+    ShoppingListCreateView,
+    ShoppingListDeleteView,
+    ShoppingListDetailUpdateView,
+    ShoppingListView,
+)
 
 app_name = "shoppinglist"
 
@@ -19,5 +26,10 @@ urlpatterns = [
         "<int:parent_pk>/item/<int:pk>/delete/",
         ItemDeleteView.as_view(),
         name="item-delete",
+    ),
+    path(
+        "share-shopping-list/<int:pk>/",
+        ShareShoppingListView.as_view(),
+        name="share_shopping_list",
     ),
 ]

@@ -1,3 +1,4 @@
+from django.contrib.auth import get_user_model
 from django.core.validators import MinValueValidator
 from django.db import models
 
@@ -27,6 +28,9 @@ class ShoppingList(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
     completed = models.BooleanField(default=False)
+    shared_with = models.ManyToManyField(
+        get_user_model(), related_name="shared_shopping_lists", blank=True
+    )
 
     def __str__(self) -> str:
         return self.name

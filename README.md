@@ -61,6 +61,11 @@
     - [x] Do not allow for `'     '`
   - [x] Item product validation
     - [x] Do not allow for `'     '`
+  - [ ] Sharing shopping lists
+    - [x] view
+    - [ ] tests
+    - [ ] types
+    - [ ] extract sending mail logic
   - [ ] ...
 - [ ] Users module
   - [x] Add user creation UsersApp
