@@ -57,6 +57,7 @@
   - [x] Models for ShoppingList
   - [x] Basic CRUD for ShoppingList
   - [x] Basic CRUD for ShoppingListItem
+  - [ ] ShoppingListViews and Items Views as two views
   - [x] Shopping List name validation
     - [x] Do not allow for `'     '`
   - [x] Item product validation
@@ -80,6 +81,7 @@
   - [x] User serializer
   - [x] Authentication views
   - [x] urls
+  - [ ] deleting acc
 - [x] Typing
 - [ ] Refactor views.py
   - [x] Class based views
@@ -99,6 +101,14 @@
 
 ## Frontend
 
+- [ ] Users module
+  - [ ] Login screen
+  - [ ] Register screen
+  - [ ] Logout
+  - [ ] Forgotten password
+  - [ ] User menu
+    - [ ] Reset password
+    - [ ] Delete acc
 - [ ] ShoppingList module
 
   - [ ] ShoppingList
@@ -110,6 +120,7 @@
     - [ ] Remove bought items
     - [ ] Remove all items
     - [ ] Ordering: completion, category
+    - [ ] Show with who list is shared
     - [ ] Refactoring:
       - [x] Modularize components (e.g., `ShoppingListHeader`, `ShoppingListInputs`)
       - [ ] Implement `useCallback` for event handlers
