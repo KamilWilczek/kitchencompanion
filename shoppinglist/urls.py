@@ -4,10 +4,10 @@ from .views import (
     ItemCreateView,
     ItemDeleteView,
     ItemUpdateView,
-    ShareShoppingListView,
     ShoppingListCreateView,
     ShoppingListDeleteView,
     ShoppingListDetailUpdateView,
+    ShoppingListShareView,
     ShoppingListView,
 )
 
@@ -29,7 +29,7 @@ urlpatterns = [
     ),
     path(
         "share-shopping-list/<int:pk>/",
-        ShareShoppingListView.as_view(),
+        ShoppingListShareView.as_view(),
         name="share_shopping_list",
     ),
 ]

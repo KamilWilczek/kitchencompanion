@@ -1,30 +1,47 @@
 from typing import Any, Dict, List, Union
 
 import pytest
-from django.contrib.auth.models import User
 from rest_framework.test import APIClient
 
 from shoppinglist.constants import ItemCategory
 from shoppinglist.models import Item, ShoppingList
+from users.models import CustomUser
 
 
 @pytest.fixture
-def api_client() -> APIClient:
+def not_authenticated_api_client() -> APIClient:
     return APIClient()
 
 
 @pytest.fixture
-def user() -> User:
-    return User.objects.create_user(username="testuser", password="testpassword")
+def authenticated_api_client(user: CustomUser) -> APIClient:
+    client = APIClient()
+    client.force_authenticate(user=user)
+    return client
 
 
 @pytest.fixture
-def shopping_list(user: User) -> ShoppingList:
+def user() -> CustomUser:
+    return CustomUser.objects.create_user(
+        email="testuser@example.com",
+        password="testpassword",
+    )
+
+
+@pytest.fixture
+def test_user() -> CustomUser:
+    return CustomUser.objects.create_user(
+        email="testuser@gmail.com", password="testuserpassword"
+    )
+
+
+@pytest.fixture
+def shopping_list(user: CustomUser) -> ShoppingList:
     return create_shopping_list(user=user)
 
 
 def create_shopping_list(
-    name: str = "Test List", user: Union[User, None] = None
+    name: str = "Test List", user: Union[CustomUser, None] = None
 ) -> ShoppingList:
     return ShoppingList.objects.create(name=name, user=user)
 

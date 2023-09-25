@@ -5,7 +5,6 @@ from django.contrib.auth import get_user_model
 from django.core.mail import send_mail
 from django.db.models import Prefetch, Q, QuerySet
 from rest_framework import generics, status
-from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
 
@@ -45,7 +44,7 @@ class ShoppingListDetailUpdateView(generics.RetrieveUpdateAPIView):
     def get_queryset(self) -> "QuerySet[ShoppingList]":
         user = self.request.user
         return ShoppingList.objects.prefetch_related("items").filter(
-            Q(owner=user) | Q(shared_with=user)
+            Q(user=user) | Q(shared_with=user)
         )
 
 
@@ -66,6 +65,56 @@ class ShoppingListDeleteView(generics.DestroyAPIView):
             {"detail": "Shopping list deleted successfully."},
             status=status.HTTP_204_NO_CONTENT,
         )
+
+
+class ShoppingListShareView(generics.UpdateAPIView):
+    queryset = ShoppingList.objects.all()
+    serializer_class = ShoppingListSerializer
+
+    def update(self, request, *args, **kwargs):
+        shopping_list = self.get_object()
+        user_to_share_with_email = request.data.get("email")
+
+        if shopping_list.user != request.user:
+            return Response(
+                {"detail": "You don't have permission to share this list."},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+
+        if user_to_share_with_email == request.user.email:
+            return Response(
+                {"detail": "You cannot share the list with yourself."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        try:
+            user_to_share_with = get_user_model().objects.get(
+                email=user_to_share_with_email
+            )
+        except get_user_model().DoesNotExist:
+            return Response(
+                {"detail": "User not found."}, status=status.HTTP_400_BAD_REQUEST
+            )
+
+        if shopping_list.shared_with.filter(email=user_to_share_with_email).exists():
+            return Response(
+                {
+                    "detail": f"Shopping list was already shared with {user_to_share_with_email}."
+                },
+                status=status.HTTP_200_OK,
+            )
+
+        shopping_list.shared_with.add(user_to_share_with)
+        shopping_list.save()
+
+        subject = "Shopping List Shared With You"
+        message = f"{request.user.email} has shared a shopping list with you."
+        from_email = config("EMAIL_HOST_USER")
+        to_email = [user_to_share_with_email]
+
+        send_mail(subject, message, from_email, to_email, fail_silently=False)
+
+        return Response({"detail": "Shopping list shared successfully."})
 
 
 class ItemCreateView(ShoppingItemMixin, generics.CreateAPIView):
@@ -109,34 +158,3 @@ class ItemDeleteView(ShoppingItemMixin, generics.DestroyAPIView):
         return Response(
             {"detail": "Item deleted successfully."}, status=status.HTTP_204_NO_CONTENT
         )
-
-
-class ShareShoppingListView(generics.UpdateAPIView):
-    queryset = ShoppingList.objects.all()
-    serializer_class = ShoppingListSerializer
-    # permission_classes = [IsAuthenticated]
-
-    def update(self, request, *args, **kwargs):
-        shopping_list = self.get_object()
-        user_to_share_with_email = request.data.get("email")
-
-        try:
-            user_to_share_with = get_user_model().objects.get(
-                email=user_to_share_with_email
-            )
-        except get_user_model().DoesNotExist:
-            return Response(
-                {"detail": "User not found."}, status=status.HTTP_400_BAD_REQUEST
-            )
-
-        shopping_list.shared_with.add(user_to_share_with)
-        shopping_list.save()
-
-        subject = "Shopping List Shared With You"
-        message = f"{request.user.email} has shared a shopping list with you."
-        from_email = config("EMAIL_HOST_USER")
-        to_email = [user_to_share_with_email]
-
-        send_mail(subject, message, from_email, to_email, fail_silently=False)
-
-        return Response({"detail": "Shopping list shared successfully."})

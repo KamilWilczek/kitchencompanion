@@ -63,9 +63,15 @@
     - [x] Do not allow for `'     '`
   - [ ] Sharing shopping lists
     - [x] view
-    - [ ] tests
+    - [x] tests
+      - [ ] maybe add more assertions
+      - [ ] types
+      - [ ] refactor, error_messages
     - [ ] types
     - [ ] extract sending mail logic
+      - [ ] test sending mails
+    - [ ] refactor ShoppingListShareView
+      - [ ] too many operations that might be functions
   - [ ] ...
 - [ ] Users module
   - [x] Add user creation UsersApp

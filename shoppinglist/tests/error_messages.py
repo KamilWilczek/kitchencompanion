@@ -21,3 +21,6 @@ class ERRORS:
         "detail": ErrorDetail(string="ShoppingList not found.", code="not_found")
     }
     NOT_BLANK_ERROR = ErrorDetail(string="This field may not be blank.", code="blank")
+    UNAUTHORIZED = ErrorDetail(
+        string="Authentication credentials were not provided.", code="not_authenticated"
+    )
