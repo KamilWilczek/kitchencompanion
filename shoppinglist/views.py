@@ -48,7 +48,7 @@ class ShoppingListDetailUpdateView(generics.RetrieveUpdateAPIView):
         )
 
 
-class ShoppingListDeleteView(generics.DestroyAPIView):
+class ShoppingListDeleteOrUnshareView(generics.DestroyAPIView):
     """
     API view to delete a specific shopping list.
     """
@@ -59,11 +59,24 @@ class ShoppingListDeleteView(generics.DestroyAPIView):
     def delete(
         self, request: Request, *args: Union[str, int], **kwargs: dict
     ) -> Response:
-        instance: ShoppingList = self.get_object()
-        self.perform_destroy(instance)
+        shopping_list: ShoppingList = self.get_object()
+
+        if shopping_list.user == request.user:
+            super().destroy(request, *args, **kwargs)
+
+            return Response(
+                {"detail": "Shopping list deleted successfully."},
+                status=status.HTTP_204_NO_CONTENT,
+            )
+
+        if request.user in shopping_list.shared_with.all():
+            shopping_list.shared_with.remove(request.user)
+
+            return Response(status=status.HTTP_204_NO_CONTENT)
+
         return Response(
-            {"detail": "Shopping list deleted successfully."},
-            status=status.HTTP_204_NO_CONTENT,
+            {"detail": "You don't have permission to delete this list."},
+            status=status.HTTP_403_FORBIDDEN,
         )
 
 
@@ -115,6 +128,28 @@ class ShoppingListShareView(generics.UpdateAPIView):
         send_mail(subject, message, from_email, to_email, fail_silently=False)
 
         return Response({"detail": "Shopping list shared successfully."})
+
+
+class ShoppingListUnshareFromUserView(generics.UpdateAPIView):
+    queryset = ShoppingList.objects.all()
+    serializer_class = ShoppingListSerializer
+
+    def update(self, request, *args, **kwargs):
+        shopping_list = self.get_object()
+
+        # Ensure that the current user is in the shared_with list
+        if request.user not in shopping_list.shared_with.all():
+            return Response(
+                {"detail": "You are not a shared user of this list."},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+
+        shopping_list.shared_with.remove(request.user)
+
+        return Response(
+            {"detail": "Successfully unshared the shopping list."},
+            status=status.HTTP_200_OK,
+        )
 
 
 class ItemCreateView(ShoppingItemMixin, generics.CreateAPIView):

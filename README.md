@@ -41,7 +41,9 @@
   - [ ] React MUI
   - [ ] Figma
   - [ ] Canva
-- [ ] Authentication
+- [x] Authentication
+  - [ ] Allauth
+  - [ ] OAuth2
 - [ ] dependencies management
   - [ ] poetry
 - [ ] Sharing list between accounts
@@ -86,7 +88,7 @@
 - [ ] Refactor views.py
   - [x] Class based views
   - [x] Exception Handling in ShoppingItemMixin
-- [ ] Field validation
+- [x] Field validation
 - [x] Linting
   - [x] pylint
   - [x] isort

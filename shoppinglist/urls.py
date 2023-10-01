@@ -5,9 +5,10 @@ from .views import (
     ItemDeleteView,
     ItemUpdateView,
     ShoppingListCreateView,
-    ShoppingListDeleteView,
+    ShoppingListDeleteOrUnshareView,
     ShoppingListDetailUpdateView,
     ShoppingListShareView,
+    ShoppingListUnshareFromUserView,
     ShoppingListView,
 )
 
@@ -17,7 +18,7 @@ urlpatterns = [
     path("", ShoppingListView.as_view(), name="list"),
     path("create/", ShoppingListCreateView.as_view(), name="create"),
     path("<int:pk>/edit/", ShoppingListDetailUpdateView.as_view(), name="update"),
-    path("<int:pk>/delete/", ShoppingListDeleteView.as_view(), name="delete"),
+    path("<int:pk>/delete/", ShoppingListDeleteOrUnshareView.as_view(), name="delete"),
     path("<int:parent_pk>/item/", ItemCreateView.as_view(), name="item-create"),
     path(
         "<int:parent_pk>/item/<int:pk>/", ItemUpdateView.as_view(), name="item-update"
@@ -28,8 +29,13 @@ urlpatterns = [
         name="item-delete",
     ),
     path(
-        "share-shopping-list/<int:pk>/",
+        "<int:pk>/share/",
         ShoppingListShareView.as_view(),
         name="share_shopping_list",
+    ),
+    path(
+        "<int:pk>/unshare/<int:user_pk>/",
+        ShoppingListUnshareFromUserView.as_view(),
+        name="unshare-shopping-list",
     ),
 ]
