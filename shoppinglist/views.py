@@ -5,86 +5,28 @@ from django.contrib.auth import get_user_model
 from django.core.mail import send_mail
 from django.db.models import Prefetch, Q, QuerySet
 from rest_framework import generics, status
+from rest_framework.decorators import action
 from rest_framework.request import Request
 from rest_framework.response import Response
+from rest_framework.viewsets import ModelViewSet
 
 from .mixins import ShoppingItemMixin
 from .models import Item, ShoppingList
 from .serializers import ItemSerializer, ShoppingListSerializer
 
 
-class ShoppingListView(generics.ListAPIView):
-    """
-    API view to list all the shopping lists along with an annotation of the number of items each list contains.
-    """
-
-    serializer_class: type[ShoppingListSerializer] = ShoppingListSerializer
+class ShoppingListViewSet(ModelViewSet):
+    queryset = ShoppingList.objects.all()
+    serializer_class = ShoppingListSerializer
 
     def get_queryset(self) -> QuerySet[ShoppingList]:
-        return ShoppingList.objects.prefetch_related(
-            Prefetch("items", queryset=Item.objects.only("id"))
-        )
-
-
-class ShoppingListCreateView(generics.CreateAPIView):
-    """
-    API view to create a new shopping list.
-    """
-
-    serializer_class: type[ShoppingListSerializer] = ShoppingListSerializer
-
-
-class ShoppingListDetailUpdateView(generics.RetrieveUpdateAPIView):
-    """
-    API view to retrieve or update the details of a specific shopping list.
-    """
-
-    serializer_class: type[ShoppingListSerializer] = ShoppingListSerializer
-
-    def get_queryset(self) -> "QuerySet[ShoppingList]":
         user = self.request.user
         return ShoppingList.objects.prefetch_related("items").filter(
             Q(user=user) | Q(shared_with=user)
         )
 
-
-class ShoppingListDeleteOrUnshareView(generics.DestroyAPIView):
-    """
-    API view to delete a specific shopping list.
-    """
-
-    queryset: QuerySet[ShoppingList] = ShoppingList.objects.all()
-    serializer_class: type[ShoppingListSerializer] = ShoppingListSerializer
-
-    def delete(
-        self, request: Request, *args: Union[str, int], **kwargs: dict
-    ) -> Response:
-        shopping_list: ShoppingList = self.get_object()
-
-        if shopping_list.user == request.user:
-            super().destroy(request, *args, **kwargs)
-
-            return Response(
-                {"detail": "Shopping list deleted successfully."},
-                status=status.HTTP_204_NO_CONTENT,
-            )
-
-        if request.user in shopping_list.shared_with.all():
-            shopping_list.shared_with.remove(request.user)
-
-            return Response(status=status.HTTP_204_NO_CONTENT)
-
-        return Response(
-            {"detail": "You don't have permission to delete this list."},
-            status=status.HTTP_403_FORBIDDEN,
-        )
-
-
-class ShoppingListShareView(generics.UpdateAPIView):
-    queryset = ShoppingList.objects.all()
-    serializer_class = ShoppingListSerializer
-
-    def update(self, request, *args, **kwargs):
+    @action(detail=True, methods=["put"])
+    def share(self, request, pk: int = None):
         shopping_list = self.get_object()
         user_to_share_with_email = request.data.get("email")
 
@@ -129,12 +71,8 @@ class ShoppingListShareView(generics.UpdateAPIView):
 
         return Response({"detail": "Shopping list shared successfully."})
 
-
-class ShoppingListUnshareFromUserView(generics.UpdateAPIView):
-    queryset = ShoppingList.objects.all()
-    serializer_class = ShoppingListSerializer
-
-    def update(self, request, *args, **kwargs):
+    @action(detail=True, methods=["patch"], url_path="unshare/(?P<user_pk>[^/.]+)")
+    def unshare(self, request: Request, pk: int = None, **kwargs: dict):
         shopping_list = self.get_object()
         user_id_to_unshare = kwargs.get("user_pk")
 
@@ -159,6 +97,23 @@ class ShoppingListUnshareFromUserView(generics.UpdateAPIView):
 
         shopping_list.shared_with.remove(user_to_unshare)
         return Response({"detail": "Successfully unshared the shopping list."})
+
+    def destroy(
+        self, request: Request, *args: Union[str, int], **kwargs: dict
+    ) -> Response:
+        shopping_list: ShoppingList = self.get_object()
+
+        if shopping_list.user == request.user:
+            return super().destroy(request, *args, **kwargs)
+
+        if request.user in shopping_list.shared_with.all():
+            shopping_list.shared_with.remove(request.user)
+            return Response(status=status.HTTP_204_NO_CONTENT)
+
+        return Response(
+            {"detail": "You don't have permission to delete this list."},
+            status=status.HTTP_403_FORBIDDEN,
+        )
 
 
 class ItemCreateView(ShoppingItemMixin, generics.CreateAPIView):

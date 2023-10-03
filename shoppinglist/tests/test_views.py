@@ -17,7 +17,7 @@ from .urls import URLS
 
 
 @pytest.mark.django_db
-class TestShoppingListView:
+class TestShoppingListViewSet:
     def test_all_shopping_lists_are_returned(
         self, user: User, authenticated_api_client: APIClient
     ) -> None:
@@ -88,14 +88,11 @@ class TestShoppingListView:
             response = authenticated_api_client.get(f"{URLS.SHOPPING_LIST_URL}/")
             assert response.status_code == status.HTTP_200_OK, response.content
 
-            EXPECTED_NUMBER_OF_QUERIES = 39
+            EXPECTED_NUMBER_OF_QUERIES = 4
             assert (
                 len(context) == EXPECTED_NUMBER_OF_QUERIES
             ), f"Expected {EXPECTED_NUMBER_OF_QUERIES} queries, but got {len(context)} queries"
 
-
-@pytest.mark.django_db
-class TestShoppingListCreateView:
     def test_create_shopping_list(
         self, user: User, authenticated_api_client: APIClient
     ) -> None:
@@ -105,7 +102,7 @@ class TestShoppingListCreateView:
         }
 
         response = authenticated_api_client.post(
-            URLS.SHOPPING_LIST_CREATE_URL, data=data
+            f"{URLS.SHOPPING_LIST_URL}/", data=data
         )
 
         assert response.status_code == status.HTTP_201_CREATED, response.content
@@ -121,7 +118,7 @@ class TestShoppingListCreateView:
         }
 
         response = authenticated_api_client.post(
-            URLS.SHOPPING_LIST_CREATE_URL, data=data
+            f"{URLS.SHOPPING_LIST_URL}/", data=data
         )
 
         assert response.status_code == status.HTTP_400_BAD_REQUEST, response.content
@@ -152,7 +149,7 @@ class TestShoppingListCreateView:
         expected_response: Dict[str, List[str]],
     ) -> None:
         response = authenticated_api_client.post(
-            URLS.SHOPPING_LIST_CREATE_URL, data=invalid_data
+            f"{URLS.SHOPPING_LIST_URL}/", data=invalid_data
         )
         assert response.status_code == status.HTTP_400_BAD_REQUEST, response.content
         assert response.data == expected_response
@@ -166,24 +163,21 @@ class TestShoppingListCreateView:
         }
 
         response1 = authenticated_api_client.post(
-            URLS.SHOPPING_LIST_CREATE_URL, data=data
+            f"{URLS.SHOPPING_LIST_URL}/", data=data
         )
         assert response1.status_code == status.HTTP_201_CREATED, response1.content
 
         response2 = authenticated_api_client.post(
-            URLS.SHOPPING_LIST_CREATE_URL, data=data
+            f"{URLS.SHOPPING_LIST_URL}/", data=data
         )
         assert response2.status_code == status.HTTP_201_CREATED, response2.content
 
         assert response1.data["id"] != response2.data["id"]
 
-
-@pytest.mark.django_db
-class TestShoppingListDetailUpdateView:
     def test_retrieve_shopping_list_by_pk(
         self, authenticated_api_client: APIClient, shopping_list: ShoppingList
     ) -> None:
-        url = URLS.SHOPPING_LIST_EDIT_URL.format(pk=shopping_list.pk)
+        url = URLS.SHOPPING_LIST_DETAIL_URL.format(pk=shopping_list.pk)
         response = authenticated_api_client.get(url)
 
         assert response.status_code == status.HTTP_200_OK, response.content
@@ -199,7 +193,7 @@ class TestShoppingListDetailUpdateView:
         )
         shopping_list_owned_by_another_user = create_shopping_list(user=another_user)
 
-        url = URLS.SHOPPING_LIST_EDIT_URL.format(
+        url = URLS.SHOPPING_LIST_DETAIL_URL.format(
             pk=shopping_list_owned_by_another_user.pk
         )
 
@@ -218,7 +212,7 @@ class TestShoppingListDetailUpdateView:
         shopping_list_owned_by_another_user = create_shopping_list(user=another_user)
         shopping_list_owned_by_another_user.shared_with.add(user)
 
-        url = URLS.SHOPPING_LIST_EDIT_URL.format(
+        url = URLS.SHOPPING_LIST_DETAIL_URL.format(
             pk=shopping_list_owned_by_another_user.pk
         )
 
@@ -230,7 +224,7 @@ class TestShoppingListDetailUpdateView:
     def test_update_shopping_list_by_pk(
         self, authenticated_api_client: APIClient, shopping_list: ShoppingList
     ) -> None:
-        url = URLS.SHOPPING_LIST_EDIT_URL.format(pk=shopping_list.pk)
+        url = URLS.SHOPPING_LIST_DETAIL_URL.format(pk=shopping_list.pk)
         data: Dict[str, str] = {
             "name": "Test List",
         }
@@ -253,7 +247,7 @@ class TestShoppingListDetailUpdateView:
             "name": "Test List",
         }
 
-        url = URLS.SHOPPING_LIST_EDIT_URL.format(
+        url = URLS.SHOPPING_LIST_DETAIL_URL.format(
             pk=shopping_list_owned_by_another_user.pk
         )
 
@@ -275,7 +269,7 @@ class TestShoppingListDetailUpdateView:
             "name": "Test List",
         }
 
-        url = URLS.SHOPPING_LIST_EDIT_URL.format(
+        url = URLS.SHOPPING_LIST_DETAIL_URL.format(
             pk=shopping_list_owned_by_another_user.pk
         )
 
@@ -308,7 +302,7 @@ class TestShoppingListDetailUpdateView:
         invalid_data: Dict[str, Union[str, int]],
         expected_response: Dict[str, List[str]],
     ) -> None:
-        url = URLS.SHOPPING_LIST_EDIT_URL.format(pk=shopping_list.pk)
+        url = URLS.SHOPPING_LIST_DETAIL_URL.format(pk=shopping_list.pk)
         response = authenticated_api_client.put(url, data=invalid_data)
 
         assert response.status_code == status.HTTP_400_BAD_REQUEST, response.content
@@ -318,84 +312,12 @@ class TestShoppingListDetailUpdateView:
         self, authenticated_api_client: APIClient
     ):
         non_existent_shopping_list_pk = 1
-        url = URLS.SHOPPING_LIST_EDIT_URL.format(pk=non_existent_shopping_list_pk)
+        url = URLS.SHOPPING_LIST_DETAIL_URL.format(pk=non_existent_shopping_list_pk)
         response = authenticated_api_client.get(url)
 
         assert response.status_code == status.HTTP_404_NOT_FOUND, response.content
         assert response.data == ERRORS.NOT_FOUND_ERROR
 
-
-@pytest.mark.django_db
-class ShoppingListDeleteOrUnshareView:
-    def test_deleting_shopping_list_by_pk(
-        self, authenticated_api_client: APIClient, shopping_list: ShoppingList
-    ) -> None:
-        url = URLS.SHOPPING_LIST_DELETE_URL.format(pk=shopping_list.pk)
-        response = authenticated_api_client.delete(url)
-
-        assert response.status_code == status.HTTP_204_NO_CONTENT
-        assert not ShoppingList.objects.filter(pk=shopping_list.pk).exists()
-
-    def test_delete_non_existent_shopping_list(
-        self, authenticated_api_client: APIClient
-    ):
-        non_existent_shopping_list_pk = 1
-        url = URLS.SHOPPING_LIST_DELETE_URL.format(pk=non_existent_shopping_list_pk)
-
-        response = authenticated_api_client.delete(url)
-
-        assert response.status_code == status.HTTP_404_NOT_FOUND, response.content
-        assert response.data == ERRORS.NOT_FOUND_ERROR
-
-    def test_delete_someone_elses_shopping_list(
-        self,
-        authenticated_api_client: APIClient,
-    ) -> None:
-        another_user = CustomUser.objects.create_user(
-            email="anotheruser@example.com",
-            password="anotherpassword",
-        )
-        shopping_list_owned_by_another_user = create_shopping_list(user=another_user)
-
-        url = URLS.SHOPPING_LIST_DELETE_URL.format(
-            pk=shopping_list_owned_by_another_user.pk
-        )
-
-        response = authenticated_api_client.delete(url)
-
-        assert response.status_code == status.HTTP_403_FORBIDDEN
-        assert response.data == {
-            "detail": "You don't have permission to delete this list."
-        }
-
-    def test_delete_shared_shopping_list(
-        self, authenticated_api_client: APIClient, user: CustomUser
-    ):
-        another_user = CustomUser.objects.create_user(
-            email="anotheruser@example.com",
-            password="anotherpassword",
-        )
-        shopping_list_owned_by_another_user = create_shopping_list(user=another_user)
-
-        shopping_list_owned_by_another_user.shared_with.add(user)
-
-        url = URLS.SHOPPING_LIST_DELETE_URL.format(
-            pk=shopping_list_owned_by_another_user.pk
-        )
-
-        response = authenticated_api_client.delete(url)
-
-        assert response.status_code == status.HTTP_204_NO_CONTENT
-        assert ShoppingList.objects.filter(
-            pk=shopping_list_owned_by_another_user.pk
-        ).exists()
-        assert not shopping_list_owned_by_another_user.shared_with.filter(
-            pk=user.pk
-        ).exists()
-
-
-@pytest.mark.django_db
-class TestShoppingListShareView:
     def test_share_shopping_list(
         self,
         authenticated_api_client: APIClient,
@@ -480,10 +402,8 @@ class TestShoppingListShareView:
 
         response = authenticated_api_client.put(url, data=data)
 
-        assert response.status_code == status.HTTP_403_FORBIDDEN
-        assert response.data == {
-            "detail": "You don't have permission to share this list."
-        }
+        assert response.status_code == status.HTTP_404_NOT_FOUND
+        assert response.data == ERRORS.NOT_FOUND_ERROR
 
     def test_share_shopping_list_not_authenticated(
         self,
@@ -499,9 +419,6 @@ class TestShoppingListShareView:
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
         assert response.data == {"detail": ERRORS.UNAUTHORIZED}
 
-
-@pytest.mark.django_db
-class TestShoppingListUnshareFromUserView:
     def test_unshare_shopping_list_from_user(
         self, authenticated_api_client: APIClient, user: CustomUser
     ):
@@ -509,6 +426,7 @@ class TestShoppingListUnshareFromUserView:
             email="anotheruser@example.com",
             password="anotherpassword",
         )
+        print(another_user.pk)
         authenticated_api_client.force_authenticate(user=another_user)
         shopping_list_owned_by_another_user = create_shopping_list(user=another_user)
 
@@ -517,7 +435,7 @@ class TestShoppingListUnshareFromUserView:
         url = URLS.SHOPPING_LIST_UNSHARE_URL.format(
             pk=shopping_list_owned_by_another_user.pk, user_pk=user.pk
         )
-
+        print("url", url)
         response = authenticated_api_client.patch(url)
 
         assert response.status_code == status.HTTP_200_OK
@@ -571,10 +489,72 @@ class TestShoppingListUnshareFromUserView:
         )
         response = authenticated_api_client.patch(url)
 
-        assert response.status_code == status.HTTP_403_FORBIDDEN
-        assert (
-            response.data["detail"] == "You don't have permission to unshare this list."
+        assert response.status_code == status.HTTP_404_NOT_FOUND
+        assert response.data == ERRORS.NOT_FOUND_ERROR
+
+    def test_deleting_shopping_list_by_pk(
+        self, authenticated_api_client: APIClient, shopping_list: ShoppingList
+    ) -> None:
+        url = URLS.SHOPPING_LIST_DETAIL_URL.format(pk=shopping_list.pk)
+        response = authenticated_api_client.delete(url)
+
+        assert response.status_code == status.HTTP_204_NO_CONTENT
+        assert not ShoppingList.objects.filter(pk=shopping_list.pk).exists()
+
+    def test_delete_non_existent_shopping_list(
+        self, authenticated_api_client: APIClient
+    ):
+        non_existent_shopping_list_pk = 1
+        url = URLS.SHOPPING_LIST_DETAIL_URL.format(pk=non_existent_shopping_list_pk)
+
+        response = authenticated_api_client.delete(url)
+
+        assert response.status_code == status.HTTP_404_NOT_FOUND, response.content
+        assert response.data == ERRORS.NOT_FOUND_ERROR
+
+    def test_delete_someone_elses_shopping_list(
+        self,
+        authenticated_api_client: APIClient,
+    ) -> None:
+        another_user = CustomUser.objects.create_user(
+            email="anotheruser@example.com",
+            password="anotherpassword",
         )
+        shopping_list_owned_by_another_user = create_shopping_list(user=another_user)
+
+        url = URLS.SHOPPING_LIST_DETAIL_URL.format(
+            pk=shopping_list_owned_by_another_user.pk
+        )
+
+        response = authenticated_api_client.delete(url)
+
+        assert response.status_code == status.HTTP_404_NOT_FOUND, response.content
+        assert response.data == ERRORS.NOT_FOUND_ERROR
+
+    def test_delete_shared_shopping_list(
+        self, authenticated_api_client: APIClient, user: CustomUser
+    ):
+        another_user = CustomUser.objects.create_user(
+            email="anotheruser@example.com",
+            password="anotherpassword",
+        )
+        shopping_list_owned_by_another_user = create_shopping_list(user=another_user)
+
+        shopping_list_owned_by_another_user.shared_with.add(user)
+
+        url = URLS.SHOPPING_LIST_DETAIL_URL.format(
+            pk=shopping_list_owned_by_another_user.pk
+        )
+
+        response = authenticated_api_client.delete(url)
+
+        assert response.status_code == status.HTTP_204_NO_CONTENT
+        assert ShoppingList.objects.filter(
+            pk=shopping_list_owned_by_another_user.pk
+        ).exists()
+        assert not shopping_list_owned_by_another_user.shared_with.filter(
+            pk=user.pk
+        ).exists()
 
 
 @pytest.mark.django_db
