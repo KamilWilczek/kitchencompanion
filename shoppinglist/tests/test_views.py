@@ -509,23 +509,72 @@ class TestShoppingListUnshareFromUserView:
             email="anotheruser@example.com",
             password="anotherpassword",
         )
+        authenticated_api_client.force_authenticate(user=another_user)
         shopping_list_owned_by_another_user = create_shopping_list(user=another_user)
 
         shopping_list_owned_by_another_user.shared_with.add(user)
 
-        url = URLS.SHOPPING_LIST_DELETE_URL.format(
-            pk=shopping_list_owned_by_another_user.pk
+        url = URLS.SHOPPING_LIST_UNSHARE_URL.format(
+            pk=shopping_list_owned_by_another_user.pk, user_pk=user.pk
         )
 
-        response = authenticated_api_client.delete(url)
+        response = authenticated_api_client.patch(url)
 
-        assert response.status_code == status.HTTP_204_NO_CONTENT
-        assert ShoppingList.objects.filter(
-            pk=shopping_list_owned_by_another_user.pk
-        ).exists()
-        assert not shopping_list_owned_by_another_user.shared_with.filter(
-            pk=user.pk
-        ).exists()
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data["detail"] == "Successfully unshared the shopping list."
+
+    def test_unshare_not_shared_shopping_list(
+        self, authenticated_api_client: APIClient, user: CustomUser
+    ):
+        another_user = CustomUser.objects.create_user(
+            email="anotheruser@example.com",
+            password="anotherpassword",
+        )
+        shopping_list = create_shopping_list(user=user)
+
+        url = URLS.SHOPPING_LIST_UNSHARE_URL.format(
+            pk=shopping_list.pk, user_pk=another_user.pk
+        )
+        response = authenticated_api_client.patch(url)
+
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+        assert (
+            response.data["detail"]
+            == "This list is not shared with the specified user."
+        )
+
+    def test_unshare_invalid_user(
+        self, authenticated_api_client: APIClient, user: CustomUser
+    ):
+        shopping_list = create_shopping_list(user=user)
+
+        invalid_user_id = 9999
+        url = URLS.SHOPPING_LIST_UNSHARE_URL.format(
+            pk=shopping_list.pk, user_pk=invalid_user_id
+        )
+        response = authenticated_api_client.patch(url)
+
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+        assert response.data["detail"] == "User not found."
+
+    def test_unshare_without_permission(
+        self, authenticated_api_client: APIClient, user: CustomUser
+    ):
+        another_user = CustomUser.objects.create_user(
+            email="anotheruser@example.com",
+            password="anotherpassword",
+        )
+        shopping_list = create_shopping_list(user=another_user)
+
+        url = URLS.SHOPPING_LIST_UNSHARE_URL.format(
+            pk=shopping_list.pk, user_pk=user.pk
+        )
+        response = authenticated_api_client.patch(url)
+
+        assert response.status_code == status.HTTP_403_FORBIDDEN
+        assert (
+            response.data["detail"] == "You don't have permission to unshare this list."
+        )
 
 
 @pytest.mark.django_db

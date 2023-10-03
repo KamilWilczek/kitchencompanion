@@ -136,20 +136,29 @@ class ShoppingListUnshareFromUserView(generics.UpdateAPIView):
 
     def update(self, request, *args, **kwargs):
         shopping_list = self.get_object()
+        user_id_to_unshare = kwargs.get("user_pk")
 
-        # Ensure that the current user is in the shared_with list
-        if request.user not in shopping_list.shared_with.all():
+        if shopping_list.user != request.user:
             return Response(
-                {"detail": "You are not a shared user of this list."},
+                {"detail": "You don't have permission to unshare this list."},
                 status=status.HTTP_403_FORBIDDEN,
             )
 
-        shopping_list.shared_with.remove(request.user)
+        try:
+            user_to_unshare = get_user_model().objects.get(pk=user_id_to_unshare)
+        except get_user_model().DoesNotExist:
+            return Response(
+                {"detail": "User not found."}, status=status.HTTP_400_BAD_REQUEST
+            )
 
-        return Response(
-            {"detail": "Successfully unshared the shopping list."},
-            status=status.HTTP_200_OK,
-        )
+        if user_to_unshare not in shopping_list.shared_with.all():
+            return Response(
+                {"detail": "This list is not shared with the specified user."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        shopping_list.shared_with.remove(user_to_unshare)
+        return Response({"detail": "Successfully unshared the shopping list."})
 
 
 class ItemCreateView(ShoppingItemMixin, generics.CreateAPIView):
