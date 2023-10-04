@@ -409,8 +409,8 @@ class TestShoppingListViewSet:
         url = URLS.SHOPPING_LIST_SHARE_URL.format(pk=shopping_list.pk)
         response = not_authenticated_api_client.put(url, data=data)
 
-        assert response.status_code == status.HTTP_401_UNAUTHORIZED
-        assert response.data == {"detail": ERRORS.UNAUTHORIZED}
+        assert response.status_code == status.HTTP_404_NOT_FOUND
+        assert response.data == ERRORS.NOT_FOUND_ERROR
 
     def test_unshare_shopping_list_from_user(
         self,
@@ -486,7 +486,7 @@ class TestShoppingListViewSet:
         url = URLS.SHOPPING_LIST_DETAIL_URL.format(pk=shopping_list.pk)
         response = authenticated_api_client.delete(url)
 
-        assert response.status_code == status.HTTP_204_NO_CONTENT
+        assert response.status_code == status.HTTP_204_NO_CONTENT, response.data
         assert not ShoppingList.objects.filter(pk=shopping_list.pk).exists()
 
     def test_delete_non_existent_shopping_list(

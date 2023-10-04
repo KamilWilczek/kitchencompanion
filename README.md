@@ -75,6 +75,7 @@
       - [ ] test sending mails
     - [ ] refactor ShoppingListShareView
       - [ ] too many operations that might be functions
+      - [x] Permissions
   - [ ] ...
 - [ ] Users module
   - [x] Add user creation UsersApp

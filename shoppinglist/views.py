@@ -12,29 +12,27 @@ from rest_framework.viewsets import ModelViewSet
 
 from .mixins import ShoppingItemMixin
 from .models import Item, ShoppingList
+from .permissions import IsOwnerOrSharedUser
 from .serializers import ItemSerializer, ShoppingListSerializer
 
 
 class ShoppingListViewSet(ModelViewSet):
+    permission_classes = [IsOwnerOrSharedUser]
     queryset = ShoppingList.objects.all()
     serializer_class = ShoppingListSerializer
 
     def get_queryset(self) -> QuerySet[ShoppingList]:
         user = self.request.user
-        return ShoppingList.objects.prefetch_related("items").filter(
-            Q(user=user) | Q(shared_with=user)
-        )
+        if user.is_authenticated:
+            return ShoppingList.objects.prefetch_related("items").filter(
+                Q(user=user) | Q(shared_with=user)
+            )
+        return ShoppingList.objects.none()
 
     @action(detail=True, methods=["put"])
     def share(self, request, pk: int = None):
         shopping_list = self.get_object()
         user_to_share_with_email = request.data.get("email")
-
-        if shopping_list.user != request.user:
-            return Response(
-                {"detail": "You don't have permission to share this list."},
-                status=status.HTTP_403_FORBIDDEN,
-            )
 
         if user_to_share_with_email == request.user.email:
             return Response(
@@ -75,12 +73,6 @@ class ShoppingListViewSet(ModelViewSet):
     def unshare(self, request: Request, pk: int = None, **kwargs: dict):
         shopping_list = self.get_object()
         user_id_to_unshare = kwargs.get("user_pk")
-
-        if shopping_list.user != request.user:
-            return Response(
-                {"detail": "You don't have permission to unshare this list."},
-                status=status.HTTP_403_FORBIDDEN,
-            )
 
         try:
             user_to_unshare = get_user_model().objects.get(pk=user_id_to_unshare)
