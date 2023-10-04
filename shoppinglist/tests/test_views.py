@@ -558,17 +558,18 @@ class TestShoppingListViewSet:
 
 
 @pytest.mark.django_db
-class TestItemCreateView:
+class TestItemViewSet:
     def test_add_new_item_to_shopping_list(
         self, authenticated_api_client: APIClient, shopping_list: ShoppingList
     ) -> None:
-        url = URLS.ITEM_URL.format(shopping_list_pk=shopping_list.pk)
+        url = URLS.ITEM_LIST_URL.format(shopping_list_pk=shopping_list.pk)
         data: Dict[str, Union[str, ItemCategory, ItemUnit, int]] = {
             "product": "Beef",
             "category": ItemCategory.MEAT,
             "quantity": 1,
             "unit": ItemUnit.KILOGRAM,
         }
+        print(url)
 
         response = authenticated_api_client.post(url, data=data)
 
@@ -603,7 +604,7 @@ class TestItemCreateView:
         invalid_data: Dict[str, Union[str, int]],
         expected_response: Dict[str, List[str]],
     ) -> None:
-        url = URLS.ITEM_URL.format(shopping_list_pk=shopping_list.pk)
+        url = URLS.ITEM_LIST_URL.format(shopping_list_pk=shopping_list.pk)
         response = authenticated_api_client.post(url, data=invalid_data)
         assert response.status_code == status.HTTP_400_BAD_REQUEST, response.content
         assert response.data == expected_response
@@ -612,7 +613,7 @@ class TestItemCreateView:
         self, authenticated_api_client: APIClient
     ) -> None:
         non_existent_shopping_list_pk = 1
-        url = URLS.ITEM_URL.format(shopping_list_pk=non_existent_shopping_list_pk)
+        url = URLS.ITEM_LIST_URL.format(shopping_list_pk=non_existent_shopping_list_pk)
         data: Dict[str, Union[str, ItemCategory, ItemUnit, int]] = {
             "product": "Beef",
             "category": ItemCategory.MEAT,
@@ -625,9 +626,6 @@ class TestItemCreateView:
         assert response.status_code == status.HTTP_404_NOT_FOUND, response.content
         assert response.data == ERRORS.SH_LIST_NOT_FOUND_ERROR
 
-
-@pytest.mark.django_db
-class TestItemUpdateView:
     def test_retrieve_item_by_pk_from_shopping_list(
         self, authenticated_api_client: APIClient, shopping_list: ShoppingList
     ) -> None:
@@ -717,14 +715,11 @@ class TestItemUpdateView:
         assert response.status_code == status.HTTP_404_NOT_FOUND, response.content
         assert response.data == ERRORS.NOT_FOUND_ERROR
 
-
-@pytest.mark.django_db
-class TestItemDeleteView:
     def test_delete_item_by_pk_from_shopping_list(
         self, authenticated_api_client: APIClient, shopping_list: ShoppingList
     ) -> None:
         shopping_list_item = create_item(shopping_list=shopping_list)
-        url = URLS.ITEM_DELETE_URL.format(
+        url = URLS.ITEM_DETAIL_URL.format(
             shopping_list_pk=shopping_list.pk, item_pk=shopping_list_item.pk
         )
 
@@ -739,7 +734,7 @@ class TestItemDeleteView:
         self, authenticated_api_client: APIClient, shopping_list: ShoppingList
     ) -> None:
         non_existing_item_pk = 1
-        url = URLS.ITEM_DELETE_URL.format(
+        url = URLS.ITEM_DETAIL_URL.format(
             shopping_list_pk=shopping_list.pk, item_pk=non_existing_item_pk
         )
 

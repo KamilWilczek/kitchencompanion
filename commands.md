@@ -35,3 +35,4 @@
 `python manage.py startapp users`
 `pip install python-decouple`
 `pip freeze > requirements.txt`
+`pip install drf-nested-routers`

@@ -3,8 +3,8 @@ from typing import Union
 from decouple import config
 from django.contrib.auth import get_user_model
 from django.core.mail import send_mail
-from django.db.models import Prefetch, Q, QuerySet
-from rest_framework import generics, status
+from django.db.models import Q, QuerySet
+from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.request import Request
 from rest_framework.response import Response
@@ -116,42 +116,22 @@ class ShoppingListViewSet(ModelViewSet):
         )
 
 
-class ItemCreateView(ShoppingItemMixin, generics.CreateAPIView):
+class ItemViewSet(ShoppingItemMixin, ModelViewSet):
     """
-    API view to add a new item to a specific shopping list.
+    API viewset for CRUD operations on a shopping list item.
     """
 
+    queryset = Item.objects.all()
     serializer_class: type[ItemSerializer] = ItemSerializer
+
+    def get_queryset(self) -> QuerySet[Item]:
+        return Item.objects.filter(shopping_list=self.get_shopping_list())
 
     def perform_create(self, serializer: ItemSerializer):
         shopping_list: ShoppingList = self.get_shopping_list()
         serializer.save(shopping_list=shopping_list)
 
-
-class ItemUpdateView(ShoppingItemMixin, generics.RetrieveUpdateAPIView):
-    """
-    API view to retrieve or update a specific item within a given shopping list.
-    """
-
-    serializer_class: type[ItemSerializer] = ItemSerializer
-
-    def get_queryset(self) -> QuerySet[Item]:
-        return Item.objects.filter(shopping_list=self.get_shopping_list())
-
-
-class ItemDeleteView(ShoppingItemMixin, generics.DestroyAPIView):
-    """
-    API view to delete a specific item from a given shopping list.
-    """
-
-    serializer_class: type[ItemSerializer] = ItemSerializer
-
-    def get_queryset(self) -> QuerySet[Item]:
-        return Item.objects.filter(shopping_list=self.get_shopping_list())
-
-    def delete(
-        self, request: Request, *args: Union[str, int], **kwargs: dict
-    ) -> Response:
+    def destroy(self, request, *args, **kwargs):
         instance: Item = self.get_object()
         self.perform_destroy(instance)
         return Response(
