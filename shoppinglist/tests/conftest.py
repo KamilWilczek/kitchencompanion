@@ -14,14 +14,14 @@ def not_authenticated_api_client() -> APIClient:
 
 
 @pytest.fixture
-def authenticated_api_client(user: CustomUser) -> APIClient:
+def authenticated_api_client(authenticated_user: CustomUser) -> APIClient:
     client = APIClient()
-    client.force_authenticate(user=user)
+    client.force_authenticate(user=authenticated_user)
     return client
 
 
 @pytest.fixture
-def user() -> CustomUser:
+def authenticated_user() -> CustomUser:
     return CustomUser.objects.create_user(
         email="testuser@example.com",
         password="testpassword",
@@ -29,15 +29,24 @@ def user() -> CustomUser:
 
 
 @pytest.fixture
-def test_user() -> CustomUser:
+def external_user() -> CustomUser:
     return CustomUser.objects.create_user(
-        email="testuser@gmail.com", password="testuserpassword"
+        email="externaluser@example.com",
+        password="externalpassword",
     )
 
 
 @pytest.fixture
-def shopping_list(user: CustomUser) -> ShoppingList:
-    return create_shopping_list(user=user)
+def third_user() -> CustomUser:
+    return CustomUser.objects.create_user(
+        email="thirduser@example.com",
+        password="thirdpassword",
+    )
+
+
+@pytest.fixture
+def shopping_list(authenticated_user: CustomUser) -> ShoppingList:
+    return create_shopping_list(user=authenticated_user)
 
 
 def create_shopping_list(

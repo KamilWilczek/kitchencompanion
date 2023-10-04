@@ -19,11 +19,11 @@ from .urls import URLS
 @pytest.mark.django_db
 class TestShoppingListViewSet:
     def test_all_shopping_lists_are_returned(
-        self, user: User, authenticated_api_client: APIClient
+        self, authenticated_user: User, authenticated_api_client: APIClient
     ) -> None:
-        create_shopping_list(name="Shopping List 1", user=user)
-        create_shopping_list(name="Shopping List 2", user=user)
-        create_shopping_list(name="Shopping List 3", user=user)
+        create_shopping_list(name="Shopping List 1", user=authenticated_user)
+        create_shopping_list(name="Shopping List 2", user=authenticated_user)
+        create_shopping_list(name="Shopping List 3", user=authenticated_user)
 
         response = authenticated_api_client.get(f"{URLS.SHOPPING_LIST_URL}/")
 
@@ -31,10 +31,14 @@ class TestShoppingListViewSet:
         assert len(response.data) == 3
 
     def test_items_count_returns_correct_number(
-        self, user: User, authenticated_api_client: APIClient
+        self, authenticated_user: User, authenticated_api_client: APIClient
     ) -> None:
-        shopping_list_1 = create_shopping_list(name="Shopping List 1", user=user)
-        shopping_list_2 = create_shopping_list(name="Shopping List 2", user=user)
+        shopping_list_1 = create_shopping_list(
+            name="Shopping List 1", user=authenticated_user
+        )
+        shopping_list_2 = create_shopping_list(
+            name="Shopping List 2", user=authenticated_user
+        )
         items_data_1: List[Dict[str, Union[str, ItemCategory]]] = [
             {"product": "Milk", "category": ItemCategory.DAIRY},
             {"product": "Bread", "category": ItemCategory.BREAD},
@@ -55,9 +59,9 @@ class TestShoppingListViewSet:
         assert response.data[1]["items_count"] == 2
 
     def test_items_count_with_no_items(
-        self, user: User, authenticated_api_client: APIClient
+        self, authenticated_user: User, authenticated_api_client: APIClient
     ) -> None:
-        create_shopping_list(name="Empty Shopping List", user=user)
+        create_shopping_list(name="Empty Shopping List", user=authenticated_user)
 
         response = authenticated_api_client.get(f"{URLS.SHOPPING_LIST_URL}/")
 
@@ -65,10 +69,14 @@ class TestShoppingListViewSet:
         assert response.data[0]["items_count"] == 0
 
     def test_database_queries_optimization(
-        self, user: User, authenticated_api_client: APIClient
+        self, authenticated_user: User, authenticated_api_client: APIClient
     ) -> None:
-        shopping_list_1 = create_shopping_list(name="Shopping List 1", user=user)
-        shopping_list_2 = create_shopping_list(name="Shopping List 2", user=user)
+        shopping_list_1 = create_shopping_list(
+            name="Shopping List 1", user=authenticated_user
+        )
+        shopping_list_2 = create_shopping_list(
+            name="Shopping List 2", user=authenticated_user
+        )
 
         items_data_1: List[Dict[str, Union[str, ItemCategory]]] = [
             {"product": "Milk", "category": ItemCategory.DAIRY},
@@ -94,10 +102,10 @@ class TestShoppingListViewSet:
             ), f"Expected {EXPECTED_NUMBER_OF_QUERIES} queries, but got {len(context)} queries"
 
     def test_create_shopping_list(
-        self, user: User, authenticated_api_client: APIClient
+        self, authenticated_user: User, authenticated_api_client: APIClient
     ) -> None:
         data: Dict[str, Union[int, str]] = {
-            "user": user.id,
+            "user": authenticated_user.id,
             "name": "Shopping List",
         }
 
@@ -110,10 +118,10 @@ class TestShoppingListViewSet:
         assert ShoppingList.objects.filter(name=data["name"]).exists()
 
     def test_create_shopping_list_missing_required_fields(
-        self, user: User, authenticated_api_client: APIClient
+        self, authenticated_user: User, authenticated_api_client: APIClient
     ) -> None:
         data: Dict[str, Union[int, str]] = {
-            "user": user.id,
+            "user": authenticated_user.id,
             "description": "Groceries",
         }
 
@@ -155,10 +163,10 @@ class TestShoppingListViewSet:
         assert response.data == expected_response
 
     def test_create_unique_shopping_list_multiple_times(
-        self, user: User, authenticated_api_client: APIClient
+        self, authenticated_user: User, authenticated_api_client: APIClient
     ) -> None:
         data: Dict[str, Union[int, str]] = {
-            "user": user.id,
+            "user": authenticated_user.id,
             "name": "Shopping List",
         }
 
@@ -184,14 +192,9 @@ class TestShoppingListViewSet:
         assert response.data["name"] == shopping_list.name
 
     def test_retrieve_someone_elses_shopping_list(
-        self,
-        authenticated_api_client: APIClient,
+        self, authenticated_api_client: APIClient, external_user: CustomUser
     ) -> None:
-        another_user = CustomUser.objects.create_user(
-            email="anotheruser@example.com",
-            password="anotherpassword",
-        )
-        shopping_list_owned_by_another_user = create_shopping_list(user=another_user)
+        shopping_list_owned_by_another_user = create_shopping_list(user=external_user)
 
         url = URLS.SHOPPING_LIST_DETAIL_URL.format(
             pk=shopping_list_owned_by_another_user.pk
@@ -203,14 +206,13 @@ class TestShoppingListViewSet:
         assert response.data == ERRORS.NOT_FOUND_ERROR
 
     def test_retrieve_shared_shopping_list(
-        self, authenticated_api_client: APIClient, user: User
+        self,
+        authenticated_api_client: APIClient,
+        authenticated_user: CustomUser,
+        external_user: CustomUser,
     ) -> None:
-        another_user = CustomUser.objects.create_user(
-            email="anotheruser@example.com",
-            password="anotherpassword",
-        )
-        shopping_list_owned_by_another_user = create_shopping_list(user=another_user)
-        shopping_list_owned_by_another_user.shared_with.add(user)
+        shopping_list_owned_by_another_user = create_shopping_list(user=external_user)
+        shopping_list_owned_by_another_user.shared_with.add(authenticated_user)
 
         url = URLS.SHOPPING_LIST_DETAIL_URL.format(
             pk=shopping_list_owned_by_another_user.pk
@@ -235,14 +237,9 @@ class TestShoppingListViewSet:
         assert response.data["name"] == data["name"]
 
     def test_update_someone_elses_shopping_list(
-        self,
-        authenticated_api_client: APIClient,
+        self, authenticated_api_client: APIClient, external_user: CustomUser
     ) -> None:
-        another_user = CustomUser.objects.create_user(
-            email="anotheruser@example.com",
-            password="anotherpassword",
-        )
-        shopping_list_owned_by_another_user = create_shopping_list(user=another_user)
+        shopping_list_owned_by_another_user = create_shopping_list(user=external_user)
         data: Dict[str, str] = {
             "name": "Test List",
         }
@@ -257,14 +254,13 @@ class TestShoppingListViewSet:
         assert response.data == ERRORS.NOT_FOUND_ERROR
 
     def test_update_shared_shopping_list(
-        self, authenticated_api_client: APIClient, user: User
+        self,
+        authenticated_api_client: APIClient,
+        authenticated_user: CustomUser,
+        external_user: CustomUser,
     ) -> None:
-        another_user = CustomUser.objects.create_user(
-            email="anotheruser@example.com",
-            password="anotherpassword",
-        )
-        shopping_list_owned_by_another_user = create_shopping_list(user=another_user)
-        shopping_list_owned_by_another_user.shared_with.add(user)
+        shopping_list_owned_by_another_user = create_shopping_list(user=external_user)
+        shopping_list_owned_by_another_user.shared_with.add(authenticated_user)
         data: Dict[str, str] = {
             "name": "Test List",
         }
@@ -322,9 +318,9 @@ class TestShoppingListViewSet:
         self,
         authenticated_api_client: APIClient,
         shopping_list: ShoppingList,
-        test_user: CustomUser,
+        external_user: CustomUser,
     ) -> None:
-        email_shared_with = test_user.email
+        email_shared_with = external_user.email
         data = {"email": email_shared_with}
         url = URLS.SHOPPING_LIST_SHARE_URL.format(pk=shopping_list.pk)
         response = authenticated_api_client.put(url, data=data)
@@ -349,9 +345,9 @@ class TestShoppingListViewSet:
         self,
         authenticated_api_client: APIClient,
         shopping_list: ShoppingList,
-        user: CustomUser,
+        authenticated_user: CustomUser,
     ) -> None:
-        email_shared_with = user.email
+        email_shared_with = authenticated_user.email
         data = {"email": email_shared_with}
         url = URLS.SHOPPING_LIST_SHARE_URL.format(pk=shopping_list.pk)
         response = authenticated_api_client.put(url, data=data)
@@ -363,9 +359,9 @@ class TestShoppingListViewSet:
         self,
         authenticated_api_client: APIClient,
         shopping_list: ShoppingList,
-        test_user: CustomUser,
+        external_user: CustomUser,
     ) -> None:
-        email_shared_with = test_user.email
+        email_shared_with = external_user.email
         data = {"email": email_shared_with}
         url = URLS.SHOPPING_LIST_SHARE_URL.format(pk=shopping_list.pk)
 
@@ -386,18 +382,15 @@ class TestShoppingListViewSet:
     def test_share_someone_elses_shopping_list(
         self,
         authenticated_api_client: APIClient,
-        test_user: CustomUser,
+        third_user: CustomUser,
+        external_user: CustomUser,
     ) -> None:
-        another_user = CustomUser.objects.create_user(
-            email="anotheruser@example.com",
-            password="anotherpassword",
-        )
-        shopping_list_owned_by_another_user = create_shopping_list(user=another_user)
+        shopping_list_owned_by_external_user = create_shopping_list(user=external_user)
 
-        email_shared_with = test_user.email
+        email_shared_with = third_user.email
         data = {"email": email_shared_with}
         url = URLS.SHOPPING_LIST_SHARE_URL.format(
-            pk=shopping_list_owned_by_another_user.pk
+            pk=shopping_list_owned_by_external_user.pk
         )
 
         response = authenticated_api_client.put(url, data=data)
@@ -409,9 +402,9 @@ class TestShoppingListViewSet:
         self,
         not_authenticated_api_client: APIClient,
         shopping_list: ShoppingList,
-        test_user: CustomUser,
+        external_user: CustomUser,
     ) -> None:
-        email_shared_with = test_user.email
+        email_shared_with = external_user.email
         data = {"email": email_shared_with}
         url = URLS.SHOPPING_LIST_SHARE_URL.format(pk=shopping_list.pk)
         response = not_authenticated_api_client.put(url, data=data)
@@ -420,38 +413,34 @@ class TestShoppingListViewSet:
         assert response.data == {"detail": ERRORS.UNAUTHORIZED}
 
     def test_unshare_shopping_list_from_user(
-        self, authenticated_api_client: APIClient, user: CustomUser
+        self,
+        authenticated_api_client: APIClient,
+        authenticated_user: CustomUser,
+        external_user: CustomUser,
     ):
-        another_user = CustomUser.objects.create_user(
-            email="anotheruser@example.com",
-            password="anotherpassword",
-        )
-        print(another_user.pk)
-        authenticated_api_client.force_authenticate(user=another_user)
-        shopping_list_owned_by_another_user = create_shopping_list(user=another_user)
+        authenticated_api_client.force_authenticate(user=external_user)
+        shopping_list_owned_by_another_user = create_shopping_list(user=external_user)
 
-        shopping_list_owned_by_another_user.shared_with.add(user)
+        shopping_list_owned_by_another_user.shared_with.add(authenticated_user)
 
         url = URLS.SHOPPING_LIST_UNSHARE_URL.format(
-            pk=shopping_list_owned_by_another_user.pk, user_pk=user.pk
+            pk=shopping_list_owned_by_another_user.pk, user_pk=authenticated_user.pk
         )
-        print("url", url)
         response = authenticated_api_client.patch(url)
 
         assert response.status_code == status.HTTP_200_OK
         assert response.data["detail"] == "Successfully unshared the shopping list."
 
     def test_unshare_not_shared_shopping_list(
-        self, authenticated_api_client: APIClient, user: CustomUser
+        self,
+        authenticated_api_client: APIClient,
+        authenticated_user: CustomUser,
+        external_user: CustomUser,
     ):
-        another_user = CustomUser.objects.create_user(
-            email="anotheruser@example.com",
-            password="anotherpassword",
-        )
-        shopping_list = create_shopping_list(user=user)
+        shopping_list = create_shopping_list(user=authenticated_user)
 
         url = URLS.SHOPPING_LIST_UNSHARE_URL.format(
-            pk=shopping_list.pk, user_pk=another_user.pk
+            pk=shopping_list.pk, user_pk=external_user.pk
         )
         response = authenticated_api_client.patch(url)
 
@@ -462,9 +451,9 @@ class TestShoppingListViewSet:
         )
 
     def test_unshare_invalid_user(
-        self, authenticated_api_client: APIClient, user: CustomUser
+        self, authenticated_api_client: APIClient, authenticated_user: CustomUser
     ):
-        shopping_list = create_shopping_list(user=user)
+        shopping_list = create_shopping_list(user=authenticated_user)
 
         invalid_user_id = 9999
         url = URLS.SHOPPING_LIST_UNSHARE_URL.format(
@@ -476,16 +465,15 @@ class TestShoppingListViewSet:
         assert response.data["detail"] == "User not found."
 
     def test_unshare_without_permission(
-        self, authenticated_api_client: APIClient, user: CustomUser
+        self,
+        authenticated_api_client: APIClient,
+        authenticated_user: CustomUser,
+        external_user: CustomUser,
     ):
-        another_user = CustomUser.objects.create_user(
-            email="anotheruser@example.com",
-            password="anotherpassword",
-        )
-        shopping_list = create_shopping_list(user=another_user)
+        shopping_list = create_shopping_list(user=external_user)
 
         url = URLS.SHOPPING_LIST_UNSHARE_URL.format(
-            pk=shopping_list.pk, user_pk=user.pk
+            pk=shopping_list.pk, user_pk=authenticated_user.pk
         )
         response = authenticated_api_client.patch(url)
 
@@ -513,14 +501,9 @@ class TestShoppingListViewSet:
         assert response.data == ERRORS.NOT_FOUND_ERROR
 
     def test_delete_someone_elses_shopping_list(
-        self,
-        authenticated_api_client: APIClient,
+        self, authenticated_api_client: APIClient, external_user: CustomUser
     ) -> None:
-        another_user = CustomUser.objects.create_user(
-            email="anotheruser@example.com",
-            password="anotherpassword",
-        )
-        shopping_list_owned_by_another_user = create_shopping_list(user=another_user)
+        shopping_list_owned_by_another_user = create_shopping_list(user=external_user)
 
         url = URLS.SHOPPING_LIST_DETAIL_URL.format(
             pk=shopping_list_owned_by_another_user.pk
@@ -532,15 +515,14 @@ class TestShoppingListViewSet:
         assert response.data == ERRORS.NOT_FOUND_ERROR
 
     def test_delete_shared_shopping_list(
-        self, authenticated_api_client: APIClient, user: CustomUser
+        self,
+        authenticated_api_client: APIClient,
+        authenticated_user: CustomUser,
+        external_user: CustomUser,
     ):
-        another_user = CustomUser.objects.create_user(
-            email="anotheruser@example.com",
-            password="anotherpassword",
-        )
-        shopping_list_owned_by_another_user = create_shopping_list(user=another_user)
+        shopping_list_owned_by_another_user = create_shopping_list(user=external_user)
 
-        shopping_list_owned_by_another_user.shared_with.add(user)
+        shopping_list_owned_by_another_user.shared_with.add(authenticated_user)
 
         url = URLS.SHOPPING_LIST_DETAIL_URL.format(
             pk=shopping_list_owned_by_another_user.pk
@@ -553,7 +535,7 @@ class TestShoppingListViewSet:
             pk=shopping_list_owned_by_another_user.pk
         ).exists()
         assert not shopping_list_owned_by_another_user.shared_with.filter(
-            pk=user.pk
+            pk=authenticated_user.pk
         ).exists()
 
 
