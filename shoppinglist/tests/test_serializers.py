@@ -1,21 +1,23 @@
 from typing import Dict, List, Union
 
 import pytest
-from django.contrib.auth.models import User
 
+from conftest import create_item
 from shoppinglist.constants import ItemCategory, ItemUnit
 from shoppinglist.models import ShoppingList
 from shoppinglist.serializers import ItemSerializer, ShoppingListSerializer
+from users.models import CustomUser
 
-from .conftest import create_item
 from .error_messages import ERRORS
 
 
 class TestShoppingListSerializer:
     @pytest.mark.django_db
-    def test_shopping_list_serializer_valid_data(self, user: User) -> None:
-        data: Dict[str, Union[User, str, bool, int]] = {
-            "user": user.id,
+    def test_shopping_list_serializer_valid_data(
+        self, authenticated_user: CustomUser
+    ) -> None:
+        data: Dict[str, Union[CustomUser, str, bool, int]] = {
+            "user": authenticated_user.id,
             "name": "Test Shopping List",
             "description": "This is test shopping list",
             "completed": False,

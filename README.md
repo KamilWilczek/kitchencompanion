@@ -67,9 +67,9 @@
   - [ ] Sharing shopping lists
     - [x] view
     - [x] tests
-      - [ ] maybe add more assertions
-      - [ ] types
-      - [ ] refactor, error_messages
+      - [x] maybe add more assertions
+      - [x] types
+      - [x] refactor, error_messages
     - [ ] types
     - [ ] extract sending mail logic
       - [ ] test sending mails
@@ -84,7 +84,9 @@
   - [x] User serializer
   - [x] Authentication views
   - [x] urls
-  - [ ] deleting acc
+  - [x] deleting acc
+  - [ ] tests
+  - [ ] types
 - [x] Typing
 - [ ] Refactor views.py
   - [x] Class based views

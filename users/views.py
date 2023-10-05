@@ -1,4 +1,6 @@
 from django.contrib.auth import get_user_model
+from django.contrib.sessions.models import Session
+from django.utils import timezone
 from rest_framework import generics, status
 from rest_framework.authtoken.models import Token
 from rest_framework.permissions import AllowAny
@@ -30,3 +32,23 @@ class LogoutView(APIView):
     def post(self, request):
         request.auth.delete()
         return Response(status=status.HTTP_200_OK)
+
+
+class DeleteAccountView(generics.DestroyAPIView):
+    queryset = get_user_model().objects.all()
+
+    def destroy(self, request, *args, **kwargs):
+        user = request.user
+
+        # Revoke token
+        Token.objects.filter(user=user).delete()
+
+        # Invalidate sessions
+        for session in Session.objects.filter(expire_date__gte=timezone.now()):
+            if session.get_decoded().get("_auth_user_id") == str(user.id):
+                session.delete()
+
+        # Finally, delete the user account
+        user.delete()
+
+        return Response(status=status.HTTP_204_NO_CONTENT)

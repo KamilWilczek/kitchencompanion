@@ -2,20 +2,22 @@ import pytest
 from django.core.exceptions import ValidationError
 from freezegun import freeze_time
 
+from conftest import create_item, create_multiple_items, create_shopping_list
 from shoppinglist.constants import ItemCategory, ItemUnit
 from shoppinglist.models import Item, ShoppingList
-
-from .conftest import create_item, create_multiple_items, create_shopping_list
+from users.models import CustomUser
 
 
 @pytest.mark.django_db
 class TestShoppingList:
-    def test_user_foreignkey_in_shoppinglist(self, user):
-        shopping_list_with_user = create_shopping_list(user=user, name="List with user")
-        assert shopping_list_with_user.user == user
+    def test_user_foreignkey_in_shoppinglist(self, authenticated_user: CustomUser):
+        shopping_list_with_user = create_shopping_list(
+            user=authenticated_user, name="List with user"
+        )
+        assert shopping_list_with_user.user == authenticated_user
 
-        user_id = user.id
-        user.delete()
+        user_id = authenticated_user.id
+        authenticated_user.delete()
 
         with pytest.raises(ShoppingList.DoesNotExist):
             ShoppingList.objects.get(user_id=user_id)

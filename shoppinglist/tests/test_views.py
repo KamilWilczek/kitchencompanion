@@ -1,17 +1,16 @@
 from typing import Dict, List, Union
 
 import pytest
-from django.contrib.auth.models import User
 from django.db import connections
 from django.test.utils import CaptureQueriesContext
 from rest_framework import status
 from rest_framework.test import APIClient
 
+from conftest import create_item, create_multiple_items, create_shopping_list
 from shoppinglist.constants import ItemCategory, ItemUnit
 from shoppinglist.models import ShoppingList
 from users.models import CustomUser
 
-from .conftest import create_item, create_multiple_items, create_shopping_list
 from .error_messages import ERRORS
 from .urls import URLS
 
@@ -19,7 +18,7 @@ from .urls import URLS
 @pytest.mark.django_db
 class TestShoppingListViewSet:
     def test_all_shopping_lists_are_returned(
-        self, authenticated_user: User, authenticated_api_client: APIClient
+        self, authenticated_user: CustomUser, authenticated_api_client: APIClient
     ) -> None:
         create_shopping_list(name="Shopping List 1", user=authenticated_user)
         create_shopping_list(name="Shopping List 2", user=authenticated_user)
@@ -31,7 +30,7 @@ class TestShoppingListViewSet:
         assert len(response.data) == 3
 
     def test_items_count_returns_correct_number(
-        self, authenticated_user: User, authenticated_api_client: APIClient
+        self, authenticated_user: CustomUser, authenticated_api_client: APIClient
     ) -> None:
         shopping_list_1 = create_shopping_list(
             name="Shopping List 1", user=authenticated_user
@@ -59,7 +58,7 @@ class TestShoppingListViewSet:
         assert response.data[1]["items_count"] == 2
 
     def test_items_count_with_no_items(
-        self, authenticated_user: User, authenticated_api_client: APIClient
+        self, authenticated_user: CustomUser, authenticated_api_client: APIClient
     ) -> None:
         create_shopping_list(name="Empty Shopping List", user=authenticated_user)
 
@@ -69,7 +68,7 @@ class TestShoppingListViewSet:
         assert response.data[0]["items_count"] == 0
 
     def test_database_queries_optimization(
-        self, authenticated_user: User, authenticated_api_client: APIClient
+        self, authenticated_user: CustomUser, authenticated_api_client: APIClient
     ) -> None:
         shopping_list_1 = create_shopping_list(
             name="Shopping List 1", user=authenticated_user
@@ -102,7 +101,7 @@ class TestShoppingListViewSet:
             ), f"Expected {EXPECTED_NUMBER_OF_QUERIES} queries, but got {len(context)} queries"
 
     def test_create_shopping_list(
-        self, authenticated_user: User, authenticated_api_client: APIClient
+        self, authenticated_user: CustomUser, authenticated_api_client: APIClient
     ) -> None:
         data: Dict[str, Union[int, str]] = {
             "user": authenticated_user.id,
@@ -118,7 +117,7 @@ class TestShoppingListViewSet:
         assert ShoppingList.objects.filter(name=data["name"]).exists()
 
     def test_create_shopping_list_missing_required_fields(
-        self, authenticated_user: User, authenticated_api_client: APIClient
+        self, authenticated_user: CustomUser, authenticated_api_client: APIClient
     ) -> None:
         data: Dict[str, Union[int, str]] = {
             "user": authenticated_user.id,
@@ -163,7 +162,7 @@ class TestShoppingListViewSet:
         assert response.data == expected_response
 
     def test_create_unique_shopping_list_multiple_times(
-        self, authenticated_user: User, authenticated_api_client: APIClient
+        self, authenticated_user: CustomUser, authenticated_api_client: APIClient
     ) -> None:
         data: Dict[str, Union[int, str]] = {
             "user": authenticated_user.id,
