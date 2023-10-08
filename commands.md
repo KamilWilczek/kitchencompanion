@@ -36,3 +36,16 @@
 `pip install python-decouple`
 `pip freeze > requirements.txt`
 `pip install drf-nested-routers`
+
+<!-- Windows -->
+
+`Invoke-WebRequest -Uri https://install.python-poetry.org -OutFile get-poetry.py python get-poetry.py`
+
+<!-- Linux/Mac -->
+
+`curl -sSL https://install.python-poetry.org | bash`
+
+`poetry --version`
+`poetry init`
+`poetry add <package-name>`
+`poetry install`
