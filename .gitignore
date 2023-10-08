@@ -223,4 +223,7 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
+# My files
+tmp.txt
+
 # End of https://www.toptal.com/developers/gitignore/api/django,windows,visualstudiocode
