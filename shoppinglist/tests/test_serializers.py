@@ -1,4 +1,4 @@
-from typing import Dict, List, Union
+from typing import Dict, List
 
 import pytest
 
@@ -16,7 +16,7 @@ class TestShoppingListSerializer:
     def test_shopping_list_serializer_valid_data(
         self, authenticated_user: CustomUser
     ) -> None:
-        data: Dict[str, Union[CustomUser, str, bool, int]] = {
+        data: Dict[str, CustomUser | str | bool | int] = {
             "user": authenticated_user.id,
             "name": "Test Shopping List",
             "description": "This is test shopping list",
@@ -75,7 +75,7 @@ class TestShoppingListSerializer:
 
 class TestItemSerializer:
     def test_item_serializer_valid_data(self) -> None:
-        data: Dict[str, Union[str, int, ItemUnit, ItemCategory, bool]] = {
+        data: Dict[str, str | int | ItemUnit | ItemCategory | bool] = {
             "product": "Test Product",
             "quantity": 2,
             "unit": ItemUnit.KILOGRAM,
@@ -109,7 +109,7 @@ class TestItemSerializer:
     )
     def test_item_serializer_invalid_data(
         self,
-        invalid_data: Dict[str, Union[str, int]],
+        invalid_data: Dict[str, str | int],
         expected_errors: Dict[str, List[str]],
     ) -> None:
         serializer = ItemSerializer(data=invalid_data)

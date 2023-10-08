@@ -1,5 +1,3 @@
-from typing import Union
-
 from decouple import config
 from django.contrib.auth import get_user_model
 from django.core.mail import send_mail
@@ -30,7 +28,7 @@ class ShoppingListViewSet(ModelViewSet):
         return ShoppingList.objects.none()
 
     @action(detail=True, methods=["put"])
-    def share(self, request, pk: int = None):
+    def share(self, request, pk: int | None = None):
         shopping_list = self.get_object()
         user_to_share_with_email = request.data.get("email")
 
@@ -70,9 +68,14 @@ class ShoppingListViewSet(ModelViewSet):
         return Response({"detail": "Shopping list shared successfully."})
 
     @action(detail=True, methods=["patch"], url_path="unshare/(?P<user_pk>[^/.]+)")
-    def unshare(self, request: Request, pk: int = None, **kwargs: dict):
+    def unshare(self, request: Request, pk: int | None = None, **kwargs: str | int):
         shopping_list = self.get_object()
         user_id_to_unshare = kwargs.get("user_pk")
+
+        if user_id_to_unshare is None:
+            return Response(
+                {"detail": "Invalid user ID."}, status=status.HTTP_400_BAD_REQUEST
+            )
 
         try:
             user_to_unshare = get_user_model().objects.get(pk=user_id_to_unshare)
@@ -90,9 +93,7 @@ class ShoppingListViewSet(ModelViewSet):
         shopping_list.shared_with.remove(user_to_unshare)
         return Response({"detail": "Successfully unshared the shopping list."})
 
-    def destroy(
-        self, request: Request, *args: Union[str, int], **kwargs: dict
-    ) -> Response:
+    def destroy(self, request: Request, *args: str | int, **kwargs: dict) -> Response:
         shopping_list: ShoppingList = self.get_object()
 
         if shopping_list.user == request.user:
@@ -123,7 +124,7 @@ class ItemViewSet(ShoppingItemMixin, ModelViewSet):
         shopping_list: ShoppingList = self.get_shopping_list()
         serializer.save(shopping_list=shopping_list)
 
-    def destroy(self, request, *args, **kwargs):
+    def destroy(self, request: Request, *args: str | int, **kwargs: dict):
         instance: Item = self.get_object()
         self.perform_destroy(instance)
         return Response(

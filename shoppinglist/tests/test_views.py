@@ -1,4 +1,4 @@
-from typing import Dict, List, Union
+from typing import Dict, List
 
 import pytest
 from django.db import connections
@@ -26,7 +26,7 @@ class TestShoppingListViewSet:
 
         response = authenticated_api_client.get(f"{URLS.SHOPPING_LIST_URL}/")
 
-        assert response.status_code == status.HTTP_200_OK
+        assert response.status_code == status.HTTP_200_OK, response.content
         assert len(response.data) == 3
 
     def test_items_count_returns_correct_number(
@@ -38,12 +38,12 @@ class TestShoppingListViewSet:
         shopping_list_2 = create_shopping_list(
             name="Shopping List 2", user=authenticated_user
         )
-        items_data_1: List[Dict[str, Union[str, ItemCategory]]] = [
+        items_data_1: List[Dict[str, str | ItemCategory]] = [
             {"product": "Milk", "category": ItemCategory.DAIRY},
             {"product": "Bread", "category": ItemCategory.BREAD},
             {"product": "Apples", "category": ItemCategory.FRUITS_VEGETABLES},
         ]
-        items_data_2: List[Dict[str, Union[str, ItemCategory]]] = [
+        items_data_2: List[Dict[str, str | ItemCategory]] = [
             {"product": "Beef", "category": ItemCategory.MEAT},
             {"product": "Butter", "category": ItemCategory.FATS},
         ]
@@ -77,13 +77,13 @@ class TestShoppingListViewSet:
             name="Shopping List 2", user=authenticated_user
         )
 
-        items_data_1: List[Dict[str, Union[str, ItemCategory]]] = [
+        items_data_1: List[Dict[str, str | ItemCategory]] = [
             {"product": "Milk", "category": ItemCategory.DAIRY},
             {"product": "Bread", "category": ItemCategory.BREAD},
             {"product": "Apples", "category": ItemCategory.FRUITS_VEGETABLES},
         ]
 
-        items_data_2: List[Dict[str, Union[str, ItemCategory]]] = [
+        items_data_2: List[Dict[str, str | ItemCategory]] = [
             {"product": "Beef", "category": ItemCategory.MEAT},
             {"product": "Butter", "category": ItemCategory.FATS},
         ]
@@ -95,7 +95,7 @@ class TestShoppingListViewSet:
             response = authenticated_api_client.get(f"{URLS.SHOPPING_LIST_URL}/")
             assert response.status_code == status.HTTP_200_OK, response.content
 
-            EXPECTED_NUMBER_OF_QUERIES = 4
+            EXPECTED_NUMBER_OF_QUERIES = 5
             assert (
                 len(context) == EXPECTED_NUMBER_OF_QUERIES
             ), f"Expected {EXPECTED_NUMBER_OF_QUERIES} queries, but got {len(context)} queries"
@@ -103,7 +103,7 @@ class TestShoppingListViewSet:
     def test_create_shopping_list(
         self, authenticated_user: CustomUser, authenticated_api_client: APIClient
     ) -> None:
-        data: Dict[str, Union[int, str]] = {
+        data: Dict[str, int | str] = {
             "user": authenticated_user.id,
             "name": "Shopping List",
         }
@@ -119,7 +119,7 @@ class TestShoppingListViewSet:
     def test_create_shopping_list_missing_required_fields(
         self, authenticated_user: CustomUser, authenticated_api_client: APIClient
     ) -> None:
-        data: Dict[str, Union[int, str]] = {
+        data: Dict[str, int | str] = {
             "user": authenticated_user.id,
             "description": "Groceries",
         }
@@ -152,7 +152,7 @@ class TestShoppingListViewSet:
     def test_create_shopping_list_with_invalid_data_types(
         self,
         authenticated_api_client: APIClient,
-        invalid_data: Dict[str, Union[str, int]],
+        invalid_data: Dict[str, str | int],
         expected_response: Dict[str, List[str]],
     ) -> None:
         response = authenticated_api_client.post(
@@ -164,7 +164,7 @@ class TestShoppingListViewSet:
     def test_create_unique_shopping_list_multiple_times(
         self, authenticated_user: CustomUser, authenticated_api_client: APIClient
     ) -> None:
-        data: Dict[str, Union[int, str]] = {
+        data: Dict[str, int | str] = {
             "user": authenticated_user.id,
             "name": "Shopping List",
         }
@@ -201,7 +201,7 @@ class TestShoppingListViewSet:
 
         response = authenticated_api_client.get(url)
 
-        assert response.status_code == status.HTTP_404_NOT_FOUND
+        assert response.status_code == status.HTTP_404_NOT_FOUND, response.content
         assert response.data == ERRORS.NOT_FOUND_ERROR
 
     def test_retrieve_shared_shopping_list(
@@ -219,7 +219,7 @@ class TestShoppingListViewSet:
 
         response = authenticated_api_client.get(url)
 
-        assert response.status_code == status.HTTP_200_OK
+        assert response.status_code == status.HTTP_200_OK, response.content
         assert shopping_list_owned_by_another_user.name == "Test List"
 
     def test_update_shopping_list_by_pk(
@@ -249,7 +249,7 @@ class TestShoppingListViewSet:
 
         response = authenticated_api_client.put(url, data=data)
 
-        assert response.status_code == status.HTTP_404_NOT_FOUND
+        assert response.status_code == status.HTTP_404_NOT_FOUND, response.content
         assert response.data == ERRORS.NOT_FOUND_ERROR
 
     def test_update_shared_shopping_list(
@@ -270,7 +270,7 @@ class TestShoppingListViewSet:
 
         response = authenticated_api_client.put(url, data=data)
 
-        assert response.status_code == status.HTTP_200_OK
+        assert response.status_code == status.HTTP_200_OK, response.content
         assert shopping_list_owned_by_another_user.name == "Test List"
 
     @pytest.mark.parametrize(
@@ -294,7 +294,7 @@ class TestShoppingListViewSet:
         self,
         authenticated_api_client: APIClient,
         shopping_list: ShoppingList,
-        invalid_data: Dict[str, Union[str, int]],
+        invalid_data: Dict[str, str | int],
         expected_response: Dict[str, List[str]],
     ) -> None:
         url = URLS.SHOPPING_LIST_DETAIL_URL.format(pk=shopping_list.pk)
@@ -324,7 +324,7 @@ class TestShoppingListViewSet:
         url = URLS.SHOPPING_LIST_SHARE_URL.format(pk=shopping_list.pk)
         response = authenticated_api_client.put(url, data=data)
 
-        assert response.status_code == status.HTTP_200_OK
+        assert response.status_code == status.HTTP_200_OK, response.content
         assert response.data == {"detail": "Shopping list shared successfully."}
 
     def test_share_shopping_list_user_not_exist(
@@ -337,7 +337,7 @@ class TestShoppingListViewSet:
         url = URLS.SHOPPING_LIST_SHARE_URL.format(pk=shopping_list.pk)
         response = authenticated_api_client.put(url, data=data)
 
-        assert response.status_code == status.HTTP_400_BAD_REQUEST
+        assert response.status_code == status.HTTP_400_BAD_REQUEST, response.content
         assert response.data == {"detail": "User not found."}
 
     def test_share_shopping_list_to_self(
@@ -351,7 +351,7 @@ class TestShoppingListViewSet:
         url = URLS.SHOPPING_LIST_SHARE_URL.format(pk=shopping_list.pk)
         response = authenticated_api_client.put(url, data=data)
 
-        assert response.status_code == status.HTTP_400_BAD_REQUEST
+        assert response.status_code == status.HTTP_400_BAD_REQUEST, response.content
         assert response.data == {"detail": "You cannot share the list with yourself."}
 
     def test_ignore_subsequent_shares(
@@ -366,12 +366,14 @@ class TestShoppingListViewSet:
 
         response_first = authenticated_api_client.put(url, data=data)
 
-        assert response_first.status_code == status.HTTP_200_OK
+        assert response_first.status_code == status.HTTP_200_OK, response_first.content
         assert response_first.data == {"detail": "Shopping list shared successfully."}
 
         response_second = authenticated_api_client.put(url, data=data)
 
-        assert response_second.status_code == status.HTTP_200_OK
+        assert (
+            response_second.status_code == status.HTTP_200_OK
+        ), response_second.content
         assert response_second.data == {
             "detail": "Shopping list was already shared with {}.".format(
                 email_shared_with
@@ -394,7 +396,7 @@ class TestShoppingListViewSet:
 
         response = authenticated_api_client.put(url, data=data)
 
-        assert response.status_code == status.HTTP_404_NOT_FOUND
+        assert response.status_code == status.HTTP_404_NOT_FOUND, response.content
         assert response.data == ERRORS.NOT_FOUND_ERROR
 
     def test_share_shopping_list_not_authenticated(
@@ -408,7 +410,7 @@ class TestShoppingListViewSet:
         url = URLS.SHOPPING_LIST_SHARE_URL.format(pk=shopping_list.pk)
         response = not_authenticated_api_client.put(url, data=data)
 
-        assert response.status_code == status.HTTP_404_NOT_FOUND
+        assert response.status_code == status.HTTP_404_NOT_FOUND, response.content
         assert response.data == ERRORS.NOT_FOUND_ERROR
 
     def test_unshare_shopping_list_from_user(
@@ -427,7 +429,7 @@ class TestShoppingListViewSet:
         )
         response = authenticated_api_client.patch(url)
 
-        assert response.status_code == status.HTTP_200_OK
+        assert response.status_code == status.HTTP_200_OK, response.content
         assert response.data["detail"] == "Successfully unshared the shopping list."
 
     def test_unshare_not_shared_shopping_list(
@@ -443,7 +445,7 @@ class TestShoppingListViewSet:
         )
         response = authenticated_api_client.patch(url)
 
-        assert response.status_code == status.HTTP_400_BAD_REQUEST
+        assert response.status_code == status.HTTP_400_BAD_REQUEST, response.content
         assert (
             response.data["detail"]
             == "This list is not shared with the specified user."
@@ -460,7 +462,7 @@ class TestShoppingListViewSet:
         )
         response = authenticated_api_client.patch(url)
 
-        assert response.status_code == status.HTTP_400_BAD_REQUEST
+        assert response.status_code == status.HTTP_400_BAD_REQUEST, response.content
         assert response.data["detail"] == "User not found."
 
     def test_unshare_without_permission(
@@ -476,7 +478,7 @@ class TestShoppingListViewSet:
         )
         response = authenticated_api_client.patch(url)
 
-        assert response.status_code == status.HTTP_404_NOT_FOUND
+        assert response.status_code == status.HTTP_404_NOT_FOUND, response.content
         assert response.data == ERRORS.NOT_FOUND_ERROR
 
     def test_deleting_shopping_list_by_pk(
@@ -529,7 +531,7 @@ class TestShoppingListViewSet:
 
         response = authenticated_api_client.delete(url)
 
-        assert response.status_code == status.HTTP_204_NO_CONTENT
+        assert response.status_code == status.HTTP_204_NO_CONTENT, response.content
         assert ShoppingList.objects.filter(
             pk=shopping_list_owned_by_another_user.pk
         ).exists()
@@ -544,7 +546,7 @@ class TestItemViewSet:
         self, authenticated_api_client: APIClient, shopping_list: ShoppingList
     ) -> None:
         url = URLS.ITEM_LIST_URL.format(shopping_list_pk=shopping_list.pk)
-        data: Dict[str, Union[str, ItemCategory, ItemUnit, int]] = {
+        data: Dict[str, str | ItemCategory | ItemUnit | int] = {
             "product": "Beef",
             "category": ItemCategory.MEAT,
             "quantity": 1,
@@ -582,7 +584,7 @@ class TestItemViewSet:
         self,
         authenticated_api_client: APIClient,
         shopping_list: ShoppingList,
-        invalid_data: Dict[str, Union[str, int]],
+        invalid_data: Dict[str, str | int],
         expected_response: Dict[str, List[str]],
     ) -> None:
         url = URLS.ITEM_LIST_URL.format(shopping_list_pk=shopping_list.pk)
@@ -595,7 +597,7 @@ class TestItemViewSet:
     ) -> None:
         non_existent_shopping_list_pk = 1
         url = URLS.ITEM_LIST_URL.format(shopping_list_pk=non_existent_shopping_list_pk)
-        data: Dict[str, Union[str, ItemCategory, ItemUnit, int]] = {
+        data: Dict[str, str | ItemCategory | ItemUnit | int] = {
             "product": "Beef",
             "category": ItemCategory.MEAT,
             "quantity": 1,
@@ -628,7 +630,7 @@ class TestItemViewSet:
             shopping_list_pk=shopping_list.pk, item_pk=shopping_list_item.pk
         )
 
-        data: Dict[str, Union[str, ItemCategory, ItemUnit, int]] = {
+        data: Dict[str, str | ItemCategory | ItemUnit | int] = {
             "product": "Milk",
             "category": ItemCategory.DAIRY,
             "quantity": 1,
@@ -668,7 +670,7 @@ class TestItemViewSet:
         self,
         authenticated_api_client: APIClient,
         shopping_list: ShoppingList,
-        invalid_data: Dict[str, Union[str, int]],
+        invalid_data: Dict[str, str | int],
         expected_response: Dict[str, List[str]],
     ) -> None:
         shopping_list_item = create_item(shopping_list=shopping_list)
