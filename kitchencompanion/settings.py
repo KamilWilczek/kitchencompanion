@@ -15,6 +15,8 @@ from typing import List
 
 from decouple import config
 
+DEVELOPMENT = config("DEVELOPMENT", default=True, cast=bool)
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -22,7 +24,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
-EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+if DEVELOPMENT:
+    EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+else:
+    EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST = config("EMAIL_HOST")
 EMAIL_PORT = config("EMAIL_PORT", default=587, cast=int)
 EMAIL_USE_TLS = config("EMAIL_USE_TLS", default=True, cast=bool)
@@ -50,6 +55,7 @@ INSTALLED_APPS = [
     "corsheaders",
     "rest_framework",
     "rest_framework.authtoken",
+    "djoser",
     # my apps
     "users.apps.UsersConfig",
     "shoppinglist.apps.ShoppinglistConfig",
@@ -125,6 +131,19 @@ REST_FRAMEWORK = {
         "rest_framework.authentication.TokenAuthentication",
     ),
     "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.IsAuthenticated",),
+}
+
+DJOSER = {
+    "SERIALIZERS": {
+        "user_create": "users.serializers.RegisterSerializer",
+        "token_create": "users.serializers.LoginSerializer",
+    },
+    "LOGIN_FIELD": "email",
+    "SEND_ACTIVATION_EMAIL": True,
+    "SEND_CONFIRMATION_EMAIL": True,
+    "ACTIVATION_URL": "activate/{uid}/{token}/",
+    "PASSWORD_RESET_CONFIRM_URL": "password/reset/confirm/{uid}/{token}/",
+    "SET_PASSWORD_RETYPE": True,
 }
 
 

@@ -49,3 +49,4 @@
 `poetry init`
 `poetry add <package-name>`
 `poetry install`
+`poetry add djoser`

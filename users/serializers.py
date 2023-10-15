@@ -32,6 +32,7 @@ class LoginSerializer(serializers.Serializer):
         user = authenticate(email=email, password=password)
 
         if user and user.is_active:
-            return user
+            self.user = user
+            return data
 
         raise serializers.ValidationError("Incorrect Credentials")

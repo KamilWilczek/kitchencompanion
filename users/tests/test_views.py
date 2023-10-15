@@ -9,7 +9,7 @@ from users.models import CustomUser
 @pytest.mark.django_db
 class TestRegisterView:
     def test_register_user(self, not_authenticated_api_client: APIClient):
-        url = "/register/"
+        url = "/auth/users/"
         data: dict[str, str] = {
             "email": "notregistereduser@example.com",
             "password": "notregistereduserpassword",
@@ -22,7 +22,7 @@ class TestRegisterView:
     def test_register_with_already_registered_email(
         self, not_authenticated_api_client: APIClient, external_user: CustomUser
     ):
-        url = "/register/"
+        url = "/auth/users/"
         data: dict[str, str] = {
             "email": external_user.email,
             "password": external_user.password,
@@ -45,7 +45,7 @@ class TestLoginView:
         external_user: CustomUser,
         external_user_password: str,
     ):
-        url = "/login/"
+        url = "/auth/token/login/"
         data: dict[str, str] = {
             "email": external_user.email,
             "password": external_user_password,
@@ -54,7 +54,7 @@ class TestLoginView:
         response = not_authenticated_api_client.post(url, data)
 
         assert response.status_code == status.HTTP_200_OK, response.content
-        assert "token" in response.data
+        assert "auth_token" in response.data
 
         user = CustomUser.objects.get(email=external_user.email)
         assert Token.objects.filter(user=user).exists()
@@ -64,7 +64,7 @@ class TestLoginView:
         not_authenticated_api_client: APIClient,
         external_user: CustomUser,
     ):
-        url = "/login/"
+        url = "/auth/token/login/"
 
         incorrect_email_data: dict[str, str] = {
             "email": "incorrect_email@example.com",
@@ -74,14 +74,18 @@ class TestLoginView:
         response = not_authenticated_api_client.post(url, incorrect_email_data)
         assert response.status_code == status.HTTP_400_BAD_REQUEST, response.content
         assert "non_field_errors" in response.data
-        assert "Incorrect Credentials" in response.data["non_field_errors"]
+
+        assert any(
+            "incorrect credentials" in error.lower()
+            for error in response.data["non_field_errors"]
+        )
 
     def test_login_with_incorrect_password(
         self,
         not_authenticated_api_client: APIClient,
         external_user: CustomUser,
     ):
-        url = "/login/"
+        url = "/auth/token/login/"
 
         incorrect_password_data: dict[str, str] = {
             "email": external_user.email,
@@ -91,30 +95,42 @@ class TestLoginView:
         response = not_authenticated_api_client.post(url, incorrect_password_data)
         assert response.status_code == status.HTTP_400_BAD_REQUEST, response.content
         assert "non_field_errors" in response.data
-        assert "Incorrect Credentials" in response.data["non_field_errors"]
+        assert any(
+            "incorrect credentials" in error.lower()
+            for error in response.data["non_field_errors"]
+        )
 
 
 @pytest.mark.django_db
 class TestLogoutView:
-    def test_logout_user(self, authenticated_api_client: APIClient):
-        url = "/logout/"
+    def test_logout_user(
+        self, authenticated_api_client: APIClient, authenticated_user: CustomUser
+    ):
+        assert Token.objects.filter(user=authenticated_user).exists()
+
+        url = "/auth/token/logout/"
 
         response = authenticated_api_client.post(url)
 
-        assert response.status_code == status.HTTP_200_OK, response.content
+        assert response.status_code == status.HTTP_204_NO_CONTENT, response.content
 
-        user = CustomUser.objects.get(email="testuser@example.com")
-        assert not Token.objects.filter(user=user).exists()
+        assert not Token.objects.filter(user=authenticated_user).exists()
 
 
 @pytest.mark.django_db
 class TestDeleteAccountView:
     def test_delete_account(
-        self, authenticated_api_client: APIClient, authenticated_user: CustomUser
+        self,
+        authenticated_api_client: APIClient,
+        authenticated_user: CustomUser,
+        authenticated_user_password: str,
     ):
-        url = f"/delete_account/"
+        url = "/auth/users/me/"
+        data = {
+            "current_password": authenticated_user_password,
+        }
 
-        response = authenticated_api_client.delete(url)
+        response = authenticated_api_client.delete(url, data=data)
 
         assert response.status_code == status.HTTP_204_NO_CONTENT, response.content
         assert not CustomUser.objects.filter(pk=authenticated_user.pk).exists()
@@ -123,14 +139,18 @@ class TestDeleteAccountView:
         self,
         authenticated_api_client: APIClient,
         authenticated_user: CustomUser,
+        authenticated_user_password: str,
         external_user: CustomUser,
     ):
         # Initially, both the original user and another_user should exist
         assert CustomUser.objects.filter(pk=authenticated_user.pk).exists()
         assert CustomUser.objects.filter(pk=external_user.pk).exists()
 
-        url = f"/delete_account/"
-        response = authenticated_api_client.delete(url)
+        url = "/auth/users/me/"
+        data = {
+            "current_password": authenticated_user_password,
+        }
+        response = authenticated_api_client.delete(url, data=data)
 
         assert response.status_code == status.HTTP_204_NO_CONTENT, response.content
 
@@ -139,13 +159,16 @@ class TestDeleteAccountView:
         assert CustomUser.objects.filter(pk=external_user.pk).exists()
 
     def test_deleted_user_cannot_access_protected_resources(
-        self, authenticated_api_client: APIClient
+        self, authenticated_api_client: APIClient, authenticated_user_password: str
     ):
-        delete_url = "/delete_account/"
-        delete_response = authenticated_api_client.delete(delete_url)
+        url = "/auth/users/me/"
+        data = {
+            "current_password": authenticated_user_password,
+        }
+        delete_response = authenticated_api_client.delete(url, data=data)
         assert delete_response.status_code == status.HTTP_204_NO_CONTENT
 
-        protected_url = "/logout/"
-        protected_response = authenticated_api_client.get(protected_url)
+        protected_url = "/auth/token/logout/"
+        protected_response = authenticated_api_client.post(protected_url)
 
         assert protected_response.status_code == status.HTTP_401_UNAUTHORIZED

@@ -23,10 +23,15 @@ def authenticated_api_client(authenticated_user: CustomUser) -> APIClient:
 
 
 @pytest.fixture
-def authenticated_user() -> CustomUser:
+def authenticated_user_password() -> str:
+    return "testpassword"
+
+
+@pytest.fixture
+def authenticated_user(authenticated_user_password: str) -> CustomUser:
     return CustomUser.objects.create_user(
         email="testuser@example.com",
-        password="testpassword",
+        password=authenticated_user_password,
     )
 
 

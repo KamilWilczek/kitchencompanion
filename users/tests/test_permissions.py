@@ -8,7 +8,7 @@ class TestIsAuthenticated:
     def test_protected_endpoint_without_auth(
         self, not_authenticated_api_client: APIClient
     ):
-        response = not_authenticated_api_client.get("/logout/")
+        response = not_authenticated_api_client.get("/auth/token/logout/")
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
 
     def test_protected_endpoint_with_invalid_token(
@@ -19,6 +19,6 @@ class TestIsAuthenticated:
             HTTP_AUTHORIZATION="Token " + "invalid_token_string"
         )
 
-        response = authenticated_api_client.get("/logout/")
+        response = authenticated_api_client.get("/auth/token/logout/")
 
         assert response.status_code == status.HTTP_401_UNAUTHORIZED

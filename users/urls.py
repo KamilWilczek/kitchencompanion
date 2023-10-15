@@ -1,12 +1,6 @@
-from django.urls import path
-
-from .views import DeleteAccountView, LoginView, LogoutView, RegisterView
-
-app_name = "users"
+from django.urls import include, path
 
 urlpatterns = [
-    path("register/", RegisterView.as_view(), name="register"),
-    path("login/", LoginView.as_view(), name="login"),
-    path("logout/", LogoutView.as_view(), name="logout"),
-    path("delete_account/", DeleteAccountView.as_view(), name="delete-account"),
+    path("auth/", include("djoser.urls")),
+    path("auth/", include("djoser.urls.authtoken")),
 ]
