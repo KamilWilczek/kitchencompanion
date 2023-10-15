@@ -16,6 +16,7 @@ from typing import List
 from decouple import config
 
 DEVELOPMENT = config("DEVELOPMENT", default=True, cast=bool)
+TESTING = config("TESTING", default=False, cast=bool)
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent

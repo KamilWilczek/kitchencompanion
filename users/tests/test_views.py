@@ -1,4 +1,5 @@
 import pytest
+from django.core import mail
 from rest_framework import status
 from rest_framework.authtoken.models import Token
 from rest_framework.test import APIClient
@@ -7,7 +8,7 @@ from users.models import CustomUser
 
 
 @pytest.mark.django_db
-class TestRegisterView:
+class TestRegister:
     def test_register_user(self, not_authenticated_api_client: APIClient):
         url = "/auth/users/"
         data: dict[str, str] = {
@@ -36,9 +37,24 @@ class TestRegisterView:
             "already" in response.data["email"][0].lower()
         ), "Expected an error message indicating the email is already in use"
 
+    def test_registration_sends_email(self, not_authenticated_api_client: APIClient):
+        url = "/auth/users/"
+        data = {"email": "newuser@example.com", "password": "newpassword"}
+
+        response = not_authenticated_api_client.post(url, data=data)
+
+        assert response.status_code == status.HTTP_201_CREATED, response.content
+        assert len(mail.outbox) == 1
+
+        email = mail.outbox[0]
+
+        assert email.subject == "Account activation on testserver"
+        assert email.to == ["newuser@example.com"]
+        assert "/activate/" in email.body
+
 
 @pytest.mark.django_db
-class TestLoginView:
+class TestLogin:
     def test_login_user(
         self,
         not_authenticated_api_client: APIClient,
@@ -102,7 +118,7 @@ class TestLoginView:
 
 
 @pytest.mark.django_db
-class TestLogoutView:
+class TestLogout:
     def test_logout_user(
         self, authenticated_api_client: APIClient, authenticated_user: CustomUser
     ):
@@ -118,7 +134,7 @@ class TestLogoutView:
 
 
 @pytest.mark.django_db
-class TestDeleteAccountView:
+class TestDeleteAccount:
     def test_delete_account(
         self,
         authenticated_api_client: APIClient,
