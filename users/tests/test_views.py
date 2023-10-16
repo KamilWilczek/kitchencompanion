@@ -1,5 +1,10 @@
+import re
+
 import pytest
+from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.core import mail
+from django.utils.encoding import force_bytes
+from django.utils.http import urlsafe_base64_encode
 from rest_framework import status
 from rest_framework.authtoken.models import Token
 from rest_framework.test import APIClient
@@ -188,3 +193,52 @@ class TestDeleteAccount:
         protected_response = authenticated_api_client.post(protected_url)
 
         assert protected_response.status_code == status.HTTP_401_UNAUTHORIZED
+
+
+@pytest.mark.django_db
+class TestPasswordReset:
+    def test_request_password_reset(
+        self, not_authenticated_api_client: APIClient, external_user: CustomUser
+    ):
+        url = "/auth/users/reset_password/"
+        data = {"email": external_user.email}
+
+        response = not_authenticated_api_client.post(url, data=data)
+
+        assert response.status_code == status.HTTP_204_NO_CONTENT, response.content
+        assert len(mail.outbox) == 1
+
+        email = mail.outbox[0]
+        assert email.subject == "Password reset on testserver"
+        assert email.to == [external_user.email]
+        assert "reset" in email.body
+
+    def test_reset_password(
+        self, not_authenticated_api_client: APIClient, external_user: CustomUser
+    ):
+        token_generator = PasswordResetTokenGenerator()
+        reset_token = token_generator.make_token(external_user)
+
+        reset_confirm_url = "/auth/users/reset_password_confirm/"
+        uid = urlsafe_base64_encode(force_bytes(external_user.pk))
+        data = {
+            "uid": uid,
+            "token": reset_token,
+            "new_password": "newpassword123",
+            "re_new_password": "newpassword123",
+        }
+
+        response = not_authenticated_api_client.post(reset_confirm_url, data=data)
+        assert response.status_code == status.HTTP_204_NO_CONTENT, response.content
+
+    def test_login_with_new_password(
+        self, not_authenticated_api_client: APIClient, external_user: CustomUser
+    ):
+        external_user.set_password("newpassword123")
+        external_user.save()
+
+        url = "/auth/token/login/"
+        data = {"email": external_user.email, "password": "newpassword123"}
+
+        response = not_authenticated_api_client.post(url, data=data)
+        assert response.status_code == status.HTTP_200_OK, response.content
