@@ -1,4 +1,5 @@
 from django.contrib.auth import authenticate, get_user_model
+from djoser.serializers import TokenCreateSerializer as DjoserTokenCreateSerializer
 from rest_framework import serializers
 
 
@@ -21,7 +22,7 @@ class RegisterSerializer(serializers.ModelSerializer):
         return user
 
 
-class LoginSerializer(serializers.Serializer):
+class LoginSerializer(DjoserTokenCreateSerializer):
     email = serializers.EmailField()
     password = serializers.CharField(write_only=True)
 
@@ -29,10 +30,14 @@ class LoginSerializer(serializers.Serializer):
         email = data.get("email")
         password = data.get("password")
 
-        user = authenticate(email=email, password=password)
+        request = self.context.get("request")
+        user = authenticate(request=request, email=email, password=password)
 
-        if user and user.is_active:
-            self.user = user
-            return data
+        if not user or not user.is_active:
+            raise serializers.ValidationError("Incorrect Credentials")
 
-        raise serializers.ValidationError("Incorrect Credentials")
+        data = super().validate(data)
+
+        self.user = user
+
+        return data

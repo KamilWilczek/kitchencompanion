@@ -50,3 +50,4 @@
 `poetry add <package-name>`
 `poetry install`
 `poetry add djoser`
+`poetry add django-axes`

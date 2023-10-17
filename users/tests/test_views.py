@@ -1,6 +1,5 @@
-import re
-
 import pytest
+from axes.models import AccessAttempt, AccessLog
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.core import mail
 from django.utils.encoding import force_bytes
@@ -71,6 +70,8 @@ class TestLogin:
             "email": external_user.email,
             "password": external_user_password,
         }
+        print("url", url)
+        print("data", data)
 
         response = not_authenticated_api_client.post(url, data)
 
@@ -93,7 +94,7 @@ class TestLogin:
         }
 
         response = not_authenticated_api_client.post(url, incorrect_email_data)
-        assert response.status_code == status.HTTP_400_BAD_REQUEST, response.content
+        assert response.status_code == status.HTTP_403_FORBIDDEN, response.content
         assert "non_field_errors" in response.data
 
         assert any(
@@ -114,7 +115,7 @@ class TestLogin:
         }
 
         response = not_authenticated_api_client.post(url, incorrect_password_data)
-        assert response.status_code == status.HTTP_400_BAD_REQUEST, response.content
+        assert response.status_code == status.HTTP_403_FORBIDDEN, response.content
         assert "non_field_errors" in response.data
         assert any(
             "incorrect credentials" in error.lower()
@@ -242,3 +243,48 @@ class TestPasswordReset:
 
         response = not_authenticated_api_client.post(url, data=data)
         assert response.status_code == status.HTTP_200_OK, response.content
+
+
+@pytest.mark.django_db
+class TestPasswordChange:
+    def test_password_change(
+        self,
+        authenticated_api_client: APIClient,
+        authenticated_user: CustomUser,
+        authenticated_user_password: str,
+    ):
+        assert authenticated_user.check_password(authenticated_user_password)
+
+        change_password_url = "/auth/users/set_password/"
+        data = {
+            "current_password": authenticated_user_password,
+            "new_password": "newpassword456",
+            "re_new_password": "newpassword456",
+        }
+        response = authenticated_api_client.post(change_password_url, data=data)
+        assert response.status_code == status.HTTP_204_NO_CONTENT
+
+        authenticated_user.refresh_from_db()
+        assert authenticated_user.check_password("newpassword456")
+
+    def test_brute_force_login_limit(self, not_authenticated_api_client: APIClient):
+        AccessAttempt.objects.all().delete()
+        AccessLog.objects.all().delete()
+        wrong_credentials = {
+            "email": "testuser@example.com",
+            "password": "wrongpassword",
+        }
+        attempts_trigger_mechanism = 10
+
+        for _ in range(attempts_trigger_mechanism):
+            response = not_authenticated_api_client.post(
+                "/auth/token/login/", data=wrong_credentials
+            )
+
+        assert (
+            response.status_code == status.HTTP_429_TOO_MANY_REQUESTS
+        ), response.content
+        assert (
+            "Account locked: too many login attempts. Please try again later."
+            in response.content.decode()
+        )

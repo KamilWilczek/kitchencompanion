@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
+from datetime import timedelta
 from pathlib import Path
 from typing import List
 
@@ -57,6 +58,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "rest_framework.authtoken",
     "djoser",
+    "axes",
     # my apps
     "users.apps.UsersConfig",
     "shoppinglist.apps.ShoppinglistConfig",
@@ -71,6 +73,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "axes.middleware.AxesMiddleware",
 ]
 
 ROOT_URLCONF = "kitchencompanion.urls"
@@ -127,6 +130,11 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+AUTHENTICATION_BACKENDS = [
+    "django.contrib.auth.backends.ModelBackend",
+    "axes.backends.AxesStandaloneBackend",
+]
+
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework.authentication.TokenAuthentication",
@@ -135,6 +143,9 @@ REST_FRAMEWORK = {
 }
 
 DJOSER = {
+    "VIEWS": {
+        "token_create": "users.views.LoginView",
+    },
     "SERIALIZERS": {
         "user_create": "users.serializers.RegisterSerializer",
         "token_create": "users.serializers.LoginSerializer",
@@ -146,6 +157,9 @@ DJOSER = {
     "PASSWORD_RESET_CONFIRM_URL": "password/reset/confirm/{uid}/{token}/",
     "SET_PASSWORD_RETYPE": True,
 }
+
+AXES_FAILURE_LIMIT = 10
+AXES_COOLOFF_TIME = timedelta(hours=1)
 
 
 # Internationalization
