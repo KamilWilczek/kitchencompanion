@@ -1,13 +1,18 @@
+import datetime
+
 import pytest
 from axes.models import AccessAttempt, AccessLog
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.core import mail
+from django.core.cache import cache
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
+from freezegun import freeze_time
 from rest_framework import status
 from rest_framework.authtoken.models import Token
 from rest_framework.test import APIClient
 
+from shoppinglist.models import ShoppingList
 from users.models import CustomUser
 
 
@@ -191,9 +196,9 @@ class TestDeleteAccount:
         assert delete_response.status_code == status.HTTP_204_NO_CONTENT
 
         protected_url = "/auth/token/logout/"
-        protected_response = authenticated_api_client.post(protected_url)
+        response = authenticated_api_client.post(protected_url)
 
-        assert protected_response.status_code == status.HTTP_401_UNAUTHORIZED
+        assert response.status_code == status.HTTP_401_UNAUTHORIZED, response.content
 
 
 @pytest.mark.django_db
@@ -262,18 +267,22 @@ class TestPasswordChange:
             "re_new_password": "newpassword456",
         }
         response = authenticated_api_client.post(change_password_url, data=data)
-        assert response.status_code == status.HTTP_204_NO_CONTENT
+        assert response.status_code == status.HTTP_204_NO_CONTENT, response.content
 
         authenticated_user.refresh_from_db()
         assert authenticated_user.check_password("newpassword456")
 
-    def test_brute_force_login_limit(self, not_authenticated_api_client: APIClient):
+    def test_brute_force_login_limit_and_cooldown(
+        self, not_authenticated_api_client: APIClient
+    ):
+        cache.clear()
         AccessAttempt.objects.all().delete()
         AccessLog.objects.all().delete()
         wrong_credentials = {
             "email": "testuser@example.com",
             "password": "wrongpassword",
         }
+
         attempts_trigger_mechanism = 10
 
         for _ in range(attempts_trigger_mechanism):
@@ -288,3 +297,44 @@ class TestPasswordChange:
             "Account locked: too many login attempts. Please try again later."
             in response.content.decode()
         )
+
+        with freeze_time(datetime.datetime.now() + datetime.timedelta(hours=1)):
+            response = not_authenticated_api_client.post(
+                "/auth/token/login/", data=wrong_credentials
+            )
+
+            assert response.status_code == status.HTTP_403_FORBIDDEN, response.content
+            assert response.json() == {"non_field_errors": ["Incorrect Credentials"]}
+
+    def test_rate_limit_and_cooldown(
+        self, authenticated_api_client: APIClient, authenticated_user: CustomUser
+    ):
+        cache.clear()
+        AccessAttempt.objects.all().delete()
+        AccessLog.objects.all().delete()
+        rate_limit = 10
+        rate_limit_exceed = rate_limit + 1
+        cooldown_period = datetime.timedelta(seconds=60)
+        shopping_list_1 = ShoppingList.objects.create(
+            name="Shopping List 1", user=authenticated_user
+        )
+
+        for _ in range(rate_limit_exceed):
+            response = authenticated_api_client.get(
+                f"/shoppinglist/{shopping_list_1.pk}/"
+            )
+
+        assert (
+            response.status_code == status.HTTP_429_TOO_MANY_REQUESTS,
+            response.content,
+        ), response.content
+        assert response.json() == {
+            "detail": "Request was throttled. Expected available in 60 seconds."
+        }
+
+        with freeze_time(datetime.datetime.now() + cooldown_period):
+            response = authenticated_api_client.get(
+                f"/shoppinglist/{shopping_list_1.pk}/"
+            )
+
+            assert response.status_code == status.HTTP_200_OK, response.content
