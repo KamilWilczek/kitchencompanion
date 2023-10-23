@@ -79,7 +79,7 @@
   - [ ] ...
 - [ ] Users module
   - [x] Add user creation UsersApp
-    - [ ] some plugins for user creation in Django
+    - [x] some plugins for user creation in Django - Djoser
   - [x] User model
   - [x] User serializer
   - [x] Authentication views
