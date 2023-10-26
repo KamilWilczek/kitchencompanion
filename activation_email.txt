@@ -1,0 +1,9 @@
+Activation Email Body: You're receiving this email because you need to finish activation process on testserver.
+
+Please go to the following page to activate account:
+http://testserver/activate/MQ/bwp3pz-0e462182a0d1d3d2193957529ae1b940/
+
+Thanks for using our site!
+
+The testserver team
+Activation Link: http://testserver/activate/MQ/bwp3pz-0e462182a0d1d3d2193957529ae1b940/
